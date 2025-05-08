@@ -1,0 +1,24 @@
+<configuration>
+    <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+        <destination>your_logstash_host:your_logstash_port</destination>
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <timestamp>
+                    <pattern>yyyy-MM-dd HH:mm:ss.SSS</pattern>
+                </timestamp>
+                <threadName />
+                <logLevel />
+                <loggerName />
+                <message />
+                <mdc />
+                <stackTrace />
+            </providers>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE" />
+        <appender-ref ref="LOGSTASH" />
+    </root>
+</configuration>

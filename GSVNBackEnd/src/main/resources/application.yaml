@@ -1,0 +1,31 @@
+spring:
+  application:
+    name : GSVNBackEnd
+
+
+
+
+origins: http://localhost:4200
+issuer: http://localhost:8442/realms/master
+
+com:
+  c4-soft:
+    springaddons:
+      oidc:
+        cors:
+          - path: /api/**
+            allowed-origin-patterns: ${origins}
+        ops:
+          - iss: ${issuer}
+            username-claim: sub
+            authorities:
+              - path: $.realm_access.roles
+                prefix: ROLE_
+              - path: $.resource_access.*.roles
+                prefix: SCOPE_
+        resourceserver:
+          # default access rule is "isAuthenticated" except for the path matched here (allowed to anonymous requests)
+          permit-all:
+            - "/actuator/health/readiness"
+            - "/actuator/health/liveness"
+            - "/v3/api-docs/**"
