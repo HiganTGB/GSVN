@@ -52,9 +52,6 @@ public class SKU extends AbstractMappedEntity implements Serializable {
     private Integer stock;
     @Column(name = "sku_price", columnDefinition = "decimal(8,2)")
     private BigDecimal price;
-    @Convert(converter = JsonDataConverter.class)
-    @Column(name = "sku_attrs",columnDefinition = "JSON")
-    private Map<String, Object> attrs;
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "status")
     private Status status;

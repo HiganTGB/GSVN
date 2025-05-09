@@ -23,8 +23,6 @@ public class Brand extends AbstractMappedEntity {
     private Integer brand_id;
     @Column(name = "brand_title")
     private String title;
-    @Column(name = "image_url")
-    private String imageUrl;
     @Column(name = "brand_email", unique = true)
     private String email;
 }
