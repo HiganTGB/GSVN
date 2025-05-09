@@ -33,14 +33,21 @@ spring:
 #   JPA configuration
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
         format_sql: true
     show-sql: true
 
-
+minio:
+  endpoint: http://localhost:9000
+  access-key: fakvMXVmaxmuVqid5DQk
+  secret-key: LCMzHOHOGI1lJkWXmHEhLYyw8eGKgCfhjatjOFGX
+  sku-image-bucket-name: sku-image-bucket
+  spu-image-bucket-name: spu-image-bucket
+  spu-gallery-bucket-name: spu-gallery-bucket
+  spu-video-bucket-name: spu-video-bucket
 
 origins: http://localhost:4200
 issuer: http://localhost:8442/realms/master

@@ -1,2 +1,4 @@
 /GSVNBackEnd/minio-data
 /GSVNBackEnd/storage
+/GSVNBackEnd/elasticsearch
+/GSVNBackEnd/src/main/docker/elasticsearch
