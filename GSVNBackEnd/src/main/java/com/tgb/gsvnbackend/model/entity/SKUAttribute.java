@@ -25,7 +25,6 @@ public class SKUAttribute extends AbstractMappedEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", unique = true, nullable = false, updatable = false)
     private Integer id;
-
     @Convert(converter = JsonDataConverter.class)
     @Column(name = "sku_attrs",columnDefinition = "JSON")
     private Map<String, Object> attrs;
