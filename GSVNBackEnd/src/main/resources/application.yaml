@@ -1,7 +1,44 @@
-spring:
-  application:
-    name : GSVNBackEnd
 
+#Server port
+server:
+  port: 9002
+# Actuator endpoints exposure
+spring:
+  data:
+    mongodb:
+      authentication-database: admin
+      username: rootuser
+      password: rootpass
+      database: gmvn-product
+      port: 27017
+      host: localhost
+    redis:
+      host: localhost
+      port: 6379
+      password: rootpass
+  application:
+    name: GSVNBackEnd
+  # DataSource configuration
+  datasource:
+    url: jdbc:mysql://localhost:3307/gmvn
+    username: higan
+    password: passpass
+    driver-class-name: com.mysql.cj.jdbc.Driver
+#      hikari:
+#        connection-timeout: 30000
+#        idle-timeout: 600000
+#        max-lifetime: 1800000
+#        minimum-idle: 5
+#        connection-test-query: "Select 1"
+#   JPA configuration
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+    show-sql: true
 
 
 

@@ -1,0 +1,30 @@
+package com.tgb.gsvnbackend.model.entity;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.io.Serial;
+import java.util.Set;
+
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@Data
+@Builder
+@Entity
+@Table(name = "brands",schema = "brand")
+public class Brand extends AbstractMappedEntity {
+    @Serial
+    private static final long serialVersionUID = 1L;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "brand_id", unique = true, nullable = false, updatable = false)
+    private Integer brand_id;
+    @Column(name = "brand_title")
+    private String title;
+    @Column(name = "image_url")
+    private String imageUrl;
+    @Column(name = "brand_email", unique = true)
+    private String email;
+}
