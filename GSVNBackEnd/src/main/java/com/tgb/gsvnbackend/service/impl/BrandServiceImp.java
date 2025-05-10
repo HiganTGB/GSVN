@@ -22,7 +22,7 @@ public class BrandServiceImp implements BrandService {
     private final BrandRepository brandRepository;
     private final BrandMapper brandMapper;
     private final CachingService cachingService;
-    private final String CacheKey="brand";
+    private static  final String CacheKey="brand";
     @Autowired
     public BrandServiceImp(BrandRepository brandRepository, BrandMapper brandMapper, CachingService cachingService) {
         this.brandRepository = brandRepository;

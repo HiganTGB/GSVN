@@ -2,3 +2,5 @@
 /GSVNBackEnd/storage
 /GSVNBackEnd/elasticsearch
 /GSVNBackEnd/src/main/docker/elasticsearch
+/GSVNBackEnd/elk/data
+/GSVNBackEnd/logs

@@ -20,7 +20,7 @@ public class FandomServiceImp implements FandomService {
     private final FandomRepository fandomRepository;
     private final FandomMapper fandomMapper;
     private final CachingService cachingService;
-    private final String CacheKey = "fandom";
+    private static  final String CacheKey = "fandom";
 
     @Autowired
     public FandomServiceImp(FandomRepository fandomRepository, FandomMapper fandomMapper, CachingService cachingService) {
@@ -91,7 +91,7 @@ public class FandomServiceImp implements FandomService {
         Fandom fandom = fandomMapper.toEntity(fandomDTO);
         Fandom savedFandom = fandomRepository.save(fandom);
         FandomDTO savedFandomDTO = fandomMapper.toDTO(savedFandom);
-        cachingService.saveById(CacheKey, savedFandom.getId(), savedFandomDTO, FandomDTO.class);
+        cachingService.saveById(CacheKey, savedFandom.getFandom_id(), savedFandomDTO, FandomDTO.class);
         return savedFandomDTO;
     }
 

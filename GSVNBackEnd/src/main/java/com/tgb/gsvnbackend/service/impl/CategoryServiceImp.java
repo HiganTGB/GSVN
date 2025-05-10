@@ -21,7 +21,7 @@ public class CategoryServiceImp implements CategoryService {
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
     private final CachingService cachingService;
-    private final String CacheKey = "category";
+    private static  final String CacheKey = "category";
 
     @Autowired
     public CategoryServiceImp(CategoryRepository categoryRepository, CategoryMapper categoryMapper, CachingService cachingService) {
