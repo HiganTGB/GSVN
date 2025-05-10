@@ -10,7 +10,7 @@ import org.mapstruct.factory.Mappers;
 public interface FandomMapper {
 
     FandomDTO toDTO(Fandom fandom);
-    @Mapping(target = "fandomId", ignore = true)
+    @Mapping(target = "fandom_id", ignore = true)
     Fandom toEntity(FandomDTO fandomDTO);
 
 }

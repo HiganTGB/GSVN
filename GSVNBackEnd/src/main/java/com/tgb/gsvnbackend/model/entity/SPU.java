@@ -29,7 +29,7 @@ public class SPU extends AbstractMappedEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "spu_id", unique = true, nullable = false, updatable = false)
-    private Integer spuId;
+    private Integer spu_id;
     @Column(name = "spu_title")
     private String title;
     @Column(name = "spu_description")
@@ -41,17 +41,17 @@ public class SPU extends AbstractMappedEntity implements Serializable {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     @Column(name = "start_order")
-    private Date startOrder;
+    private Date start_order;
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     @Column(name = "end_order")
-    private Date endOrder;
+    private Date end_order;
 
     @Column(name="category_id")
-    private int categoryId;
+    private int category_id;
     @Column(name="fandom_id")
-    private int fandomId;
+    private int fandom_id;
     @Column(name="brand_id")
-    private int brandId;
+    private int brand_id;
 
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "status")
@@ -59,8 +59,7 @@ public class SPU extends AbstractMappedEntity implements Serializable {
     @Column(name = "sort")
     private int sort;
     @Column(name = "is_deleted")
-    @Builder.Default
-    private boolean isDeleted = false;
+    private boolean is_deleted;
 
     @Convert(converter = JsonDataConverter.class)
     @Column(name = "spu_attrs",columnDefinition = "JSON")
@@ -69,7 +68,7 @@ public class SPU extends AbstractMappedEntity implements Serializable {
     @PrePersist
     @PreUpdate
     private void validateDates() {
-        if (startOrder != null && endOrder != null && startOrder.after(endOrder)) {
+        if (start_order != null && end_order != null && start_order.after(end_order)) {
             throw new IllegalStateException("Start order date must be before or same as end order date");
         }
     }

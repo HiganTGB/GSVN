@@ -9,17 +9,16 @@ import lombok.*;
 @Data
 @Builder
 @Entity
-@Table(name = "spu_sku",schema = "product",indexes = {@Index(name = "idx_spu_id",columnList = "spu_id")})
+@Table(name = "spu_sku",schema = "product")
 public class SPUSKU extends AbstractMappedEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column( unique = true, nullable = false, updatable = false)
     private Integer id;
     @Column(name = "spu_id")
-    private String spuId;
+    private String spu_id;
     @Column(name = "sku_id")
-    private String skuId;
+    private String sku_id;
     @Column(name = "is_deleted")
-    @Builder.Default
-    private boolean isDeleted = false;
+    private boolean is_deleted;
 }

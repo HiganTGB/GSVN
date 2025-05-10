@@ -14,7 +14,8 @@ public interface SPUMapper {
     SPUDTO toDTO(SPU spu);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(target = "spuId", ignore = true)
+    @Mapping(target = "spu_id", ignore = true)
+    @Mapping(target = "is_deleted", ignore = true)
     @Mapping(target = "status", ignore = true)
     SPU toEntity(SPUDTO spuDTO);
 

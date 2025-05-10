@@ -20,7 +20,7 @@ public class Brand extends AbstractMappedEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "brand_id", unique = true, nullable = false, updatable = false)
-    private Integer brandId;
+    private Integer brand_id;
     @Column(name = "brand_title")
     private String title;
     @Column(name = "brand_email", unique = true)

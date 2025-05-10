@@ -1,11 +1,11 @@
 package com.tgb.gsvnbackend.model.entity;
 
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serial;
-
+import java.util.Set;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -20,7 +20,7 @@ public class Category extends AbstractMappedEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "category_id", unique = true, nullable = false, updatable = false)
-    private Integer categoryId;
+    private Integer category_id;
     @Column(name = "category_title")
     private String title;
     @Column(name = "category_parent_id")

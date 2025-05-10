@@ -13,16 +13,15 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 public class RedisService<T extends Serializable> implements CachingService {
-
+    @Autowired
     private RedisTemplate<String, String> redisTemplate;
     private final long DEFAULT_CACHE_TIME = 600;
-
-    private final ObjectMapper objectMapper;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Autowired
-    public RedisService(RedisTemplate<String, String> redisTemplate, ObjectMapper objectMapper) {
+    public RedisService(RedisTemplate<String, String> redisTemplate) {
         this.redisTemplate = redisTemplate;
-        this.objectMapper = objectMapper;
     }
     public <T> void setPageData(String key, int page, int size, List<T> data, Class<T> clazz) {
         try {

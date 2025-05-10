@@ -9,6 +9,12 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+
+
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -25,7 +31,7 @@ public class Order extends AbstractMappedEntity {
     private String state;
     private LocalDate date;
     private List<LineItem> lineItems;
-    private BigDecimal subTotal;
+    private BigDecimal sub_total;
     @Data
     public static class LineItem {
         private String id;

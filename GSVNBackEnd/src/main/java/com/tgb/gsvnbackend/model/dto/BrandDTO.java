@@ -13,7 +13,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BrandDTO {
-    private Integer brand_id;
+    private Integer brandId;
     @NotEmpty(message = "Title is required")
     @Size(min = 2, max = 255, message = "Title must be between 2 and 255 characters")
     private String title;

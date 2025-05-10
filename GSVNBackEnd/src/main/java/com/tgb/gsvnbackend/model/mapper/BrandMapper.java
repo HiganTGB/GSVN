@@ -8,6 +8,6 @@ import org.mapstruct.Mapping;
 public interface BrandMapper {
 
     BrandDTO toDTO(Brand brand);
-    @Mapping(target = "brandId", ignore = true)
+    @Mapping(target = "brand_id", ignore = true)
     Brand toEntity(BrandDTO brandDTO);
 }

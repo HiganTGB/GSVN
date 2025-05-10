@@ -19,7 +19,7 @@ public class Fandom extends AbstractMappedEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "fandom_id", unique = true, nullable = false, updatable = false)
-    private Integer fandomId;
+    private Integer fandom_id;
     @Column(name = "fandom_title")
     private String title;
 }

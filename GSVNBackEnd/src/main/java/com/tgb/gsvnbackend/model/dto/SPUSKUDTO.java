@@ -11,7 +11,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class SPUSKUDTO {
     private Integer id;
-    private String spuId;
-    private String skuId;
-    private boolean isDeleted;
+    private String spu_id;
+    private String sku_id;
+    private boolean is_deleted;
 }

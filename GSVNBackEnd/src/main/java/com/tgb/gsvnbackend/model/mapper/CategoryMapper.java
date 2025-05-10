@@ -9,7 +9,7 @@ import org.mapstruct.Mapping;
 public interface CategoryMapper {
     @Mapping(target = "children",ignore = true)
     CategoryDTO toDTO(Category category);
-    @Mapping(target = "categoryId", ignore = true)
+    @Mapping(target = "category_id", ignore = true)
 
     Category toEntity(CategoryDTO categoryDTO);
 }

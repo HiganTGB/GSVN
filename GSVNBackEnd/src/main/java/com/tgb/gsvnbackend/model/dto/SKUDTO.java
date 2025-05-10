@@ -4,9 +4,6 @@ import com.tgb.gsvnbackend.model.enumeration.Status;
 import com.tgb.gsvnbackend.model.enumeration.Type;
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.Map;
-
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,22 +14,18 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SKUDTO {
-    private Integer skuId;
+    private Integer sku_id;
     private String no;
     private String title;
-    private int categoryId;
-    private int fandomId;
-    private int brandId;
+    private int category_id;
+    private int fandom_id;
+    private int brand_id;
     private Type type;
-    private Date startOrder;
-    private Date endOrder;
+    private Date start_order;
+    private Date end_order;
     private Integer stock;
     private BigDecimal price;
     private Status status;
     private int sort;
-    private boolean isDeleted;
-
-    private int spuId;
-    @NotNull(message = "Attributes cannot be null")
-    private Map<String, Object> attrs;
+    private boolean is_deleted;
 }
