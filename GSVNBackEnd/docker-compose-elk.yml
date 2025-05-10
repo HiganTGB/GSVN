@@ -1,50 +1,45 @@
-version: "3"
-
 services:
-
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.7.1
-    container_name: elasticsearch
+  elastic:
+    container_name: elastic
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.2
     environment:
-      - xpack.security.enabled=false
+      - ELASTIC_PASSWORD=myelasticpass
+      - KIBANA_PASSWORD=kibanapass
       - discovery.type=single-node
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-      nofile:
-        soft: 65536
-        hard: 65536
-    cap_add:
-      - IPC_LOCK
+      - xpack.security.http.ssl.enabled=false
+      - cluster.routing.allocation.disk.threshold_enabled=false
     volumes:
-      - ./elasticsearch/data:/usr/share/elasticsearch/data
-    ports:
-      - 9200:9200
-      - 9300:9300
+      - ./elk/data:/usr/share/elasticsearch/data
+  logstash:
+    container_name: logstash
+    image: docker.elastic.co/logstash/logstash:8.12.2
+    volumes:
+      - ./elk/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    environment:
+      - ELASTIC_USER=elastic
+      - ELASTIC_PASSWORD=myelasticpass
+      - ELASTIC_HOSTS=http://elastic:9200
+    depends_on:
+      - elastic
 
   kibana:
     container_name: kibana
-    image: docker.elastic.co/kibana/kibana:8.7.1
+    image: docker.elastic.co/kibana/kibana:8.12.2
     environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      SERVER_NAME: kibana
+      ELASTICSEARCH_HOSTS: '["http://elastic:9200"]'
+      ELASTICSEARCH_USERNAME: kibana_system
+      ELASTICSEARCH_PASSWORD: kibanapass
     ports:
-      - 5602:5601
+      - "5601:5601"
     depends_on:
-      - elasticsearch
+      - elastic
 
-  logstash:
-    image: docker.elastic.co/logstash/logstash:8.7.1
-    container_name: logstash
+  filebeat:
+    container_name: filebeat
+    image: docker.elastic.co/beats/filebeat:8.12.2
+    user: root
     volumes:
-      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
-      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
-    ports:
-      - "5044:5044"
-      - "5000:5000/tcp"
-      - "5000:5000/udp"
-      - "9600:9600"
-    environment:
-      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
-    depends_on:
-      - elasticsearch
+      - ./elk/filebeat.yml:/usr/share/filebeat/filebeat.yml
+      - ./logs:/var/log/server
+
