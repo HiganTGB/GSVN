@@ -33,11 +33,11 @@ public class SKU extends AbstractMappedEntity implements Serializable {
     private String title;
 
     @Column(name="category_id")
-    private int category_id;
+    private int categoryId;
     @Column(name="fandom_id")
-    private int fandom_id;
+    private int fandomId;
     @Column(name="brand_id")
-    private int brand_id;
+    private int brandId;
 
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "sku_type")
@@ -58,5 +58,6 @@ public class SKU extends AbstractMappedEntity implements Serializable {
     @Column(name = "sort")
     private int sort;
     @Column(name = "is_deleted")
-    private boolean is_deleted;
+    @Builder.Default
+    private boolean isDeleted = false;
 }

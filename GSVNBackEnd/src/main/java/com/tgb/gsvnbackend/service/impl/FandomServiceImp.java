@@ -91,7 +91,7 @@ public class FandomServiceImp implements FandomService {
         Fandom fandom = fandomMapper.toEntity(fandomDTO);
         Fandom savedFandom = fandomRepository.save(fandom);
         FandomDTO savedFandomDTO = fandomMapper.toDTO(savedFandom);
-        cachingService.saveById(CacheKey, savedFandom.getFandom_id(), savedFandomDTO, FandomDTO.class);
+        cachingService.saveById(CacheKey, savedFandom.getFandomId(), savedFandomDTO, FandomDTO.class);
         return savedFandomDTO;
     }
 

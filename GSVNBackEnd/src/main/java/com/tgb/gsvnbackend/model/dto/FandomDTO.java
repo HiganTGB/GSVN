@@ -12,7 +12,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FandomDTO {
-    private Integer fandom_id;
+    private Integer fandomId;
 
     @NotEmpty(message = "Fandom title is required")
     @Size(min = 2, max = 255, message = "Fandom title must be between 2 and 255 characters")

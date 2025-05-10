@@ -5,17 +5,18 @@ import com.tgb.gsvnbackend.model.entity.SPU;
 import com.tgb.gsvnbackend.model.mapper.SPUMapper;
 import com.tgb.gsvnbackend.repository.SPURepository;
 import com.tgb.gsvnbackend.service.CachingService;
-import com.tgb.gsvnbackend.service.ProductService;
+import com.tgb.gsvnbackend.service.SPUService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class SPUServiceImp implements ProductService {
+public class SPUServiceImp implements SPUService {
     private final SPURepository spuRepository;
     private final SPUMapper spuMapper;
     private final CachingService cachingService;
     private static final String CacheKey = "spu";
+
     @Autowired
     public SPUServiceImp(SPURepository spuRepository, SPUMapper spuMapper, CachingService cachingService) {
         this.spuRepository = spuRepository;
@@ -27,7 +28,7 @@ public class SPUServiceImp implements ProductService {
         SPU spu = spuMapper.toEntity(spudto);
         SPU savedSPU = spuRepository.save(spu);
         SPUDTO savedSPUDTO = spuMapper.toDTO(savedSPU);
-        cachingService.saveById(CacheKey, savedSPU.getSpu_id(), savedSPUDTO, SPUDTO.class);
+        cachingService.saveById(CacheKey, savedSPU.getSpuId(), savedSPUDTO, SPUDTO.class);
         return savedSPUDTO;
     }
 
@@ -50,5 +51,8 @@ public class SPUServiceImp implements ProductService {
 
     private SPU findEntity(int id) {
         return spuRepository.findById(id).orElseThrow(() -> new RuntimeException("SPU not found with id: " + id));
+    }
+    public boolean exists(int id) {
+        return spuRepository.existsById(id);
     }
 }

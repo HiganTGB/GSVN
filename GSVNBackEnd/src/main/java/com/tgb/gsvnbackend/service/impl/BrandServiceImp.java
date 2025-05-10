@@ -82,7 +82,7 @@ public class BrandServiceImp implements BrandService {
         Brand brand = brandMapper.toEntity(brandDTO);
         Brand savedBrand = brandRepository.save(brand);
         BrandDTO savedBrandDTO = brandMapper.toDTO(savedBrand);
-        cachingService.saveById(CacheKey, savedBrand.getBrand_id(), savedBrandDTO, BrandDTO.class);
+        cachingService.saveById(CacheKey, savedBrand.getBrandId(), savedBrandDTO, BrandDTO.class);
         return savedBrandDTO;
     }
 
