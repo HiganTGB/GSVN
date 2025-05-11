@@ -3,25 +3,30 @@ package com.tgb.gsvnbackend.service.impl;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tgb.gsvnbackend.service.CachingService;
+import com.tgb.gsvnbackend.service.RedisHashOperationsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Service
-public class RedisService<T extends Serializable> implements CachingService {
+public class RedisService<T extends Serializable> implements CachingService, RedisHashOperationsService {
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
+    private final HashOperations<String, Object, Object> hashOperations;
     private final long DEFAULT_CACHE_TIME = 600;
     @Autowired
     private ObjectMapper objectMapper;
 
     @Autowired
-    public RedisService(RedisTemplate<String, String> redisTemplate) {
+    public RedisService(RedisTemplate<String, String> redisTemplate, HashOperations<String, Object, Object> hashOperations) {
         this.redisTemplate = redisTemplate;
+        this.hashOperations = hashOperations;
     }
     public <T> void setPageData(String key, int page, int size, List<T> data, Class<T> clazz) {
         try {
@@ -95,4 +100,26 @@ public class RedisService<T extends Serializable> implements CachingService {
             throw new RuntimeException("Lỗi khi lấy danh sách theo giá trị tìm kiếm từ Redis", e);
         }
     }
+    public void hSet(String key, String field, Object value) {
+        hashOperations.put(key, field, value);
+    }
+    public void hmSet(String key, Map<Object, Object> map) {
+        hashOperations.putAll(key, map);
+    }
+    public Object hGet(String key, String field) {
+        return hashOperations.get(key, field);
+    }
+    public Map<Object, Object> hGetAll(String key) {
+        return hashOperations.entries(key);
+    }
+    public boolean hExists(String key, String field) {
+        return hashOperations.hasKey(key, field);
+    }
+    public Long hDel(String key, Object... fields) {
+        return hashOperations.delete(key, fields);
+    }
+    public Long hIncrBy(String key, Object field, long delta) {
+        return hashOperations.increment(key, field, delta);
+    }
+
 }
