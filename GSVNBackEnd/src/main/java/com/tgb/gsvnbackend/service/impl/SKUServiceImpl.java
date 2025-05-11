@@ -1,6 +1,7 @@
 package com.tgb.gsvnbackend.service.impl;
 
 import com.tgb.gsvnbackend.exc.NotFoundException;
+import com.tgb.gsvnbackend.model.domain.SPUDomain;
 import com.tgb.gsvnbackend.model.dto.*;
 import com.tgb.gsvnbackend.model.entity.SKU;
 import com.tgb.gsvnbackend.model.entity.SKUAttribute;
@@ -45,13 +46,13 @@ public class SKUServiceImpl implements SKUService {
     @Transactional
     public SKUDTO create(SKUDTO skuDTO) {
         int spu_id=skuDTO.getSpuId();
-        if (!checkExistSPU(spu_id)) {
-            throw new NotFoundException("SPU with id " + skuDTO.getSpuId() + " does not exist");
-        }
+
+        SPUDomain spu=spuServiceClient.readDomain(spu_id);
+
         SKU sku = skuMapper.toEntity(skuDTO);
         SKU savedSKU = skuRepository.save(sku);
         SPUSKU spusku= SPUSKU.builder()
-                .skuId(String.valueOf(sku.getSku_id()))
+                .skuId(String.valueOf(sku.getSkuId()))
                 .spuId(String.valueOf(spu_id))
                 .build();
         spuskuRepository.save(spusku);
@@ -63,8 +64,8 @@ public class SKUServiceImpl implements SKUService {
         SKUDTO savedSKUDTO = skuMapper.toDTO(savedSKU);
         SKUAttributeDTO savedAttributesDTO=attributeMapper.toDTO(savedAttributes);
 
-        cachingService.saveById(CacheKey, savedSKU.getSku_id(), savedSKUDTO, SKUDTO.class);
-        cachingService.saveById(CacheKeyAttribute,savedSKU.getSku_id(),savedAttributesDTO, SKUAttributeDTO.class);
+        cachingService.saveById(CacheKey, savedSKU.getSkuId(), savedSKUDTO, SKUDTO.class);
+        cachingService.saveById(CacheKeyAttribute,savedSKU.getSkuId(),savedAttributesDTO, SKUAttributeDTO.class);
         return savedSKUDTO;
     }
     @Transactional

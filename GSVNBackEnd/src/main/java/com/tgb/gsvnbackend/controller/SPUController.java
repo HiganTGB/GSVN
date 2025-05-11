@@ -1,11 +1,13 @@
 package com.tgb.gsvnbackend.controller;
 
+import com.tgb.gsvnbackend.model.domain.SPUDomain;
 import com.tgb.gsvnbackend.model.dto.SPUDTO;
 import com.tgb.gsvnbackend.service.SPUService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -43,5 +45,10 @@ public class SPUController {
     @GetMapping("/{id}/exists")
     public Boolean check (@PathVariable int id) {
         return spuService.exists(id);
+    }
+
+    @GetMapping("/{id}/domain")
+    public SPUDomain readDomain (@PathVariable int id) {
+        return spuService.getDomain(id);
     }
 }

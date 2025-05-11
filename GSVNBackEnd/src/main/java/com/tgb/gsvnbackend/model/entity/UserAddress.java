@@ -22,6 +22,6 @@ public class UserAddress extends AbstractMappedEntity {
         private String state;
         private String zip;
         private String phone;
-        private boolean is_default;
+        private boolean isDefault;
     }
 }

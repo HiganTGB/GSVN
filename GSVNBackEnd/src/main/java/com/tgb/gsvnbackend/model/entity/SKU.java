@@ -26,18 +26,18 @@ public class SKU extends AbstractMappedEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "sku_id", unique = true, nullable = false, updatable = false)
-    private Integer sku_id;
+    private Integer skuId;
     @Column(name = "sku_no",unique = true)
     private String no;
     @Column(name = "sku_title")
     private String title;
 
     @Column(name="category_id")
-    private int category_id;
+    private int categoryId;
     @Column(name="fandom_id")
-    private int fandom_id;
+    private int fandomId;
     @Column(name="brand_id")
-    private int brand_id;
+    private int brandId;
 
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "sku_type")
@@ -58,5 +58,5 @@ public class SKU extends AbstractMappedEntity implements Serializable {
     @Column(name = "sort")
     private int sort;
     @Column(name = "is_deleted")
-    private boolean is_deleted;
+    private boolean isDeleted;
 }

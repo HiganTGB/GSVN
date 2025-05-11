@@ -1,5 +1,6 @@
 package com.tgb.gsvnbackend.model.mapper;
 
+import com.tgb.gsvnbackend.model.domain.SPUDomain;
 import com.tgb.gsvnbackend.model.dto.SPUDTO;
 import com.tgb.gsvnbackend.model.entity.SPU;
 import org.mapstruct.BeanMapping;
@@ -14,10 +15,12 @@ public interface SPUMapper {
     SPUDTO toDTO(SPU spu);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(target = "spu_id", ignore = true)
-    @Mapping(target = "is_deleted", ignore = true)
+    @Mapping(target = "spuId", ignore = true)
+    @Mapping(target = "isDeleted", ignore = true)
     @Mapping(target = "status", ignore = true)
     SPU toEntity(SPUDTO spuDTO);
+
+    SPUDomain toDomain(SPU spu);
 
 
 }

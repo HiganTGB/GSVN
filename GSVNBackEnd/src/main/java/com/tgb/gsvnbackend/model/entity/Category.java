@@ -20,9 +20,9 @@ public class Category extends AbstractMappedEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "category_id", unique = true, nullable = false, updatable = false)
-    private Integer category_id;
+    private Integer categoryId;
     @Column(name = "category_title")
     private String title;
     @Column(name = "category_parent_id")
-    private int parentID;
+    private int parentId;
 }

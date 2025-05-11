@@ -1,8 +1,11 @@
 package com.tgb.gsvnbackend.service.client;
 
+import com.tgb.gsvnbackend.model.domain.SPUDomain;
 import com.tgb.gsvnbackend.service.SPUService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @Component
 public class SPUServiceClient {
@@ -16,11 +19,18 @@ public class SPUServiceClient {
         return spuService.exists(id);
     }
 
+    public SPUDomain readDomain (int id) {
+
+        return spuService.getDomain(id);
+    }
+
 }
 /*
     @FeignClient(value = "SPU-SERVICE", url = "http://localhost:8080")
     public interface SPUServiceClient {
         @GetMapping("/{id}/exists")
         public Boolean check (@PathVariable int id);
+         @GetMapping("/{id}/domain")
+        public SPUDomain readDomain (@PathVariable int id)
     }
 */

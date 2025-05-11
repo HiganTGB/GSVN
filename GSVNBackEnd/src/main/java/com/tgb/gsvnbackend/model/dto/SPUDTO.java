@@ -14,17 +14,17 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SPUDTO {
-    private Integer spu_id;
+    private Integer spuId;
     private String title;
     private String description;
     private Type type;
-    private Date start_order;
-    private Date end_order;
-    private int category_id;
-    private int fandom_id;
-    private int brand_id;
+    private Date startOrder;
+    private Date endOrder;
+    private int categoryId;
+    private int fandomId;
+    private int brandId;
     private Status status;
     private int sort;
-    private boolean is_deleted;
+    private boolean isDeleted;
     private Map<String, Object> attrs;
 }

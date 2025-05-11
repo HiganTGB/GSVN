@@ -14,12 +14,12 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CategoryDTO {
-    private Integer category_id;
+    private Integer categoryId;
 
     @NotEmpty(message = "Title is required")
     @Size(min = 2, max = 255, message = "Title must be between 2 and 255 characters")
     private String title;
 
-    private int parentID;
+    private int parentId;
     private List<CategoryDTO> children;
 }
