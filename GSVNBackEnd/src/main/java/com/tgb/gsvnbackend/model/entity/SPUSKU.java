@@ -9,7 +9,9 @@ import lombok.*;
 @Data
 @Builder
 @Entity
-@Table(name = "spu_sku",schema = "product")
+@Table(name = "spu_sku",schema = "product" ,  indexes = {
+        @Index(name = "idx_spu_id", columnList = "spu_id")
+})
 public class SPUSKU extends AbstractMappedEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
