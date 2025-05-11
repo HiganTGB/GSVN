@@ -46,10 +46,11 @@ public class SKUServiceImpl implements SKUService {
     @Transactional
     public SKUDTO create(SKUDTO skuDTO) {
         int spu_id=skuDTO.getSpuId();
-
         SPUDomain spu=spuServiceClient.readDomain(spu_id);
-
         SKU sku = skuMapper.toEntity(skuDTO);
+        sku.setCategoryId(sku.getCategoryId());
+        sku.setBrandId(sku.getBrandId());
+        sku.setFandomId(sku.getFandomId());
         SKU savedSKU = skuRepository.save(sku);
         SPUSKU spusku= SPUSKU.builder()
                 .skuId(String.valueOf(sku.getSkuId()))
