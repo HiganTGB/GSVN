@@ -111,4 +111,3 @@ public static class WebSecurityConfig {
             return new JwtAuthenticationToken(jwt, authorities, username);
         }
     }*/
-}
