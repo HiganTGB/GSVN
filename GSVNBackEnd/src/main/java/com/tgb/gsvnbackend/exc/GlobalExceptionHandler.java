@@ -27,4 +27,13 @@ public class GlobalExceptionHandler {
         errorResponse.put("error", "Invalid request format. Please check your input.");
         return ResponseEntity.badRequest().body(errorResponse);
     }
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<?> handleNotfoundException(NotFoundException ex) {
+
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+    @ExceptionHandler(DataViolationException.class)
+    public ResponseEntity<?> handleDataViolationException(DataViolationException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
 }

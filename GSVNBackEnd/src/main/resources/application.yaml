@@ -50,7 +50,7 @@ minio:
   spu-video-bucket-name: spu-video-bucket
 
 origins: http://localhost:9002
-issuer: http://localhost:8080/realms/gmvn
+issuer: http://localhost:8080/auth/realms/gmvn
 
 com:
   c4-soft:
@@ -58,7 +58,7 @@ com:
       oidc:
         cors:
           - path: /api/**
-            allowed-origin-patterns: ${origins}
+            allowed-origin-patterns: *
         ops:
           - iss: ${issuer}
             username-claim: sub
@@ -70,6 +70,4 @@ com:
         resourceserver:
           # default access rule is "isAuthenticated" except for the path matched here (allowed to anonymous requests)
           permit-all:
-            - "/actuator/health/readiness"
-            - "/actuator/health/liveness"
-            - "/v3/api-docs/**"
+            - "/**"

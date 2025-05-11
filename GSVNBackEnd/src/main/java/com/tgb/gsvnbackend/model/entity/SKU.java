@@ -44,10 +44,10 @@ public class SKU extends AbstractMappedEntity implements Serializable {
     private Type type;
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     @Column(name = "start_order")
-    private Date start_order;
+    private Date startOrder;
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     @Column(name = "end_order")
-    private Date end_order;
+    private Date endOrder;
     @Column(name = "sku_stock")
     private Integer stock;
     @Column(name = "sku_price", columnDefinition = "decimal(8,2)")
