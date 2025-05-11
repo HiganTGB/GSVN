@@ -58,7 +58,7 @@ com:
       oidc:
         cors:
           - path: /api/**
-            allowed-origin-patterns: *
+            allowed-origin-patterns: ${origins}
         ops:
           - iss: ${issuer}
             username-claim: sub
@@ -70,4 +70,4 @@ com:
         resourceserver:
           # default access rule is "isAuthenticated" except for the path matched here (allowed to anonymous requests)
           permit-all:
-            - "/**"
+            - "/api/brands/{id}"
