@@ -1,5 +1,6 @@
 package com.tgb.gsvnbackend.model.mapper;
 
+import com.tgb.gsvnbackend.model.domain.SKUDomain;
 import com.tgb.gsvnbackend.model.dto.SKUDTO;
 import com.tgb.gsvnbackend.model.entity.SKU;
 import org.mapstruct.Mapper;
@@ -13,4 +14,7 @@ public interface SKUMapper {
     @Mapping(target = "spuId", ignore = true)
     @Mapping(target = "attrs", ignore = true)
     SKUDTO toDTO(SKU entity);
+
+
+    SKUDomain toDomain(SKU entity);
 }

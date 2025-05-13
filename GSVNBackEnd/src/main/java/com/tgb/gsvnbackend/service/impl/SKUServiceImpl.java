@@ -1,6 +1,7 @@
 package com.tgb.gsvnbackend.service.impl;
 
 import com.tgb.gsvnbackend.exc.NotFoundException;
+import com.tgb.gsvnbackend.model.domain.SKUDomain;
 import com.tgb.gsvnbackend.model.domain.SPUDomain;
 import com.tgb.gsvnbackend.model.dto.*;
 import com.tgb.gsvnbackend.model.entity.SKU;
@@ -32,9 +33,9 @@ public class SKUServiceImpl implements SKUService {
     private SPUSKUMapper spuskuMapper;
     private SKUAttributeMapper attributeMapper;
     private CachingService cachingService;
-    private static  final String CacheKey = "sku";
-    private static  final String CacheKeyMapping = "su";
-    private static  final String CacheKeyAttribute = "sku_att";
+    private static  final String CacheKey = "sku:";
+    private static  final String CacheKeyMapping = "su:";
+    private static  final String CacheKeyAttribute = "sku_att:";
 
     private SPUServiceClient spuServiceClient;
     @Autowired
@@ -118,7 +119,6 @@ public class SKUServiceImpl implements SKUService {
     }
     public SKUAttributeDTO readAttribute(int id)
     {
-
         SKUAttributeDTO attributeDTO = cachingService.getById(CacheKeyAttribute, id, SKUAttributeDTO.class);
         if (attributeDTO != null) {
             return attributeDTO;
@@ -140,7 +140,6 @@ public class SKUServiceImpl implements SKUService {
 
         cachingService.saveById(CacheKey, id, skudto, SKUDTO.class);
         return skudto;
-
     }
 
 }

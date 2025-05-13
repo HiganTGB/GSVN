@@ -5,6 +5,10 @@ server:
 # Actuator endpoints exposure
 spring:
   data:
+    elasticsearch:
+      username: elastic
+      password: myelasticpass
+      uris: http://localhost:9200
     mongodb:
       authentication-database: admin
       username: rootuser
@@ -50,8 +54,8 @@ minio:
   spu-video-bucket-name: spu-video-bucket
 
 origins: http://localhost:9002
-issuer: http://localhost:8080/auth/realms/gmvn
-
+issuer: http://localhost:8080/realms/gmvn
+client-id: goodsmilevn
 com:
   c4-soft:
     springaddons:
@@ -70,4 +74,4 @@ com:
         resourceserver:
           # default access rule is "isAuthenticated" except for the path matched here (allowed to anonymous requests)
           permit-all:
-            - "/api/brands/{id}"
+            - "/api/*"

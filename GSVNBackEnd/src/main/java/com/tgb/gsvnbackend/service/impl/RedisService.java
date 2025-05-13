@@ -118,8 +118,15 @@ public class RedisService<T extends Serializable> implements CachingService, Red
     public Long hDel(String key, Object... fields) {
         return hashOperations.delete(key, fields);
     }
-    public Long hIncrBy(String key, Object field, long delta) {
-        return hashOperations.increment(key, field, delta);
+    public Integer hIncrBy(String key, Object field, long delta) {
+        Long result = hashOperations.increment(key, field, delta);
+        if (result > Integer.MAX_VALUE || result < Integer.MIN_VALUE) {
+            throw new ArithmeticException("Result is out of Integer range");
+        }
+        return result.intValue();
+    }
+    public void deleteByKey(String key) {
+        redisTemplate.delete(key);
     }
 
 }

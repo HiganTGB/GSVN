@@ -14,14 +14,13 @@ services:
     container_name: logstash
     image: docker.elastic.co/logstash/logstash:8.12.2
     volumes:
-      - ./elk/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+      - ./elk/logstash/logstash-log.conf:/usr/share/logstash/pipeline/logstash.conf
     environment:
       - ELASTIC_USER=elastic
       - ELASTIC_PASSWORD=myelasticpass
       - ELASTIC_HOSTS=http://elastic:9200
     depends_on:
       - elastic
-
   kibana:
     container_name: kibana
     image: docker.elastic.co/kibana/kibana:8.12.2
@@ -34,7 +33,6 @@ services:
       - "5601:5601"
     depends_on:
       - elastic
-
   filebeat:
     container_name: filebeat
     image: docker.elastic.co/beats/filebeat:8.12.2

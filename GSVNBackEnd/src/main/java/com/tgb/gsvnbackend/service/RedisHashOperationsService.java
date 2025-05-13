@@ -15,5 +15,6 @@ public interface RedisHashOperationsService {
 
     Long hDel(String key, Object... fields);
 
-    Long hIncrBy(String key, Object field, long delta);
+    Integer hIncrBy(String key, Object field, long delta);
+    public void deleteByKey(String key);
 }

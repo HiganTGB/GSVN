@@ -1,6 +1,8 @@
 package com.tgb.gsvnbackend.model.entity;
 
 
+import com.tgb.gsvnbackend.model.enumeration.PaymentMethod;
+import com.tgb.gsvnbackend.model.enumeration.State;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -25,13 +27,16 @@ public class Order extends AbstractMappedEntity {
 
     @Id
     private String id;
+    private String cartId;
     private String userId;
     private String name;
     private String note;
-    private String state;
+    private State state;
     private LocalDate date;
     private List<LineItem> lineItems;
     private BigDecimal sub_total;
+    private ShippingAddress shippingAddress;
+    private Payment payment;
     @Data
     public static class LineItem {
         private String id;
@@ -45,7 +50,6 @@ public class Order extends AbstractMappedEntity {
     public static class Pricing {
         private BigDecimal retail;
         private BigDecimal sale;
-
     }
     @Data
     public static class ShippingAddress {
@@ -57,7 +61,8 @@ public class Order extends AbstractMappedEntity {
         private String phone;
     }
     @Data
-    public static class PaymentMethod {
+    public static class Payment {
+        private PaymentMethod paymentMethod;
         private String status;
         private String number;
     }
