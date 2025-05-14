@@ -23,8 +23,7 @@ import java.util.Map;
 @Data
 @Builder
 @Document(collection = "orders") // Ánh xạ tới collection có tên "orders" (bạn có thể đặt tên khác)
-public class Order extends AbstractMappedEntity {
-
+public class Order extends AbstractMappedEntity  {
     @Id
     private String id;
     private String cartId;
@@ -32,12 +31,13 @@ public class Order extends AbstractMappedEntity {
     private String name;
     private String note;
     private State state;
-    private LocalDate date;
     private List<LineItem> lineItems;
-    private BigDecimal sub_total;
+    private BigDecimal subTotal;
     private ShippingAddress shippingAddress;
     private Payment payment;
+    private String ipAddress;
     @Data
+    @AllArgsConstructor
     public static class LineItem {
         private String id;
         private String sku;
@@ -47,11 +47,13 @@ public class Order extends AbstractMappedEntity {
     }
 
     @Data
+    @AllArgsConstructor
     public static class Pricing {
         private BigDecimal retail;
         private BigDecimal sale;
     }
     @Data
+    @AllArgsConstructor
     public static class ShippingAddress {
         private String receiver;
         private String street;
@@ -61,9 +63,10 @@ public class Order extends AbstractMappedEntity {
         private String phone;
     }
     @Data
+    @AllArgsConstructor
     public static class Payment {
-        private PaymentMethod paymentMethod;
+        private String method;
         private String status;
-        private String number;
+        private String paymentId;
     }
 }
