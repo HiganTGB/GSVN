@@ -20,6 +20,9 @@ services:
     volumes:
       - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
       - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: rootadmin
+      RABBITMQ_DEFAULT_PASS: rootadmin
     networks:
       - rabbitmq_go_net
   mongodb:

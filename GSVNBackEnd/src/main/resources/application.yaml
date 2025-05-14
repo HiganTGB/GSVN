@@ -4,11 +4,26 @@ server:
   port: 9002
 # Actuator endpoints exposure
 spring:
+  rabbitmq:
+      addresses: localhost:5672
+      adminAddresses: http://localhost:15672
+      username: rootadmin
+      password: rootadmin
+      virtual_host: /
+      useSSL: false
+      sslProperties:
+      ssl:
+        keyStore:
+        keyStorePassphrase:
+        trustStore:
+        trustStorePassphrase:
+      channelCacheSize: 100
   data:
     elasticsearch:
       username: elastic
       password: myelasticpass
-      uris: http://localhost:9200
+      repositories:
+        enabled: true
     mongodb:
       authentication-database: admin
       username: rootuser
@@ -43,6 +58,10 @@ spring:
         dialect: org.hibernate.dialect.MySQL8Dialect
         format_sql: true
     show-sql: true
+
+saga:
+  direct-exchange-name: gmvn
+
 
 minio:
   endpoint: http://localhost:9000
