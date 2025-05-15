@@ -1,80 +1,79 @@
 
 #Server port
 server:
-  port: 9002
-# Actuator endpoints exposure
+  port: ${SERVER_PORT}
 spring:
   rabbitmq:
-      addresses: localhost:5672
-      adminAddresses: http://localhost:15672
-      username: rootadmin
-      password: rootadmin
-      virtual_host: /
-      useSSL: false
-      sslProperties:
+    addresses: ${SPRING_RABBITMQ_ADDRESSES}
+    adminAddresses: ${SPRING_RABBITMQ_ADMINADDRESSES}
+    username: ${SPRING_RABBITMQ_USERNAME}
+    password: ${SPRING_RABBITMQ_PASSWORD}
+    virtual_host: ${SPRING_RABBITMQ_VIRTUAL_HOST}
+    useSSL: ${SPRING_RABBITMQ_USESSL}
+    sslProperties:
       ssl:
-        keyStore:
-        keyStorePassphrase:
-        trustStore:
-        trustStorePassphrase:
-      channelCacheSize: 100
+        keyStore: ${SPRING_RABBITMQ_SSLPROPERTIES_SSL_KEYSTORE}
+        keyStorePassphrase: ${SPRING_RABBITMQ_SSLPROPERTIES_SSL_KEYSTOREPASSPHRASE}
+        trustStore: ${SPRING_RABBITMQ_SSLPROPERTIES_SSL_TRUSTSTORE}
+        trustStorePassphrase: ${SPRING_RABBITMQ_SSLPROPERTIES_SSL_TRUSTSTOREPASSPHRASE}
+    channelCacheSize: ${SPRING_RABBITMQ_CHANNELCACHESIZE}
   data:
     elasticsearch:
-      username: elastic
-      password: myelasticpass
+      username: ${SPRING_DATA_ELASTICSEARCH_USERNAME}
+      password: ${SPRING_DATA_ELASTICSEARCH_PASSWORD}
       repositories:
-        enabled: true
+        enabled: ${SPRING_DATA_ELASTICSEARCH_REPOSITORIES_ENABLED}
     mongodb:
-      authentication-database: admin
-      username: rootuser
-      password: rootpass
-      database: gmvn-product
-      port: 27017
-      host: localhost
+      authentication-database: ${SPRING_DATA_MONGODB_AUTHENTICATIONDATABASE}
+      username: ${SPRING_DATA_MONGODB_USERNAME}
+      password: ${SPRING_DATA_MONGODB_PASSWORD}
+      database: ${SPRING_DATA_MONGODB_DATABASE}
+      port: ${SPRING_DATA_MONGODB_PORT}
+      host: ${SPRING_DATA_MONGODB_HOST}
     redis:
-      host: localhost
-      port: 6379
-      password: rootpass
+      host: ${SPRING_DATA_REDIS_HOST}
+      port: ${SPRING_DATA_REDIS_PORT}
+      password: ${SPRING_DATA_REDIS_PASSWORD}
   application:
-    name: GSVNBackEnd
+    name: ${SPRING_APPLICATION_NAME}
   # DataSource configuration
   datasource:
-    url: jdbc:mysql://localhost:3307/gmvn
-    username: higan
-    password: passpass
-    driver-class-name: com.mysql.cj.jdbc.Driver
-#      hikari:
-#        connection-timeout: 30000
-#        idle-timeout: 600000
-#        max-lifetime: 1800000
-#        minimum-idle: 5
-#        connection-test-query: "Select 1"
-#   JPA configuration
+    url: ${DATASOURCE_URL}
+    username: ${DATASOURCE_USERNAME}
+    password: ${DATASOURCE_PASSWORD}
+    driver-class-name: ${DATASOURCE_DRIVER_CLASS_NAME}
+  #  hikari:
+  #    connection-timeout: ${DATASOURCE_HIKARI_CONNECTION_TIMEOUT}
+  #    idle-timeout: ${DATASOURCE_HIKARI_IDLE_TIMEOUT}
+  #    max-lifetime: ${DATASOURCE_HIKARI_MAX_LIFETIME}
+  #    minimum-idle: ${DATASOURCE_HIKARI_MINIMUM_IDLE}
+  #    connection-test-query: "${DATASOURCE_HIKARI_CONNECTION_TEST_QUERY}"
+
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO}
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
-        format_sql: true
-    show-sql: true
+        dialect: ${SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT}
+        format_sql: ${SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL}
+    show-sql: ${SPRING_JPA_SHOW_SQL}
 
 saga:
   direct-exchange-name: gmvn
 
 
 minio:
-  endpoint: http://localhost:9000
-  access-key: fakvMXVmaxmuVqid5DQk
-  secret-key: LCMzHOHOGI1lJkWXmHEhLYyw8eGKgCfhjatjOFGX
-  sku-image-bucket-name: sku-image-bucket
-  spu-image-bucket-name: spu-image-bucket
-  spu-gallery-bucket-name: spu-gallery-bucket
-  spu-video-bucket-name: spu-video-bucket
+  endpoint: ${MINIO_ENDPOINT}
+  access-key: ${MINIO_ACCESS_KEY}
+  secret-key: ${MINIO_SECRET_KEY}
+  sku-image-bucket-name: ${MINIO_SKU_IMAGE_BUCKET_NAME}
+  spu-image-bucket-name: ${MINIO_SPU_IMAGE_BUCKET_NAME}
+  spu-gallery-bucket-name: ${MINIO_SPU_GALLERY_BUCKET_NAME}
+  spu-video-bucket-name: ${MINIO_SPU_VIDEO_BUCKET_NAME}
 
-origins: http://localhost:9002
-issuer: http://localhost:8080/realms/gmvn
-client-id: goodsmilevn
+origins: ${ORIGINS}
+issuer: ${ISSUER}
+client-id: ${CLIENT_ID}
 com:
   c4-soft:
     springaddons:
@@ -94,3 +93,13 @@ com:
           # default access rule is "isAuthenticated" except for the path matched here (allowed to anonymous requests)
           permit-all:
             - "/api/*"
+
+payment:
+  vnPay:
+    url: ${VNPAY_URL}
+    tmnCode: ${VNPAY_TMNCODE}
+    secretKey: ${VNPAY_SECRETKEY}
+    returnUrl: ${VNPAY_RETURNURL}
+    version: ${VNPAY_VERSION}
+    command: ${VNPAY_COMMAND}
+    orderType: ${VNPAY_ORDERTYPE}
