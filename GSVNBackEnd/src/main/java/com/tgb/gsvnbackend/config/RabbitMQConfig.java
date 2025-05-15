@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitMQConfig {
     @Value("${saga.direct-exchange-name}")
-    public static String directExchange;
+    public String directExchange;
 
     @Bean
     public Exchange sagaExchange() {

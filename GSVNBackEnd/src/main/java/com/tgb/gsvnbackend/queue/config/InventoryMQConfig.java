@@ -1,18 +1,20 @@
 package com.tgb.gsvnbackend.queue.config;
 import org.springframework.amqp.core.*;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class InventoryMQConfig {
     // Inventory Reverse
+
     @Bean
     public Queue inventoryReverseConsumerQueue() {
         return QueueBuilder.durable("inventory-reverse-queue").build();
     }
 
     @Bean
-    public Binding inventoryReverseBinding(Queue inventoryReverseConsumerQueue, Exchange exchange) {
+    public Binding inventoryReverseBinding(Queue inventoryReverseConsumerQueue,@Qualifier("sagaExchange") Exchange exchange) {
         return BindingBuilder.bind(inventoryReverseConsumerQueue).to(exchange).with("inventory.reverse").noargs();
     }
     // Inventory Release
@@ -22,7 +24,7 @@ public class InventoryMQConfig {
     }
 
     @Bean
-    public Binding  inventoryReleaseQueue(Queue inventoryReleaseConsumerQueue, Exchange exchange) {
+    public Binding  inventoryReleaseQueue(Queue inventoryReleaseConsumerQueue,@Qualifier("sagaExchange") Exchange exchange) {
         return BindingBuilder.bind(inventoryReleaseConsumerQueue).to(exchange).with("inventory.release").noargs();
     }
 }

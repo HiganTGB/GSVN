@@ -5,6 +5,7 @@ import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.QueueBuilder;
 import org.springframework.amqp.core.Exchange;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -18,7 +19,7 @@ public class CartMQConfig {
     }
 
     @Bean
-    public Binding cartConsumerBinding(Queue cartResultConsumerQueue, Exchange exchange) {
+    public Binding cartConsumerBinding(Queue cartResultConsumerQueue,@Qualifier("sagaExchange") Exchange exchange) {
         return BindingBuilder.bind(cartResultConsumerQueue).to(exchange).with("cart.result").noargs();
     }
 }
