@@ -1,6 +1,5 @@
-package com.tgb.gsvnbackend.repository;
+package com.tgb.gsvnbackend.repository.jpaRepository;
 
-import com.tgb.gsvnbackend.model.entity.Brand;
 import com.tgb.gsvnbackend.model.entity.Fandom;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;

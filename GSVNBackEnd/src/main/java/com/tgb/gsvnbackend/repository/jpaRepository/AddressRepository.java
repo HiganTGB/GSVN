@@ -1,4 +1,4 @@
-package com.tgb.gsvnbackend.repository;
+package com.tgb.gsvnbackend.repository.jpaRepository;
 
 
 

@@ -1,4 +1,4 @@
-package com.tgb.gsvnbackend.repository;
+package com.tgb.gsvnbackend.repository.mongoRepository;
 
 import com.tgb.gsvnbackend.model.entity.Cart;
 import com.tgb.gsvnbackend.model.enumeration.CartStatus;
@@ -10,4 +10,5 @@ import java.util.Optional;
 @Repository
 public interface CartRepository extends MongoRepository<Cart,String> {
     Optional<Cart> findByUserIdAndStatus(String userId, CartStatus status);
+
 }

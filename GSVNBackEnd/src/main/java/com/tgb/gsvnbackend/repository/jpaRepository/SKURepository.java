@@ -1,10 +1,8 @@
-package com.tgb.gsvnbackend.repository;
+package com.tgb.gsvnbackend.repository.jpaRepository;
 
 import com.tgb.gsvnbackend.model.entity.SKU;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository
 public interface SKURepository extends JpaRepository<SKU,Integer> {

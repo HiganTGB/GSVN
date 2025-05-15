@@ -1,4 +1,4 @@
-package com.tgb.gsvnbackend.repository;
+package com.tgb.gsvnbackend.repository.jpaRepository;
 
 import com.tgb.gsvnbackend.model.entity.SKUAttribute;
 import org.springframework.data.jpa.repository.JpaRepository;
