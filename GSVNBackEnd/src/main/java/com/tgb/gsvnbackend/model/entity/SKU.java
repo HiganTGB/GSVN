@@ -31,7 +31,6 @@ public class SKU extends AbstractMappedEntity implements Serializable {
     private String no;
     @Column(name = "sku_title")
     private String title;
-
     @Column(name="category_id")
     private int categoryId;
     @Column(name="fandom_id")

@@ -18,9 +18,9 @@ public class SPUSKU extends AbstractMappedEntity {
     @Column( unique = true, nullable = false, updatable = false)
     private Integer id;
     @Column(name = "spu_id")
-    private String spuId;
+    private Integer spuId;
     @Column(name = "sku_id")
-    private String skuId;
+    private Integer skuId;
     @Column(name = "is_deleted")
     private boolean isDeleted;
 }

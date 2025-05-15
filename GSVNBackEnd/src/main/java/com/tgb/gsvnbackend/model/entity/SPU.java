@@ -35,7 +35,7 @@ public class SPU extends AbstractMappedEntity implements Serializable {
     @Column(name = "spu_description")
     private String description;
 
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "spu_type")
     private Type type;
 
@@ -53,7 +53,7 @@ public class SPU extends AbstractMappedEntity implements Serializable {
     @Column(name="brand_id")
     private int brandId;
 
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private Status status;
     @Column(name = "sort")
