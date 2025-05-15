@@ -4,7 +4,7 @@ import com.tgb.gsvnbackend.exc.NotFoundException;
 import com.tgb.gsvnbackend.model.dto.BrandDTO;
 import com.tgb.gsvnbackend.model.entity.Brand;
 import com.tgb.gsvnbackend.model.mapper.BrandMapper;
-import com.tgb.gsvnbackend.repository.BrandRepository;
+import com.tgb.gsvnbackend.repository.jpaRepository.BrandRepository;
 import com.tgb.gsvnbackend.service.BrandService;
 import com.tgb.gsvnbackend.service.CachingService;
 import jakarta.transaction.Transactional;
@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service

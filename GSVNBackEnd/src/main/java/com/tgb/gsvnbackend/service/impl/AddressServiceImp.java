@@ -3,7 +3,7 @@ package com.tgb.gsvnbackend.service.impl;
 import com.tgb.gsvnbackend.exc.NotFoundException;
 import static com.tgb.gsvnbackend.lib.Oath2UtilsConverter.getUserId;
 import com.tgb.gsvnbackend.model.entity.Address;
-import com.tgb.gsvnbackend.repository.AddressRepository;
+import com.tgb.gsvnbackend.repository.jpaRepository.AddressRepository;
 import com.tgb.gsvnbackend.service.AddressService;
 import com.tgb.gsvnbackend.service.CachingService;
 import jakarta.transaction.Transactional;

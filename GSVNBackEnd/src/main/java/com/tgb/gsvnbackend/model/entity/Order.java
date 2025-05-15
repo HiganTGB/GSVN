@@ -28,7 +28,6 @@ public class Order extends AbstractMappedEntity  {
     private String id;
     private String cartId;
     private String userId;
-    private String name;
     private String note;
     private State state;
     private List<LineItem> lineItems;

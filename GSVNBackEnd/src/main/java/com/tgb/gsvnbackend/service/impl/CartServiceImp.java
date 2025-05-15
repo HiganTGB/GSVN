@@ -1,35 +1,42 @@
 package com.tgb.gsvnbackend.service.impl;
 
 import com.tgb.gsvnbackend.exc.NotFoundException;
+import com.tgb.gsvnbackend.lib.VNPayUtils;
+import com.tgb.gsvnbackend.model.dto.CartStatusDTO;
 import com.tgb.gsvnbackend.model.entity.Cart;
 import com.tgb.gsvnbackend.model.entity.CartItem;
 import com.tgb.gsvnbackend.model.enumeration.CartStatus;
-import com.tgb.gsvnbackend.repository.CartRepository;
+import com.tgb.gsvnbackend.model.enumeration.PaymentMethod;
+import com.tgb.gsvnbackend.queue.producer.CartProducer;
+import com.tgb.gsvnbackend.repository.mongoRepository.CartRepository;
+import com.tgb.gsvnbackend.service.CachingService;
 import com.tgb.gsvnbackend.service.CartService;
 import com.tgb.gsvnbackend.service.RedisHashOperationsService;
-import com.tgb.gsvnbackend.service.client.SPUServiceClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import jakarta.servlet.http.HttpServletRequest;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 import static com.tgb.gsvnbackend.lib.Oath2UtilsConverter.getUserId;
 
 @Service
 public class CartServiceImp implements CartService {
-    private final RedisHashOperationsService redisHashOperationsService;
-    private final CartRepository cartRepository;
 
+    private final RedisHashOperationsService redisHashOperationsService;
+    private final CachingService cachingService;
+    private final CartRepository cartRepository;
+    private final CartProducer cartProducer;
+    private static final String CART_STATUS_CACHE_KEY_PREFIX = "cartStatus:";
     private static final String CART_CACHE_KEY_PREFIX = "cart:";
     private static final String PRODUCT_CACHE_KEY_PREFIX = "sku:";
-
-    public CartServiceImp(RedisHashOperationsService redisHashOperationsService, CartRepository cartRepository) {
+    @Autowired
+    public CartServiceImp(RedisHashOperationsService redisHashOperationsService, CachingService cachingService, CartRepository cartRepository, CartProducer cartProducer) {
         this.redisHashOperationsService = redisHashOperationsService;
+        this.cachingService = cachingService;
         this.cartRepository = cartRepository;
+        this.cartProducer = cartProducer;
     }
 
     public CartItem addItem(CartItem cartItem, Principal user) {
@@ -100,6 +107,28 @@ public class CartServiceImp implements CartService {
         }).orElseThrow(() -> new NotFoundException("Cart not found"));
         CompletableFuture.runAsync(() -> cartRepository.save(updatedCart));
     }
+    public void summitCart(Principal user,
+                           String note,
+                           String receiver,
+                           String street,
+                           String city,
+                           String state,
+                           String zip,
+                           String phone,
+                           PaymentMethod paymentMethod,
+                           HttpServletRequest request)
+    {
+        String userId = getUserId(user);
+        String cartCacheKey = CART_CACHE_KEY_PREFIX + userId;
+        redisHashOperationsService.deleteByKey(cartCacheKey);
+        Optional<Cart> currentCartOptional = cartRepository.findByUserIdAndStatus(userId, CartStatus.Active);
+        currentCartOptional.ifPresent(cart -> {
+            cart.setStatus(CartStatus.Pending);
+            cartProducer.sendOrderInit(cart,note,receiver,street,city,state,zip,phone,paymentMethod, VNPayUtils.getIpAddress(request));
+            CompletableFuture.runAsync(() -> cartRepository.save(cart));
+        });
+
+    }
     public void cleanCart(Principal user)
     {
         String userId = getUserId(user);
@@ -148,4 +177,24 @@ public class CartServiceImp implements CartService {
             return cartItems;
         }
     }
+    public void handleCartResultReceiver(String cartId,String orderId,String paymentUrl,boolean success)
+    {
+        CartStatus status=(success)? CartStatus.Success:CartStatus.Fail;
+        cartRepository.findById(cartId).ifPresent(x->x.setStatus(status));
+        CartStatusDTO statusDTO=new CartStatusDTO(cartId,orderId,status,paymentUrl);
+        cachingService.saveById(CART_STATUS_CACHE_KEY_PREFIX,cartId,statusDTO,CartStatusDTO.class);
+    }
+    public CartStatusDTO cartStatus(Principal user,String cartId)
+    {   String userId = getUserId(user);
+        CartStatusDTO statusDTO=cachingService.getById(CART_STATUS_CACHE_KEY_PREFIX,cartId,CartStatusDTO.class);
+        if(statusDTO!=null)
+        {
+            return statusDTO;
+        }
+        Cart cart= cartRepository.findById(cartId).orElse(new Cart(cartId,userId,CartStatus.Abandoned, Collections.emptyList()));
+        statusDTO=new CartStatusDTO(cart.getCardId(),null,cart.getStatus(),null);
+        cachingService.saveById(CART_STATUS_CACHE_KEY_PREFIX,cartId,statusDTO,CartStatusDTO.class);
+        return statusDTO;
+    }
+
 }

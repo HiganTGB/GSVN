@@ -4,7 +4,7 @@ import com.tgb.gsvnbackend.exc.NotFoundException;
 import com.tgb.gsvnbackend.model.dto.FandomDTO;
 import com.tgb.gsvnbackend.model.entity.Fandom;
 import com.tgb.gsvnbackend.model.mapper.FandomMapper;
-import com.tgb.gsvnbackend.repository.FandomRepository;
+import com.tgb.gsvnbackend.repository.jpaRepository.FandomRepository;
 import com.tgb.gsvnbackend.service.CachingService;
 import com.tgb.gsvnbackend.service.FandomService;
 import org.springframework.beans.factory.annotation.Autowired;

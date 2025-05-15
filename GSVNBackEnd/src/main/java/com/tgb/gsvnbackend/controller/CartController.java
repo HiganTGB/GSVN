@@ -1,5 +1,6 @@
 package com.tgb.gsvnbackend.controller;
 
+import com.tgb.gsvnbackend.model.dto.CartStatusDTO;
 import com.tgb.gsvnbackend.model.entity.CartItem;
 import com.tgb.gsvnbackend.service.CartService;
 import org.springframework.http.HttpStatus;
@@ -46,5 +47,10 @@ public class CartController {
     public ResponseEntity<List<CartItem>> getCart(Principal user) {
         List<CartItem> cartItems = cartService.getCart(user);
         return ResponseEntity.ok(cartItems);
+    }
+    @GetMapping("/{cartId}/status")
+    public ResponseEntity<CartStatusDTO> getCartStatus(Principal user, @PathVariable String cartId) {
+
+        return ResponseEntity.ok(cartService.cartStatus(user,cartId));
     }
 }

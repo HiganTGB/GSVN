@@ -1,6 +1,7 @@
 package com.tgb.gsvnbackend.queue.config;
 
 import org.springframework.amqp.core.*;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,7 +16,7 @@ public class OrderMQConfig {
     }
 
     @Bean
-    public Binding orderInitConsumerBinding(Queue orderInitConsumerQueue, Exchange exchange) {
+    public Binding orderInitConsumerBinding(Queue orderInitConsumerQueue,@Qualifier("sagaExchange") Exchange exchange) {
         return BindingBuilder.bind(orderInitConsumerQueue).to(exchange).with("order.init").noargs();
     }
     // Item Reserved Event
@@ -25,7 +26,7 @@ public class OrderMQConfig {
     }
 
     @Bean
-    public Binding orderReservedBinding(Queue orderReservedConsumerQueue, Exchange exchange) {
+    public Binding orderReservedBinding(Queue orderReservedConsumerQueue,@Qualifier("sagaExchange") Exchange exchange) {
         return BindingBuilder.bind(orderReservedConsumerQueue).to(exchange).with("order.reserved").noargs();
     }
     // Payment Created Event

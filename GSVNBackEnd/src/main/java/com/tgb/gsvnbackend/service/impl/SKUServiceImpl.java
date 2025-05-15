@@ -1,19 +1,17 @@
 package com.tgb.gsvnbackend.service.impl;
 
 import com.tgb.gsvnbackend.exc.NotFoundException;
-import com.tgb.gsvnbackend.model.domain.SKUDomain;
 import com.tgb.gsvnbackend.model.domain.SPUDomain;
 import com.tgb.gsvnbackend.model.dto.*;
 import com.tgb.gsvnbackend.model.entity.SKU;
 import com.tgb.gsvnbackend.model.entity.SKUAttribute;
-import com.tgb.gsvnbackend.model.entity.SPU;
 import com.tgb.gsvnbackend.model.entity.SPUSKU;
 import com.tgb.gsvnbackend.model.mapper.SKUAttributeMapper;
 import com.tgb.gsvnbackend.model.mapper.SKUMapper;
 import com.tgb.gsvnbackend.model.mapper.SPUSKUMapper;
-import com.tgb.gsvnbackend.repository.SKUAttributeRepository;
-import com.tgb.gsvnbackend.repository.SKURepository;
-import com.tgb.gsvnbackend.repository.SPUSKURepository;
+import com.tgb.gsvnbackend.repository.jpaRepository.SKUAttributeRepository;
+import com.tgb.gsvnbackend.repository.jpaRepository.SKURepository;
+import com.tgb.gsvnbackend.repository.jpaRepository.SPUSKURepository;
 import com.tgb.gsvnbackend.service.CachingService;
 import com.tgb.gsvnbackend.service.SKUService;
 import com.tgb.gsvnbackend.service.client.SPUServiceClient;
@@ -54,8 +52,8 @@ public class SKUServiceImpl implements SKUService {
         sku.setFandomId(sku.getFandomId());
         SKU savedSKU = skuRepository.save(sku);
         SPUSKU spusku= SPUSKU.builder()
-                .skuId(String.valueOf(sku.getSkuId()))
-                .spuId(String.valueOf(spu_id))
+                .skuId(sku.getSkuId())
+                .spuId(spu_id)
                 .build();
         spuskuRepository.save(spusku);
         SKUAttribute attributes=SKUAttribute.builder()
@@ -100,7 +98,7 @@ public class SKUServiceImpl implements SKUService {
         if (spuskudtos != null) {
             return spuskudtos;
         }
-        List<SPUSKU> spuskuList=spuskuRepository.findAllBySpuId(String.valueOf(spu_id));
+        List<SPUSKU> spuskuList=spuskuRepository.findAllBySpuId(spu_id);
         spuskudtos = spuskuList.stream()
                 .map(spuskuMapper::toDTO)
                 .collect(Collectors.toList());
@@ -141,5 +139,6 @@ public class SKUServiceImpl implements SKUService {
         cachingService.saveById(CacheKey, id, skudto, SKUDTO.class);
         return skudto;
     }
+
 
 }

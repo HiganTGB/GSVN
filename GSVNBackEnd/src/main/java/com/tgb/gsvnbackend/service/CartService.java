@@ -1,5 +1,6 @@
 package com.tgb.gsvnbackend.service;
 
+import com.tgb.gsvnbackend.model.dto.CartStatusDTO;
 import com.tgb.gsvnbackend.model.entity.CartItem;
 
 import java.security.Principal;
@@ -11,4 +12,6 @@ public interface CartService {
     void deleteItem(CartItem cartItem, Principal user);
     void cleanCart(Principal user);
     List<CartItem> getCart(Principal user);
+    CartStatusDTO cartStatus(Principal user, String cartId);
+    void handleCartResultReceiver(String cartId,String orderId,String paymentUrl,boolean success);
 }

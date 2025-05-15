@@ -4,7 +4,7 @@ import com.tgb.gsvnbackend.model.domain.SPUDomain;
 import com.tgb.gsvnbackend.model.dto.SPUDTO;
 import com.tgb.gsvnbackend.model.entity.SPU;
 import com.tgb.gsvnbackend.model.mapper.SPUMapper;
-import com.tgb.gsvnbackend.repository.SPURepository;
+import com.tgb.gsvnbackend.repository.jpaRepository.SPURepository;
 import com.tgb.gsvnbackend.service.CachingService;
 
 import com.tgb.gsvnbackend.service.SPUService;

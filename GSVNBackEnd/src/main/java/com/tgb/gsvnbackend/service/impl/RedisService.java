@@ -16,17 +16,16 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 public class RedisService<T extends Serializable> implements CachingService, RedisHashOperationsService {
-    @Autowired
+
     private RedisTemplate<String, String> redisTemplate;
     private final HashOperations<String, Object, Object> hashOperations;
     private final long DEFAULT_CACHE_TIME = 600;
-    @Autowired
     private ObjectMapper objectMapper;
 
     @Autowired
-    public RedisService(RedisTemplate<String, String> redisTemplate, HashOperations<String, Object, Object> hashOperations) {
+    public RedisService(RedisTemplate<String, String> redisTemplate) {
         this.redisTemplate = redisTemplate;
-        this.hashOperations = hashOperations;
+        this.hashOperations = redisTemplate.opsForHash();
     }
     public <T> void setPageData(String key, int page, int size, List<T> data, Class<T> clazz) {
         try {
@@ -58,6 +57,7 @@ public class RedisService<T extends Serializable> implements CachingService, Red
             throw new RuntimeException("Lỗi khi lưu dữ liệu theo ID vào Redis", e);
         }
     }
+
     public <T> T getById(String key, Integer id, Class<T> clazz) {
         try {
             String idKey = String.format("%s:%d", key, id);
@@ -73,6 +73,14 @@ public class RedisService<T extends Serializable> implements CachingService, Red
     public void deleteById(String key, Integer id) {
         try {
             String idKey = String.format("%s:%d", key, id);
+            redisTemplate.delete(idKey);
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi khi xóa dữ liệu theo ID từ Redis", e);
+        }
+    }
+    public void deleteById(String key, String  id) {
+        try {
+            String idKey = String.format("%s:%s", key, id);
             redisTemplate.delete(idKey);
         } catch (Exception e) {
             throw new RuntimeException("Lỗi khi xóa dữ liệu theo ID từ Redis", e);
@@ -128,5 +136,29 @@ public class RedisService<T extends Serializable> implements CachingService, Red
     public void deleteByKey(String key) {
         redisTemplate.delete(key);
     }
+    public <T> void saveById(String key, String id, T data, Class<T> clazz) {
+        try {
+            String idKey = String.format("%s:%s", key, id);
+            String value = objectMapper.writeValueAsString(data);
+            redisTemplate.opsForValue().set(idKey, value, DEFAULT_CACHE_TIME, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi khi lưu dữ liệu theo ID vào Redis", e);
+        }
+    }
 
+    public <T> T getById(String key, String id, Class<T> clazz) {
+        try {
+            String idKey = String.format("%s:%s", key, id);
+            String value = redisTemplate.opsForValue().get(idKey);
+            if (value != null) {
+                return objectMapper.readValue(value, clazz);
+            }
+            return null;
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi khi lấy dữ liệu theo ID từ Redis", e);
+        }
+    }
+    public void putWithExpiration(String key, String value, long timeout, TimeUnit unit) {
+        redisTemplate.opsForValue().set(key, value, timeout, unit);
+    }
 }

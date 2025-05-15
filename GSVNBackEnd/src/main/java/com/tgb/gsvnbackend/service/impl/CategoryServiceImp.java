@@ -4,7 +4,7 @@ import com.tgb.gsvnbackend.exc.NotFoundException;
 import com.tgb.gsvnbackend.model.dto.CategoryDTO;
 import com.tgb.gsvnbackend.model.entity.Category;
 import com.tgb.gsvnbackend.model.mapper.CategoryMapper;
-import com.tgb.gsvnbackend.repository.CategoryRepository;
+import com.tgb.gsvnbackend.repository.jpaRepository.CategoryRepository;
 import com.tgb.gsvnbackend.service.CachingService;
 import com.tgb.gsvnbackend.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
