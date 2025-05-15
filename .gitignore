@@ -4,3 +4,4 @@
 /GSVNBackEnd/src/main/docker/elasticsearch
 /GSVNBackEnd/elk/data
 /GSVNBackEnd/logs
+GSVNBackEnd/.env
