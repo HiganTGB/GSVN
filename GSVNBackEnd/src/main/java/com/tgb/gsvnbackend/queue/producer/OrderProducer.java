@@ -19,7 +19,7 @@ public class OrderProducer {
     @Value("${saga.direct-exchange-name}")
     private String directExchange;
     private final RabbitTemplate rabbitTemplate;
-    private String EMPTY_PREVALUE="empty";
+
     @Autowired
     public OrderProducer(RabbitTemplate rabbitTemplate) {
         this.rabbitTemplate = rabbitTemplate;
@@ -27,7 +27,7 @@ public class OrderProducer {
 
     public void sendItemReverse(Order order)
     {
-        rabbitTemplate.convertAndSend(directExchange,"item.reverser",new ItemReverseMessage(order.getId(),order.getLineItems().stream().map(x->new LineItemDomain(x.getSku(),EMPTY_PREVALUE,EMPTY_PREVALUE,x.getQuantity(), BigDecimal.ZERO,BigDecimal.ZERO)).toList()));
+        rabbitTemplate.convertAndSend(directExchange,"item.reverser",new ItemReverseMessage(order.getId(),order.getLineItems().stream().map(x->new LineItemDomain(x.getSku(),null,null,x.getQuantity(), BigDecimal.ZERO,BigDecimal.ZERO)).toList()));
     }
     public void sentPaymentInit(Order order)
     {
