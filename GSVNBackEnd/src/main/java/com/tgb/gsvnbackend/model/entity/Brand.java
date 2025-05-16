@@ -13,7 +13,7 @@ import java.util.Set;
 @Data
 @Builder
 @Entity
-@Table(name = "brands",schema = "brand")
+@Table(name = "brands",schema = "product")
 public class Brand extends AbstractMappedEntity {
     @Serial
     private static final long serialVersionUID = 1L;

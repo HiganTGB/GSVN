@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/GSVN.iml" filepath="$PROJECT_DIR$/GSVN.iml" />
-      <module fileurl="file://$PROJECT_DIR$/gsvn-frontend/gsvn-frontend.iml" filepath="$PROJECT_DIR$/gsvn-frontend/gsvn-frontend.iml" />
     </modules>
   </component>
 </project>

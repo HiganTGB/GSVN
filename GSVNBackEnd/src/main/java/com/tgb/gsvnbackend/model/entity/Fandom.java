@@ -12,7 +12,7 @@ import java.util.List;
 @Data
 @Builder
 @Entity
-@Table(name = "fandoms",schema = "fandom")
+@Table(name = "fandoms",schema = "product")
 public class Fandom extends AbstractMappedEntity{
     @Serial
     private static final long serialVersionUID = 1L;
