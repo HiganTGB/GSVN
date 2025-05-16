@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface FandomRepository extends JpaRepository<Fandom,Integer>, QuerydslPredicateExecutor<Fandom> {
+public interface FandomRepository extends JpaRepository<Fandom,Integer> {
     List<Fandom> findByTitleContaining(String title);
 }

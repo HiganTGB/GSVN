@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface BrandRepository extends JpaRepository<Brand,Integer>, QuerydslPredicateExecutor<Brand> {
+public interface BrandRepository extends JpaRepository<Brand,Integer> {
     List<Brand> findByTitleContaining(String title);
 }
