@@ -11,6 +11,5 @@ public interface SKUService {
     SKUDTO update(int id, SKUDTO skuDTO);
     void delete(int id);
     SKUDTO read(int id);
-    SKUAttributeDTO readAttribute(int id);
     List<SPUSKUDTO> getListBySpuID(int spu_id);
 }

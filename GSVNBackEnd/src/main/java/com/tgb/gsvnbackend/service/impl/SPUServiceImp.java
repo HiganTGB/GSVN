@@ -4,6 +4,7 @@ import com.tgb.gsvnbackend.model.domain.SPUDomain;
 import com.tgb.gsvnbackend.model.dto.SPUDTO;
 import com.tgb.gsvnbackend.model.entity.SPU;
 import com.tgb.gsvnbackend.model.mapper.SPUMapper;
+import com.tgb.gsvnbackend.repository.jpaRepository.SKURepository;
 import com.tgb.gsvnbackend.repository.jpaRepository.SPURepository;
 import com.tgb.gsvnbackend.service.CachingService;
 import com.tgb.gsvnbackend.service.SPUService;
@@ -12,6 +13,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.*;
+import java.util.stream.Collectors;
+
 @Service
 @Slf4j
 public class SPUServiceImp implements SPUService {
@@ -19,6 +23,7 @@ public class SPUServiceImp implements SPUService {
     private SPUMapper spuMapper;
     private final CachingService cachingService;
     private static final String CacheKey = "spu";
+
     @Autowired
     public SPUServiceImp(SPURepository spuRepository, CachingService cachingService) {
         this.spuRepository = spuRepository;
@@ -48,7 +53,44 @@ public class SPUServiceImp implements SPUService {
         log.info("SPU with ID {} updated, title: '{}', saved to cache.", id, updatedSPUDTO.getTitle());
         return updatedSPUDTO;
     }
+    public void updateSyncAttributes(int id,Map<String,Object> attributes)
+    {
+        SPU entity = findEntity(id);
+        Map<String,Object> current = findEntity(id).getAttrs();
+        if (current == null) {
+            current = new HashMap<>();
+            entity.setAttrs(current);
+        }
+        for (Map.Entry<String, Object> entry : attributes.entrySet()) {
+            String key = entry.getKey();
+            Object newValueObj = entry.getValue();
 
+            if (newValueObj != null) {
+                String newValue = newValueObj.toString();
+                if (current.containsKey(key)) {
+                    Object currentValueObj = current.get(key);
+                    if (currentValueObj != null) {
+                        String currentValue = currentValueObj.toString();
+
+                        Set<String> existingValues = new HashSet<>(Arrays.asList(currentValue.split("[,;]\\s*")));
+                        Set<String> newValues = new HashSet<>(Arrays.asList(newValue.split("[,;]\\s*")));
+
+
+                        existingValues.addAll(newValues);
+                        String mergedValue = existingValues.stream()
+                                .collect(Collectors.joining(", "));
+                        current.put(key, mergedValue);
+                    } else {
+                        current.put(key, newValue);
+                    }
+                } else {
+                    current.put(key, newValue);
+                }
+            }
+        }
+        entity.setAttrs(current);
+        spuRepository.save(entity);
+    }
     @Transactional
     public void delete(int id) {
         log.info("Deleting SPU with ID: {}", id);

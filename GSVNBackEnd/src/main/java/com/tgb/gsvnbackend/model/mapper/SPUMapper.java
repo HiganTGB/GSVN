@@ -18,6 +18,7 @@ public interface SPUMapper {
     @Mapping(target = "spuId", ignore = true)
     @Mapping(target = "isDeleted", ignore = true)
     @Mapping(target = "status", ignore = true)
+    @Mapping(target = "attrs")
     SPU toEntity(SPUDTO spuDTO);
 
     SPUDomain toDomain(SPU spu);

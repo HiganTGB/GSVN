@@ -37,7 +37,9 @@ public class SKU extends AbstractMappedEntity implements Serializable {
     private int fandomId;
     @Column(name="brand_id")
     private int brandId;
-
+    @Convert(converter = JsonDataConverter.class)
+    @Column(name = "sku_attrs",columnDefinition = "JSON")
+    private Map<String, Object> attrs;
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "sku_type")
     private Type type;

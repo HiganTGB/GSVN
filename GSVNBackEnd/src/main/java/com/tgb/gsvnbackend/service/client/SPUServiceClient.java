@@ -7,9 +7,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.util.Map;
+
 @Component
 public class SPUServiceClient {
-    private SPUService spuService;
+    private final SPUService spuService;
     @Autowired
     public SPUServiceClient(SPUService spuService) {
         this.spuService = spuService;
@@ -22,6 +24,10 @@ public class SPUServiceClient {
     public SPUDomain readDomain (int id) {
 
         return spuService.getDomain(id);
+    }
+    public void syncAttribute(int id, Map<String,Object> attributes) // should add into MQ
+    {
+        spuService.updateSyncAttributes(id,attributes);
     }
 
 }

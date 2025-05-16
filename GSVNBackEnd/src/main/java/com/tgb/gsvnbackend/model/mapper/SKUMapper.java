@@ -9,10 +9,13 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface SKUMapper {
 
+    @Mapping(target = "isDeleted",ignore = true)
+
+
     SKU toEntity(SKUDTO dto);
 
+
     @Mapping(target = "spuId", ignore = true)
-    @Mapping(target = "attrs", ignore = true)
     SKUDTO toDTO(SKU entity);
 
 
