@@ -38,12 +38,6 @@ public class SKUController {
         return new ResponseEntity<>(sku, HttpStatus.OK);
     }
 
-    @GetMapping("/{id}/attribute")
-    public ResponseEntity<SKUAttributeDTO> getSKUAttribute(@PathVariable int id)
-    {
-        SKUAttributeDTO skuAttributeDTO = skuService.readAttribute(id);
-        return new ResponseEntity<>(skuAttributeDTO, HttpStatus.OK);
-    }
     @GetMapping("/spu/{spuId}")
     public ResponseEntity<List<SPUSKUDTO>> getSKUsBySpuId(@PathVariable int spuId) {
         List<SPUSKUDTO> spuskuDTOs = skuService.getListBySpuID(spuId);

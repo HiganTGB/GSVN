@@ -121,16 +121,10 @@
             <artifactId>minio</artifactId>
             <version>8.5.7</version>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-elasticsearch</artifactId>
             <version>5.3.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch</artifactId>
-            <version>8.15.1</version>
         </dependency>
             </dependencies>
             <build>
@@ -146,7 +140,7 @@
                                     <goal>process</goal>
                                 </goals>
                                 <configuration>
-                                    <outputDirectory>target/generated-sources/annotations</outputDirectory>
+                                    <outputDirectory> target/generated-sources/apt</outputDirectory>
                                     <processor>
                                         org.springframework.data.mongodb.repository.support.MongoAnnotationProcessor
                                     </processor>

@@ -18,7 +18,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -86,7 +89,9 @@ public class SKUAttributeServiceImp implements SKUAttributeService {
       public List<SKUAttributeDTO> searchByAttrs(String key, String value) {
             log.info("Searching SKU attributes where attribute '{}' contains: '{}'", key, value);
             log.info("Searching SKU attributes in database where attribute '{}' contains: '{}'", key, value);
-            List<SKUAttribute> skuAttributeList = skuAttributeRepository.findByAttrsContaining(String.format("\"%s\":", key), String.format("\"%s\"", value));
+            Map<String, Object> map = new HashMap<>();
+            map.put(key, value);
+            List<SKUAttribute> skuAttributeList = skuAttributeRepository.findSKUAttributeByAttrsLike(map);
             List<SKUAttributeDTO> skuAttributeDTOList = skuAttributeList.stream().map(skuAttributeMapper::toDTO).collect(Collectors.toList());
             log.info("Found {} SKU attributes in database where attribute '{}' contains: '{}'", skuAttributeDTOList.size(), key, value);
             return skuAttributeDTOList;

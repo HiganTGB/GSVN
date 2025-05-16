@@ -69,7 +69,6 @@ public class SKUAttributeController {
         }
     }
 
-
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteSKUAttribute(@PathVariable int id) {
         skuAttributeService.delete(id);
