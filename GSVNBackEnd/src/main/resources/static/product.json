@@ -1,0 +1,59 @@
+{
+    "properties": {
+      "spuId": {
+        "type": "integer"
+      },
+      "title": {
+        "type": "text"
+      },
+      "description": {
+        "type": "text"
+      },
+      "type": {
+        "type": "keyword"
+      },
+      "startOrder": {
+        "type": "date",
+        "format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd"
+      },
+      "endOrder": {
+        "type": "date",
+        "format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd"
+      },
+      "categoryId": {
+        "type": "integer"
+      },
+      "fandomId": {
+        "type": "integer"
+      },
+      "brandId": {
+        "type": "integer"
+      },
+      "status": {
+        "type": "keyword"
+      },
+      "sort": {
+        "type": "integer"
+      },
+      "isDeleted": {
+        "type": "boolean"
+      },
+      "attrs": {
+        "type": "object"
+      },
+      "createdAt": {
+        "type": "date",
+        "format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd"
+      },
+      "updatedAt": {
+        "type": "date",
+        "format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd"
+      },
+      "version": {
+        "type": "long"
+      },
+      "lowestPrice": {
+        "type": "double"
+      }
+    }
+  }
