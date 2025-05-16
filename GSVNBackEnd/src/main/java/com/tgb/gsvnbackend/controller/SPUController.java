@@ -2,7 +2,9 @@ package com.tgb.gsvnbackend.controller;
 
 import com.tgb.gsvnbackend.model.domain.SPUDomain;
 import com.tgb.gsvnbackend.model.dto.SPUDTO;
+import com.tgb.gsvnbackend.model.entity.ProductDocument;
 import com.tgb.gsvnbackend.service.SPUService;
+import com.tgb.gsvnbackend.service.search.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,14 +12,17 @@ import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/spus")
 public class SPUController {
-
+    private final ProductService productService;
     private final SPUService spuService;
 
     @Autowired
-    public SPUController(SPUService spuService) {
+    public SPUController(ProductService productService, SPUService spuService) {
+        this.productService = productService;
         this.spuService = spuService;
     }
 
@@ -50,5 +55,19 @@ public class SPUController {
     @GetMapping("/{id}/domain")
     public SPUDomain readDomain (@PathVariable int id) {
         return spuService.getDomain(id);
+    }
+    @GetMapping("/search")
+    public ResponseEntity<List<ProductDocument>> searchProducts(
+            @RequestParam(required = false) String title,
+            @RequestParam(value = "brandIds", required = false) List<Integer> brandIds,
+            @RequestParam(value = "categoryIds", required = false) List<Integer> categoryIds,
+            @RequestParam(value = "fandomIds", required = false) List<Integer> fandomIds,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String sortBy) {
+        List<ProductDocument> products = productService.search(title, brandIds, categoryIds, fandomIds, minPrice, maxPrice, page, size, sortBy);
+        return ResponseEntity.ok(products);
     }
 }
