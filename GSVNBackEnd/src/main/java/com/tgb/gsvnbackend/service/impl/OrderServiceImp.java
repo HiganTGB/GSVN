@@ -38,6 +38,7 @@ public class OrderServiceImp implements OrderService {
     private final CachingService cachingService;
     private final String CACHE_ORDER_LIFETIME_PREFIX="orderTime:";
     private final String CACHE_ORDER_URL_PREFIX="orderUrlVnpay:";
+    private final QOrder order=QOrder.order;
     @PersistenceContext
     private EntityManager entityManager;
     @Autowired
@@ -128,7 +129,6 @@ public class OrderServiceImp implements OrderService {
     }
     public Page<Order> getAllOrders(int page, int size, String sortBy, String sortDirection, String userId, String keyword, State state) {
         log.info("Getting all orders - Page: {}, Size: {}, Sort by: {}, Direction: {}, User ID: {}, Keyword: {}, State: {}", page, size, sortBy, sortDirection, userId, keyword, state);
-        QOrder order = QOrder.order;
         BooleanExpression predicate = null;
 
         if (userId != null && !userId.isEmpty()) {
