@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -43,12 +44,14 @@ public class OrderController {
     }
 
     @PutMapping("/{id}/state")
+    @PreAuthorize("hasAnyAuthority('ROLE_staff')or hasAnyAuthority('ROLE_admin')")
     public ResponseEntity<Order> changeState(@PathVariable String id, @RequestParam State state) {
         Order updatedOrder = orderService.changeState(id, state);
         return new ResponseEntity<>(updatedOrder, HttpStatus.OK);
     }
 
     @PostMapping("/{id}/payment/retry")
+    @PreAuthorize("hasAnyAuthority('ROLE_customer')")
     public ResponseEntity<String> createOrderPaymentAgain(@PathVariable String id, Principal user) {
         return ResponseEntity.status(HttpStatus.ACCEPTED).body( orderService.createOrderPaymentAgain(id,user));
     }

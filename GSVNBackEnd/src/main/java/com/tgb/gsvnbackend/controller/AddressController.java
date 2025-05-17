@@ -5,6 +5,7 @@ import com.tgb.gsvnbackend.service.AddressService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -21,7 +22,7 @@ public class AddressController {
         this.addressService = addressService;
     }
 
-    @GetMapping("/search")
+    @GetMapping("")
     public ResponseEntity<List<Address>> searchByUserId(Principal principal) {
         List<Address> addresses = addressService.searchByUserId(principal);
         return ResponseEntity.ok(addresses);

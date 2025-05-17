@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -41,7 +42,7 @@ public class CategoryController {
     public ResponseEntity<Page<CategoryDTO>> getCategoriesByPage(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "category_id") String sortBy,
+            @RequestParam(defaultValue = "categoryId") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDirection) {
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by(direction, sortBy));
@@ -50,18 +51,21 @@ public class CategoryController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyAuthority('SCOPE_per::category::create')or hasAnyAuthority('ROLE_admin')")
     public ResponseEntity<CategoryDTO> createCategory(@Valid @RequestBody CategoryDTO categoryDTO) {
         CategoryDTO createdCategory = categoryService.create(categoryDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdCategory);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('SCOPE_per::category::update')or hasAnyAuthority('ROLE_admin')")
     public ResponseEntity<CategoryDTO> updateCategory(@PathVariable int id, @Valid @RequestBody CategoryDTO categoryDTO) {
         CategoryDTO updatedCategory = categoryService.update(id, categoryDTO);
         return ResponseEntity.ok(updatedCategory);
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('SCOPE_per::category::delete')or hasAnyAuthority('ROLE_admin')")
     public ResponseEntity<Void> deleteCategory(@PathVariable int id) {
         categoryService.delete(id);
         return ResponseEntity.noContent().build();

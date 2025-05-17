@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,9 +30,9 @@ public class BrandController {
 
     @GetMapping
     public ResponseEntity<Page<BrandDTO>> getBrandsByPage(
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "brand_id") String sortBy,
+            @RequestParam(name = "page",defaultValue = "1") int page,
+            @RequestParam(name = "size",defaultValue = "10") int size,
+            @RequestParam(name = "sort",defaultValue = "brandId") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDirection) {
         Page<BrandDTO> brandPage = brandService.readByPage(page, size, sortBy, sortDirection);
         return ResponseEntity.ok(brandPage);
@@ -44,18 +45,21 @@ public class BrandController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyAuthority('SCOPE_per:brand::create')or hasAnyAuthority('ROLE_admin')")
     public ResponseEntity<BrandDTO> createBrand(@RequestBody BrandDTO brandDTO) {
         BrandDTO createdBrand = brandService.create(brandDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdBrand);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('SCOPE_per::brand::update')or hasAnyAuthority('ROLE_admin')")
     public ResponseEntity<BrandDTO> updateBrand(@PathVariable int id, @RequestBody BrandDTO brandDTO) {
         BrandDTO updatedBrand = brandService.update(id, brandDTO);
         return ResponseEntity.ok(updatedBrand);
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('SCOPE_per::brand::delete')or hasAnyAuthority('ROLE_admin')")
     public ResponseEntity<Void> deleteBrand(@PathVariable int id) {
         brandService.delete(id);
         return ResponseEntity.noContent().build();

@@ -1,5 +1,6 @@
 package com.tgb.gsvnbackend.service.impl;
 
+import com.tgb.gsvnbackend.exc.DataViolationException;
 import com.tgb.gsvnbackend.exc.NotFoundException;
 import com.tgb.gsvnbackend.model.dto.BrandDTO;
 import com.tgb.gsvnbackend.model.entity.Brand;
@@ -10,9 +11,11 @@ import com.tgb.gsvnbackend.service.CachingService;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -97,17 +100,26 @@ public class BrandServiceImp implements BrandService {
     }
     @Transactional
     public BrandDTO create(BrandDTO brandDTO) {
-        log.info("Creating a new brand with title: {}", brandDTO.getTitle());
-        Brand brand = brandMapper.toEntity(brandDTO);
-        Brand savedBrand = brandRepository.save(brand);
-        BrandDTO savedBrandDTO = brandMapper.toDTO(savedBrand);
-        cachingService.saveById(CacheKey, savedBrand.getBrandId(), savedBrandDTO, BrandDTO.class);
-        log.info("New brand created with ID {} and title '{}', saved to cache.", savedBrand.getBrandId(), savedBrandDTO.getTitle());
-        return savedBrandDTO;
+        try {
+            log.info("Creating a new brand with title: {}", brandDTO.getTitle());
+            Brand brand = brandMapper.toEntity(brandDTO);
+            Brand savedBrand = brandRepository.save(brand);
+            BrandDTO savedBrandDTO = brandMapper.toDTO(savedBrand);
+            cachingService.saveById(CacheKey, savedBrand.getBrandId(), savedBrandDTO, BrandDTO.class);
+            log.info("New brand created with ID {} and title '{}', saved to cache.", savedBrand.getBrandId(), savedBrandDTO.getTitle());
+            return savedBrandDTO;
+        }
+        catch (DataIntegrityViolationException e)
+        {
+            log.info("Duplicate email");
+            throw new DataViolationException("Duplicate email");
+        }
+
     }
 
     @Transactional
     public BrandDTO update(int id, BrandDTO brandDTO) {
+        try {
         log.info("Updating brand with ID {}. New title: {}", id, brandDTO.getTitle());
         Brand existingBrand = findEntity(id);
 
@@ -119,6 +131,12 @@ public class BrandServiceImp implements BrandService {
         log.info("Brand with ID {} updated. New title: '{}', saved to cache.", id, updatedBrandDTO.getTitle());
         return updatedBrandDTO;
     }
+        catch (DataIntegrityViolationException e)
+    {
+        log.info("Duplicate email");
+        throw new DataViolationException("Duplicate email");
+    }
+    }
 
     @Transactional
     public void delete(int id) {
@@ -128,4 +146,5 @@ public class BrandServiceImp implements BrandService {
         cachingService.deleteById(CacheKey, id);
         log.info("Brand with ID {} deleted and removed from cache.", id);
     }
+
 }

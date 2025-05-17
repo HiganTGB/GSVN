@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,6 +35,7 @@ public class SKUAttributeController {
 
 
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('SCOPE_per::spu::management','SCOPE_per::spu::other')or hasAnyAuthority('ROLE_admin')")
     public ResponseEntity<Page<SKUAttributeDTO>> getSKUAttributesByPage(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -45,6 +47,7 @@ public class SKUAttributeController {
 
 
     @GetMapping("/search")
+    @PreAuthorize("hasAnyAuthority('SCOPE_per::spu::management','SCOPE_per::spu::other')or hasAnyAuthority('ROLE_admin')")
     public ResponseEntity<List<SKUAttributeDTO>> searchSKUAttributesByAttrs(
             @RequestParam String key,
             @RequestParam String value) {
@@ -52,7 +55,7 @@ public class SKUAttributeController {
         return new ResponseEntity<>(skuAttributeDTOList, HttpStatus.OK);
     }
 
-
+    @PreAuthorize("hasAnyAuthority('SCOPE_per::spu::management','SCOPE_per::spu::other')or hasAnyAuthority('ROLE_admin')")
     @PostMapping
     public ResponseEntity<SKUAttributeDTO> createSKUAttribute(@RequestBody SKUAttributeDTO skuAttributeDTO) {
         SKUAttributeDTO createdSKUAttribute = skuAttributeService.create(skuAttributeDTO);
@@ -60,6 +63,7 @@ public class SKUAttributeController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('SCOPE_per::spu::management','SCOPE_per::spu::other')or hasAnyAuthority('ROLE_admin')")
     public ResponseEntity<SKUAttributeDTO> updateSKUAttribute(@PathVariable int id, @RequestBody SKUAttributeDTO skuAttributeDTO) {
         SKUAttributeDTO updatedSKUAttribute = skuAttributeService.update(id, skuAttributeDTO);
         if (updatedSKUAttribute != null) {

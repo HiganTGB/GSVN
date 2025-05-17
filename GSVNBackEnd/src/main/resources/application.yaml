@@ -87,10 +87,9 @@ com:
             authorities:
               - path: $.realm_access.roles
                 prefix: ROLE_
-              - path: $.resource_access.*.roles
+              - path: $.resource_access.gsvn-backend.roles
                 prefix: SCOPE_
         resourceserver:
-          # default access rule is "isAuthenticated" except for the path matched here (allowed to anonymous requests)
           permit-all:
             - "/api/*"
 

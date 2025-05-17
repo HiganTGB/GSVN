@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -65,6 +66,7 @@ public class MediaController {
     }
 
     @PostMapping("/spu/{spuId}/image")
+    @PreAuthorize("hasAnyAuthority('SCOPE_per::spu::create','SCOPE_per::spu::other')or hasAnyAuthority('ROLE_admin')")
     public ResponseEntity<String> uploadSpuImage(@PathVariable Integer spuId, @RequestParam("file") MultipartFile file) {
         try {
             String objectName = String.format("spu/%d/image/%s", spuId, file.getOriginalFilename());
@@ -89,6 +91,7 @@ public class MediaController {
     }
 
     @PostMapping("/spu/{spuId}/gallery")
+    @PreAuthorize("hasAnyAuthority('SCOPE_per::spu::create','SCOPE_per::spu::other')or hasAnyAuthority('ROLE_admin')")
     public ResponseEntity<String> uploadSpuGallery(@PathVariable Integer spuId, @RequestParam("files") MultipartFile[] files) {
         try {
             for (MultipartFile file : files) {
@@ -138,6 +141,7 @@ public class MediaController {
         }
     }
     @PostMapping("/spu/{spuId}/video")
+    @PreAuthorize("hasAnyAuthority('SCOPE_per::spu::create','SCOPE_per::spu::other')or hasAnyAuthority('ROLE_admin')")
     public ResponseEntity<String> uploadSpuVideo(@PathVariable Integer spuId, @RequestParam("file") MultipartFile file) {
         try {
             String objectName = String.format("spu/%d/video/%s", spuId, file.getOriginalFilename());

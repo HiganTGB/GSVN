@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,6 +29,7 @@ public class SPUController {
 
 
     @PostMapping
+    @PreAuthorize("hasAnyAuthority('SCOPE_per::spu::management','SCOPE_per::spu::other')or hasAnyAuthority('ROLE_admin')")
     public ResponseEntity<SPUDTO> createSPU(@RequestBody @Valid SPUDTO spuDTO) {
         SPUDTO createdSPU = spuService.create(spuDTO);
         return new ResponseEntity<>(createdSPU, HttpStatus.CREATED);
@@ -35,6 +37,7 @@ public class SPUController {
 
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('SCOPE_per::spu::management','SCOPE_per::spu::other')or hasAnyAuthority('ROLE_admin')")
     public ResponseEntity<SPUDTO> updateSPU(@PathVariable int id, @RequestBody @Valid SPUDTO spuDTO) {
         SPUDTO updatedSPU = spuService.update(id, spuDTO);
         return new ResponseEntity<>(updatedSPU, HttpStatus.OK);
@@ -42,6 +45,7 @@ public class SPUController {
 
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('SCOPE_per::spu::management','SCOPE_per::spu::other')or hasAnyAuthority('ROLE_admin')")
     public ResponseEntity<Void> deleteSPU(@PathVariable int id) {
         spuService.delete(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

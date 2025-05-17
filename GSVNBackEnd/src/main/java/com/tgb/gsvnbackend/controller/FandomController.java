@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -45,18 +46,21 @@ public class FandomController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyAuthority('SCOPE_per::fandom::create')or hasAnyAuthority('ROLE_admin')")
     public ResponseEntity<FandomDTO> createFandom(@Valid @RequestBody FandomDTO fandomDTO) {
         FandomDTO createdFandom = fandomService.create(fandomDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdFandom);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('SCOPE_per::fandom::update')or hasAnyAuthority('ROLE_admin')")
     public ResponseEntity<FandomDTO> updateFandom(@PathVariable int id, @Valid @RequestBody FandomDTO fandomDTO) {
         FandomDTO updatedFandom = fandomService.update(id, fandomDTO);
         return ResponseEntity.ok(updatedFandom);
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('SCOPE_per::fandom::delete')or hasAnyAuthority('ROLE_admin')")
     public ResponseEntity<Void> deleteFandom(@PathVariable int id) {
         fandomService.delete(id);
         return ResponseEntity.noContent().build();
@@ -66,7 +70,7 @@ public class FandomController {
     public ResponseEntity<Page<FandomDTO>> getFandomsByPage(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "fandom_id") String sortBy,
+            @RequestParam(defaultValue = "fandomId") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDirection) {
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by(direction, sortBy));
