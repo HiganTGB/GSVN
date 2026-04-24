@@ -187,6 +187,18 @@ services:
           memory: 80MB
     networks:
       - gsvn_network
+  address-service:
+    build:
+      context: ../AddressService
+      dockerfile: Dockerfile
+    container_name: gsvn-address-service
+    ports:
+      - "5005:5005"
+    networks:
+      - gsvn_network
+    depends_on:
+      consul-server-1:
+        condition: service_healthy
 volumes:
   postgres_data: {}
   redis_data: {}
