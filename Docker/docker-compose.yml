@@ -139,11 +139,62 @@ services:
       - SPRING_SECURITY_USER_PASSWORD=${EUREKA_PASSWORD}
     networks:
       - gsvn_network
+  consul-server-1:
+    image: hashicorp/consul:1.22
+    container_name: gsvn-consul-1
+    #restart: always
+    command: "agent -server -bootstrap-expect=3 -node=server-1 -ui -client=0.0.0.0 -disable-host-node-id -log-level=err"
+    volumes:
+      - consul_data_1:/consul/data
+    ports:
+      - "8500:8500"
+    deploy:
+      resources:
+        limits:
+          memory: 80MB
+    networks:
+      - gsvn_network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8500/v1/status/leader" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  consul-server-2:
+    image: hashicorp/consul:1.22
+    container_name: gsvn-consul-2
+    #restart: always
+    command: "agent -server -retry-join=consul-server-1 -node=server-2 -client=0.0.0.0 -disable-host-node-id -log-level=err"
+    volumes:
+      - consul_data_2:/consul/data
+    deploy:
+      resources:
+        limits:
+          memory: 80MB
+    networks:
+      - gsvn_network
+
+  consul-server-3:
+    image: hashicorp/consul:1.22
+    container_name: gsvn-consul-3
+    #restart: always
+    command: "agent -server -retry-join=consul-server-1 -node=server-3 -client=0.0.0.0 -disable-host-node-id -log-level=err"
+    volumes:
+      - consul_data_3:/consul/data
+    deploy:
+      resources:
+        limits:
+          memory: 80MB
+    networks:
+      - gsvn_network
 volumes:
   postgres_data: {}
   redis_data: {}
   db-data-kong-postgres: {}
   db-data-konga-postgres: {}
+  consul_data_1: { }
+  consul_data_2: { }
+  consul_data_3: { }
 networks:
   gsvn_network:
     driver: bridge
