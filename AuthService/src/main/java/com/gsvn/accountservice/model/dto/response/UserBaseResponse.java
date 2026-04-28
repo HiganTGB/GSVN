@@ -25,6 +25,7 @@ public class UserBaseResponse {
     Boolean isActive;
     Boolean enabled;
     Boolean isStaff;
+    Integer referenceId;
     OffsetDateTime createdAt;
     OffsetDateTime updatedAt;
 }

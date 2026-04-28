@@ -150,7 +150,6 @@ public class RoleService {
     public void delete(int id) {
         rolePermissionRepository.deleteAllByRoleId(id);
         roleRepository.deleteById(id);
-
         clearCache(id);
     }
 
@@ -224,7 +223,7 @@ public class RoleService {
     }
 
     @Transactional(rollbackOn = {Exception.class})
-    public Set<RoleResponse> updateRolesByUserId(String userId, Set<Integer> newRoleIds) {
+    public Set<RoleResponse> updateRolesByUserId(String userId, List<Integer> newRoleIds) {
         log.info("Updating roles for User ID: {}", userId);
 
         Set<Integer> currentRoleIds = userRoleRepository.findByUserId(userId)
@@ -255,14 +254,17 @@ public class RoleService {
         return getRolesByUserId(userId);
     }
 
-    public Set<String> getMyRoles() {
+    public String getMyRoles() {
         var context = SecurityContextHolder.getContext();
         String email = context.getAuthentication().getName();
-
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-
-        return getRolesByUserId(user.getUserId()).stream().map(RoleResponse::name).collect(Collectors.toSet());
+        try {
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+            return user.getIsStaff() ? "STAFF" : "CUSTOMER";
+        }catch (AppException ex)
+        {
+            return "CUSTOMER";
+        }
     }
     public Set<String> getPermissionsByUserId(String userId) {
         Set<Integer> roleIds = userRoleRepository.findByUserId(userId)

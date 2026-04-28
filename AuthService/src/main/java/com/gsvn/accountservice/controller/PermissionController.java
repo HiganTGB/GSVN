@@ -20,20 +20,8 @@ import java.util.List;
 @Slf4j
 public class PermissionController {
     PermissionService permissionService;
-
-    @PostMapping
-    ApiResponse<PermissionResponse> create(@RequestBody @Valid PermissionRequest request) {
-        return new ApiResponse<>( permissionService.create(request));
-    }
-
     @GetMapping
     ApiResponse<List<PermissionResponse>> getAll() {
         return new ApiResponse<>( permissionService.getAll());
-    }
-
-    @DeleteMapping("/{permissionId}")
-    ApiResponse<Void> delete(@PathVariable Integer permissionId) {
-        permissionService.delete(permissionId);
-        return new ApiResponse<Void>();
     }
 }

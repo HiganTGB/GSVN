@@ -26,25 +26,8 @@ public class PermissionService {
     PermissionRepository permissionRepository;
     PermissionMapper permissionMapper;
 
-    @Transactional(rollbackOn = {Exception.class})
-    public PermissionResponse create(PermissionRequest request) {
-        Permission permission = permissionMapper.toPermission(request);
-        permission = permissionRepository.save(permission);
-        return permissionMapper.toPermissionResponse(permission);
-    }
-
     public List<PermissionResponse> getAll() {
         var permissions = permissionRepository.findAll();
-        List<PermissionResponse> result = permissions.stream().map(permissionMapper::toPermissionResponse).toList();
-        return result;
-    }
-
-    @Transactional(rollbackOn = {Exception.class})
-    public void delete(int id) {
-        permissionRepository.deleteById(id);
-    }
-
-    public Set<Permission> findAllByIds(Set<Integer> permissionIds) {
-        return permissionRepository.findAllByPermissionIdIn(permissionIds);
+        return permissions.stream().map(permissionMapper::toPermissionResponse).toList();
     }
 }

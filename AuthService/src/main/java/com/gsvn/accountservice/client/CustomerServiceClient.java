@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 
 @FeignClient(
-        name = "CUSTOMERSERVICE",
+        name = "customer-service",
         contextId = "customer",
         path = "/api/v1/customers",
         configuration = InternalFeignConfig.class

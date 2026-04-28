@@ -17,7 +17,7 @@ import org.hibernate.annotations.SQLDelete;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@SQLDelete(sql = "UPDATE acc_db.users SET enabled = FALSE, updated_at = NOW() WHERE user_id = ?")
+@SQLDelete(sql = "UPDATE users SET deletedAt = NOW() , updated_at = NOW() WHERE user_id = ?")
 @FilterDef(name = "enabledFilter", parameters = {})
 @Filter(name = "enabledFilter", condition = "enabled = TRUE")
 @Table(name="users")
@@ -42,6 +42,8 @@ public class User {
     OffsetDateTime deletedAt;
     @Column(name = "is_staff",nullable = false)
     Boolean isStaff;
+    @Column(name = "reference_id")
+    Long referenceId;
     @Column(name = "created_at")
     OffsetDateTime createdAt;
     @Column(name = "updated_at")

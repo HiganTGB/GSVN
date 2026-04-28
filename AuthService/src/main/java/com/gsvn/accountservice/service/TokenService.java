@@ -1,43 +1,66 @@
 package com.gsvn.accountservice.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TokenService {
     private final StringRedisTemplate redisTemplate;
 
-    private static final String BLACKLIST_PREFIX = "bl:";
-    private static final String WHITELIST_PREFIX = "wl:";
-
-    private String buildKey(String prefix, String userId, String jti) {
-        return prefix + userId + ":" + jti;
-    }
+    private static final String BLACKLIST_KEY = "auth:blacklist:%s:%s"; // auth:blacklist:userId:jti
+    private static final String WHITELIST_KEY = "auth:whitelist:%s:%s"; // auth:whitelist:userId:jti
+    private static final String USER_SESSIONS_KEY = "auth:user_sessions:%s"; // auth:user_sessions:userId (Redis Set)
 
     public void blacklistToken(String userId, String jti, long expirationMillis) {
         if (expirationMillis <= 0) return;
-        String key = buildKey(BLACKLIST_PREFIX, userId, jti);
-        redisTemplate.opsForValue().set(key, "1", expirationMillis, TimeUnit.MILLISECONDS);
+
+        String key = String.format(BLACKLIST_KEY, userId, jti);
+        redisTemplate.opsForValue().set(key, "revoked", expirationMillis, TimeUnit.MILLISECONDS);
+        removeTokenFromWhitelist(userId, jti);
     }
 
     public boolean isTokenBlacklisted(String userId, String jti) {
-        return redisTemplate.hasKey(buildKey(BLACKLIST_PREFIX, userId, jti));
+        Boolean exists = redisTemplate.hasKey(String.format(BLACKLIST_KEY, userId, jti));
+        return Boolean.TRUE.equals(exists);
     }
 
     public void saveToken(String userId, String jti, long expiration, TimeUnit unit) {
-        String key = buildKey(WHITELIST_PREFIX, userId, jti);
-        redisTemplate.opsForValue().set(key, "1", expiration, unit);
+        String whitelistKey = String.format(WHITELIST_KEY, userId, jti);
+        String sessionKey = String.format(USER_SESSIONS_KEY, userId);
+
+        redisTemplate.opsForValue().set(whitelistKey, "active", expiration, unit);
+
+        redisTemplate.opsForSet().add(sessionKey, jti);
+        redisTemplate.expire(sessionKey, expiration, unit);
     }
 
     public void logoutAllDevices(String userId) {
-        String pattern = WHITELIST_PREFIX + userId + ":*";
-        var keys = redisTemplate.keys(pattern);
-        if (!keys.isEmpty()) {
-            redisTemplate.delete(keys);
+        String sessionKey = String.format(USER_SESSIONS_KEY, userId);
+        Set<String> jtis = redisTemplate.opsForSet().members(sessionKey);
+
+        if (jtis != null && !jtis.isEmpty()) {
+            Set<String> keysToDelete = jtis.stream()
+                    .map(jti -> String.format(WHITELIST_KEY, userId, jti))
+                    .collect(java.util.stream.Collectors.toSet());
+
+            redisTemplate.delete(keysToDelete);
+            log.info("Logged out all devices for user: {} ({} tokens)", userId, jtis.size());
         }
-        //TODO : add to blacklist
+        redisTemplate.delete(sessionKey);
+    }
+
+    private void removeTokenFromWhitelist(String userId, String jti) {
+        String whitelistKey = String.format(WHITELIST_KEY, userId, jti);
+        String sessionKey = String.format(USER_SESSIONS_KEY, userId);
+
+        redisTemplate.delete(whitelistKey);
+        redisTemplate.opsForSet().remove(sessionKey, jti);
     }
 }

@@ -1,4 +1,17 @@
 package com.gsvn.accountservice.model.dto.request;
 
-public record ChangePasswordRequest (String oldPassword,String newPassword ,String rePassword){
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
+public record ChangePasswordRequest(
+        @NotBlank(message = "OLD_PASSWORD_REQUIRED")
+        String oldPassword,
+
+        @NotBlank(message = "NEW_PASSWORD_REQUIRED")
+        @Size(min = 6, max = 50, message = "PASSWORD_INVALID_SIZE")
+        String newPassword,
+
+        @NotBlank(message = "RE_PASSWORD_REQUIRED")
+        String rePassword
+) {
 }

@@ -2,14 +2,13 @@ server:
   port: 5001
 
 spring:
-  application:
-    name: authService
+
   security:
     user:
       name: abc1234
       password: abc1234
   datasource:
-    url: "jdbc:postgresql://postgres:5432/gsvn_dev"
+    url: "jdbc:postgresql://postgres:5432/gsvn_dev?currentSchema=acc_db"
     driverClassName: "org.postgresql.Driver"
     username: postgres
     password: postgres
@@ -24,10 +23,18 @@ spring:
     redis:
       host: redis
       port: 6379
-eureka:
-  client:
-    service-url:
-      defaultZone: http://abc1234:abc1234@eureka:8761/eureka/
+  cloud:
+    consul:
+      host:
+      port:
+      discovery:
+        service-name:
+        instance-id: ${spring.application.name}:${server.port}
+        prefer-ip-address:
+        heartbeat:
+          enabled: true
+          ttl: 60s
+        health-check-critical-timeout: 2m
 jwt:
   signerKey: "5661608670d8591f4a9b407b975e1195d5204481358997c4e512803b87944062"
   valid-duration: 3600

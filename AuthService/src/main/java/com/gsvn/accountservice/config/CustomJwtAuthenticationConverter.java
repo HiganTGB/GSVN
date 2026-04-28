@@ -46,10 +46,10 @@ public class CustomJwtAuthenticationConverter implements Converter<Jwt, Abstract
                                 .forEach(authorities::add);
                     }
                 } catch (Exception e) {
-                    return new JwtAuthenticationToken(jwt, authorities);
+                    return new CustomAuthenticationToken(jwt, authorities);
                 }
             }
         }
-        return new JwtAuthenticationToken(jwt, authorities);
+        return new CustomAuthenticationToken(jwt, authorities);
     }
 }

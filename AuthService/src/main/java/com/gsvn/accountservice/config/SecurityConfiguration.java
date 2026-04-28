@@ -29,7 +29,8 @@ public class SecurityConfiguration {
 
     private final String[] PUBLIC_ENDPOINTS = {
             "/api/v1/users", "/api/v1/auth/token", "/api/v1/auth/introspect", "/api/v1/auth/logout", "/api/v1/auth/refresh"
-            , "/api/v1/auth/outbound/authentication"
+            , "/api/v1/auth/outbound/authentication","/api/v1/auth/forgot-password",
+            "/api/v1/auth/reset-password"
     };
     @Autowired
     private CustomJwtDecoder customJwtDecoder;

@@ -24,6 +24,6 @@ public class SyncUserRequest {
 
     @Pattern(regexp = "^\\d{10}$", message = "INVALID_PHONE_NUMBER")
     String phoneNumber;
-
+    Long referenceId;
     Boolean verifier = false;
 }

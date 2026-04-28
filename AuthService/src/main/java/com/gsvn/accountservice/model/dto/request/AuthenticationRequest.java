@@ -9,6 +9,5 @@ public record AuthenticationRequest(
         @Email(message = "INVALID_EMAIL")
         String email,
         @NotBlank(message = "PASSWORD_REQUIRED")
-        @Size(min = 8, message = "PASSWORD_INVALID_SIZE")
         String password) {
 }
