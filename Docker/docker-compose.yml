@@ -260,33 +260,6 @@ services:
       timeout: 5s
       retries: 5
       start_period: 20s
-
-  address-service:
-    build:
-      context: ../AddressService
-      dockerfile: Dockerfile
-    container_name: gsvn-address-service
-    ports:
-      - "5005:5005"
-      - "${ADDRESS_SERVICE_PORT:-5005}:5005"
-    networks:
-      - gsvn_network
-    depends_on:
-      consul-server-1:
-        condition: service_healthy
-    environment:
-      - SERVER_PORT=${ADDRESS_SERVICE_PORT}
-      - SPRING_SECURITY_USER_NAME=${ADDRESS_SERVICE_USER}
-      - SPRING_SECURITY_USER_PASSWORD=${ADDRESS_SERVICE_PASSWORD}
-      - SPRING_DATASOURCE_URL=${ADDRESS_DB_URL}
-      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=${ADDRESS_DB_DRIVER}
-      - SPRING_CLOUD_CONSUL_HOST=${CONSUL_HOST}
-      - SPRING_CLOUD_CONSUL_PORT=${CONSUL_PORT}
-      - SPRING_CLOUD_CONSUL_DISCOVERY_SERVICE_NAME=${ADDRESS_SERVICE_NAME}
-    deploy:
-      resources:
-        limits:
-          memory: 256M
   auth-service:
     build:
       context: ../AuthService
@@ -317,14 +290,68 @@ services:
 
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PASSWORD=${REDIS_PASSWORD}
+      #      - AUTH_REDIS_DB=${AUTH_REDIS_DB}
       - CONSUL_HOST=${CONSUL_HOST}
       - CONSUL_PORT=${CONSUL_PORT}
       - JWT_SIGNER_KEY=${JWT_SIGNER_KEY}
       - INTERNAL_API_KEY=${INTERNAL_API_KEY}
     deploy:
-        resources:
-          limits:
-            memory: 512M
+      resources:
+        limits:
+          memory: 512M
+  address-service:
+    build:
+      context: ../AddressService
+      dockerfile: Dockerfile
+    container_name: gsvn-address-service
+    ports:
+      - "5005:5005"
+      - "${ADDRESS_SERVICE_PORT:-5005}:5005"
+    networks:
+      - gsvn_network
+    depends_on:
+      consul-server-1:
+        condition: service_healthy
+    environment:
+      - SERVER_PORT=${ADDRESS_SERVICE_PORT}
+      - SPRING_SECURITY_USER_NAME=${ADDRESS_SERVICE_USER}
+      - SPRING_SECURITY_USER_PASSWORD=${ADDRESS_SERVICE_PASSWORD}
+      - SPRING_DATASOURCE_URL=${ADDRESS_DB_URL}
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=${ADDRESS_DB_DRIVER}
+      - SPRING_CLOUD_CONSUL_HOST=${CONSUL_HOST}
+      - SPRING_CLOUD_CONSUL_PORT=${CONSUL_PORT}
+      - SPRING_CLOUD_CONSUL_DISCOVERY_SERVICE_NAME=${ADDRESS_SERVICE_NAME}
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    build:
+      dockerfile: Dockerfile
+    ports:
+    networks:
+      - gsvn_network
+    depends_on:
+      consul-server-1:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+
+
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - CONSUL_HOST=${CONSUL_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+      - JWT_SIGNER_KEY=${JWT_SIGNER_KEY}
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY}
     networks:
       - gsvn_network
     depends_on:
