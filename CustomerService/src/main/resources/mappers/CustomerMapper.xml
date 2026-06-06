@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gsvn.customerservice.mapper.CustomerMapper">
+    <sql id="CustomerColumns">
+        customer_id, user_id, email, full_name, gender,
+        dob, phone_number, deleted_at, created_at, updated_at
+    </sql>
+
+    <select id="findById" resultType="com.gsvn.customerservice.model.entity.Customer">
+        SELECT <include refid="CustomerColumns"/>
+        FROM CUSTOMERS
+        WHERE customer_id = #{id} AND deleted_at IS NULL
+    </select>
+
+    <select id="findByUserId" resultType="com.gsvn.customerservice.model.entity.Customer">
+        SELECT <include refid="CustomerColumns"/>
+        FROM CUSTOMERS
+        WHERE user_id = #{userId} AND deleted_at IS NULL
+    </select>
+
+    <select id="findByPhone" resultType="com.gsvn.customerservice.model.entity.Customer">
+        SELECT <include refid="CustomerColumns"/>
+        FROM CUSTOMERS
+        WHERE phone_number = #{phoneNumber} AND deleted_at IS NULL
+        LIMIT 1
+    </select>
+    <select id="findByEmail" resultType="com.gsvn.customerservice.model.entity.Customer">
+        SELECT <include refid="CustomerColumns"/>
+        FROM CUSTOMERS
+        WHERE email = #{email} AND deleted_at IS NULL
+        LIMIT 1
+    </select>
+
+    <insert id="insert" parameterType="com.gsvn.customerservice.model.entity.Customer"
+            useGeneratedKeys="true" keyProperty="customerId">
+        INSERT INTO CUSTOMERS (user_id, email, full_name, gender, dob, phone_number)
+        VALUES (#{userId}, #{email}, #{fullName}, #{gender}, #{dob}, #{phoneNumber})
+    </insert>
+
+    <update id="update" parameterType="com.gsvn.customerservice.model.entity.Customer">
+        UPDATE CUSTOMERS
+        <set>
+            <if test="fullName != null">full_name = #{fullName},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="phoneNumber != null">phone_number = #{phoneNumber},</if>
+            <if test="gender != null">gender = #{gender},</if>
+            <if test="dob != null">dob = #{dob},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            updated_at = CURRENT_TIMESTAMP
+        </set>
+        WHERE customer_id = #{customerId}
+    </update>
+
+    <select id="findAdvanced" resultType="com.gsvn.customerservice.model.entity.Customer">
+        SELECT <include refid="CustomerColumns"/>
+        FROM CUSTOMERS
+        <where>
+            deleted_at IS NULL
+            <if test="kw != null and kw != ''">
+                AND (full_name ILIKE CONCAT('%', #{kw}, '%')
+                OR email ILIKE CONCAT('%', #{kw}, '%')
+                OR phone_number ILIKE CONCAT('%', #{kw}, '%'))
+            </if>
+        </where>
+        ORDER BY ${sortField} ${sortOrder}
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="countAdvanced" resultType="long">
+        SELECT COUNT(*)
+        FROM CUSTOMERS
+        <where>
+            deleted_at IS NULL
+            <if test="kw != null and kw != ''">
+                AND (full_name ILIKE CONCAT('%', #{kw}, '%')
+                OR email ILIKE CONCAT('%', #{kw}, '%')
+                OR phone_number ILIKE CONCAT('%', #{kw}, '%'))
+            </if>
+        </where>
+    </select>
+
+
+    <update id="deleteById">
+        UPDATE CUSTOMERS
+        SET deleted_at = CURRENT_TIMESTAMP,
+            email = CONCAT(EXTRACT(EPOCH FROM NOW())::INTEGER, '_', email),
+            updated_at = CURRENT_TIMESTAMP
+        WHERE customer_id = #{customerId}
+    </update>
+
+</mapper>

@@ -1,0 +1,35 @@
+server:
+  port: 5002
+
+spring:
+  security:
+    user:
+      name: abc1234
+      password: abc1234
+  datasource:
+    url: "jdbc:postgresql://postgres:5432/gsvn_dev?currentSchema=customer_db"
+    driverClassName: "org.postgresql.Driver"
+    username: postgres
+    password: postgres
+  data:
+    redis:
+      host:
+      port: 6379
+      database: 1
+  cloud:
+    consul:
+      host:
+      port:
+      discovery:
+        service-name:
+        instance-id: ${spring.application.name}:${server.port}
+        prefer-ip-address: false
+        heartbeat:
+          enabled: true
+          ttl:
+        health-check-critical-timeout:
+jwt:
+  signerKey: ""
+app:
+  security:
+    internal-api-key: ""
