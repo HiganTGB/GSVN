@@ -1,0 +1,19 @@
+spring:
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:prod}
+  application:
+    name: hrm-service
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+server:
+  port: ${HRM_SERVICE_PORT:5003}
+
+mybatis:
+  mapper-locations: classpath:mappers/*.xml
+  type-aliases-package: com.gsvn.hrmservice.model.entity
+  configuration:
+    map-underscore-to-camel-case: true
+    default-enum-type-handler: org.apache.ibatis.type.EnumTypeHandler
