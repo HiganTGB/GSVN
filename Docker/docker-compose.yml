@@ -325,9 +325,13 @@ services:
       resources:
         limits:
           memory: 256M
+  customer-service:
     build:
+      context: ../CustomerService
       dockerfile: Dockerfile
+    container_name: gsvn-customer-service
     ports:
+      - "${CUSTOMER_SERVICE_PORT}:5004"
     networks:
       - gsvn_network
     depends_on:
@@ -339,17 +343,62 @@ services:
         condition: service_healthy
     environment:
       - SPRING_PROFILES_ACTIVE=prod
-
+      - CUSTOMER_SERVICE_PORT=${CUSTOMER_SERVICE_PORT}
 
       - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - CUSTOMER_DB_SCHEMA=${CUSTOMER_DB_SCHEMA}
 
       - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
       - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - CUSTOMER_REDIS_DATABASE=${CUSTOMER_REDIS_DATABASE}
       - CONSUL_HOST=${CONSUL_HOST}
       - CONSUL_PORT=${CONSUL_PORT}
+
+      - CUSTOMER_SERVICE_USER=${CUSTOMER_SERVICE_USER}
+      - CUSTOMER_SERVICE_PASSWORD=${CUSTOMER_SERVICE_PASSWORD}
+      - JWT_SIGNER_KEY=${JWT_SIGNER_KEY}
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY}
+  hrm-service:
+    build:
+      context: ../HRMService
+      dockerfile: Dockerfile
+    container_name: gsvn-hrm-service
+    ports:
+      - "5003:5003"
+    networks:
+      - gsvn_network
+    depends_on:
+      consul-server-1:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - HRM_SERVICE_PORT=${HRM_SERVICE_PORT}
+
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - HRM_DB_SCHEMA=${HRM_DB_SCHEMA}
+
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - HRM_REDIS_DATABASE=${HRM_REDIS_DATABASE}
+      - CONSUL_HOST=${CONSUL_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+
+      - HRM_SERVICE_USER=${HRM_SERVICE_USER}
+      - HRM_SERVICE_PASSWORD=${HRM_SERVICE_PASSWORD}
       - JWT_SIGNER_KEY=${JWT_SIGNER_KEY}
       - INTERNAL_API_KEY=${INTERNAL_API_KEY}
     networks:
