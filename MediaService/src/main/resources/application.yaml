@@ -1,0 +1,22 @@
+server:
+  port: ${MEDIA_SERVICE_PORT:5002}
+spring:
+  application:
+    name: media-service
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:local}
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+minio:
+  bucket-name: ${MINIO_BUCKET_NAME:media}
+  temp-bucket-name: ${MINIO_TEMP_BUCKET_NAME:temp}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always

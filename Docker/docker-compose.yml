@@ -325,6 +325,40 @@ services:
       resources:
         limits:
           memory: 256M
+  media-service:
+    build:
+      context: ../MediaService
+      dockerfile: Dockerfile
+    container_name: gsvn-media-service
+    ports:
+      - "5002:5002"
+    networks:
+      - gsvn_network
+    depends_on:
+      consul-server-1:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - MEDIA_SERVICE_PORT=${MEDIA_SERVICE_PORT}
+
+      - MINIO_ENDPOINT=${MINIO_ENDPOINT}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+      - MINIO_BUCKET_NAME=${MINIO_BUCKET_NAME}
+      - MINIO_TEMP_BUCKET_NAME=${MINIO_TEMP_BUCKET_NAME}
+      - MINIO_EXTERNAL_URL=${MINIO_EXTERNAL_URL}
+      - MEDIA_SERVICE_USER=${MEDIA_SERVICE_USER}
+      - MEDIA_SERVICE_PASSWORD=${MEDIA_SERVICE_PASSWORD}
+      - JWT_SIGNER_KEY=${JWT_SIGNER_KEY}
+
+      - CONSUL_HOST=${CONSUL_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+    deploy:
+      resources:
+        limits:
+          memory: 256M
   customer-service:
     build:
       context: ../CustomerService
