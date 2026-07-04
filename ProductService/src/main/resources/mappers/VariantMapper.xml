@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gsvn.productservice.mapper.VariantMapper">
+
+    <select id="findVariantsByProductId" resultType="com.gsvn.productservice.model.entity.Variant">
+        SELECT * FROM product_variant WHERE product_id = #{productId} ORDER BY id ASC
+    </select>
+    <select id="countVariantsByProductId" resultType="Integer">
+        SELECT Count(*) FROM product_variant WHERE product_id = #{productId}
+    </select>
+
+    <insert id="insertVariant" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO product_variant (product_id, name)
+        VALUES (#{productId}, #{name})
+    </insert>
+
+    <update id="updateVariant">
+        UPDATE product_variant SET name = #{name} WHERE id = #{id}
+    </update>
+
+    <delete id="deleteVariant">
+        DELETE FROM product_variant WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteOptionsByVariantId">
+        DELETE FROM variant_option WHERE variant_id = #{variantId}
+    </delete>
+
+    <select id="findOptionsByVariantId" resultType="com.gsvn.productservice.model.entity.VariantOption">
+        SELECT * FROM variant_option WHERE variant_id = #{variantId} ORDER BY id ASC
+    </select>
+
+    <insert id="insertOption" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO variant_option (variant_id, name)
+        VALUES (#{variantId}, #{name})
+    </insert>
+
+    <update id="updateOption">
+        UPDATE variant_option SET name = #{name} WHERE id = #{id}
+    </update>
+
+    <delete id="deleteOption">
+        DELETE FROM variant_option WHERE id = #{id}
+    </delete>
+
+    <resultMap id="VariantDetailMap" type="com.gsvn.productservice.model.dto.response.VariantResponse">
+        <id property="id" column="v_id"/>
+        <result property="name" column="v_name"/>
+        <collection property="options" ofType="com.gsvn.productservice.model.dto.response.VariantResponse$OptionResponse">
+            <id property="id" column="o_id"/>
+            <result property="name" column="o_name"/>
+        </collection>
+    </resultMap>
+
+    <select id="findVariantsWithOptions" resultMap="VariantDetailMap">
+        SELECT v.id as v_id, v.name as v_name, o.id as o_id, o.name as o_name
+        FROM product_variant v
+        LEFT JOIN variant_option o ON v.id = o.variant_id
+        WHERE v.product_id = #{productId}
+        ORDER BY v.id ASC, o.id ASC
+    </select>
+
+
+
+</mapper>
