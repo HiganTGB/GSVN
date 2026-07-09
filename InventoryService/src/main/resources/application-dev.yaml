@@ -1,0 +1,23 @@
+spring:
+
+  security:
+    user:
+      name: abc1234
+      password: abc1234
+  datasource:
+    url: "jdbc:postgresql://postgres:5432/gsvn_dev?currentSchema=inventory_db"
+    driverClassName: "org.postgresql.Driver"
+    username: postgres
+    password: postgres
+  cloud:
+    consul:
+      host:
+      port:
+      discovery:
+        service-name:
+        instance-id: ${spring.application.name}:${server.port}
+        prefer-ip-address:
+        heartbeat:
+          enabled:
+          ttl:
+        health-check-critical-timeout:

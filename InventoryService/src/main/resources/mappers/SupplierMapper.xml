@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gsvn.inventoryservice.mapper.SupplierMapper">
+
+    <resultMap id="SupplierResultMap" type="com.gsvn.inventoryservice.model.entity.Supplier">
+        <id property="id" column="id" />
+        <result property="name" column="name" />
+        <result property="contactName" column="contact_name" />
+        <result property="phone" column="phone" />
+        <result property="email" column="email" />
+        <result property="taxCode" column="tax_code" />
+        <result property="isActive" column="is_active" />
+        <result property="note" column="note" />
+        <result property="createdAt" column="created_at" />
+        <result property="updatedAt" column="updated_at" />
+    </resultMap>
+
+    <select id="findById" resultMap="SupplierResultMap">
+        SELECT id, name, contact_name, phone, email, tax_code, is_active, note, created_at, updated_at
+        FROM suppliers
+        WHERE id = #{id}
+    </select>
+
+    <select id="findAll" resultMap="SupplierResultMap">
+        SELECT * FROM suppliers
+        ORDER BY name ASC
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO suppliers (name, contact_name, phone, email, tax_code, is_active, note)
+        VALUES (#{name}, #{contactName}, #{phone}, #{email}, #{taxCode}, #{isActive}, #{note})
+    </insert>
+
+    <update id="update">
+        UPDATE suppliers
+        SET name = #{name},
+            contact_name = #{contactName},
+            phone = #{phone},
+            email = #{email},
+            tax_code = #{taxCode},
+            is_active = #{isActive},
+            note = #{note}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM suppliers WHERE id = #{id}
+    </delete>
+
+    <select id="findPage" resultMap="SupplierResultMap">
+        SELECT * FROM suppliers
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (
+                LOWER(name) LIKE LOWER(CONCAT('%', #{keyword}, '%'))
+                OR LOWER(contact_name) LIKE LOWER(CONCAT('%', #{keyword}, '%'))
+                OR LOWER(tax_code) LIKE LOWER(CONCAT('%', #{keyword}, '%'))
+                OR LOWER(email) LIKE LOWER(CONCAT('%', #{keyword}, '%'))
+                )
+            </if>
+        </where>
+        ORDER BY ${sortField} ${sortOrder}
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countSearch" resultType="long">
+        SELECT COUNT(*) FROM suppliers
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (
+                LOWER(name) LIKE LOWER(CONCAT('%', #{keyword}, '%'))
+                OR LOWER(contact_name) LIKE LOWER(CONCAT('%', #{keyword}, '%'))
+                OR LOWER(tax_code) LIKE LOWER(CONCAT('%', #{keyword}, '%'))
+                )
+            </if>
+            <if test="isActive != null">
+                AND is_active = #{isActive}
+            </if>
+        </where>
+    </select>
+</mapper>

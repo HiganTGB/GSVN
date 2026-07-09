@@ -1,0 +1,31 @@
+server:
+  port: ${INVENTORY_SERVICE_PORT:5007}
+
+spring:
+  application:
+    name: inventory-service
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:prod}
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+logging:
+  level:
+    com.gsvn.inventoryservice.queue: INFO
+
+mybatis:
+  mapper-locations: classpath:mappers/*.xml
+  type-aliases-package: com.gsvn.inventoryservice.model.entity
+  configuration:
+    default-enum-type-handler: org.apache.ibatis.type.EnumTypeHandler
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always

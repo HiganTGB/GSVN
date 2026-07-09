@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gsvn.inventoryservice.mapper.InventoryMapper">
+
+    <resultMap id="InventoryDTOMap" type="com.gsvn.inventoryservice.model.dto.InventoryDTO">
+        <id property="skuId" column="sku_id"/>
+        <result property="physicalStock" column="physical_stock"/>
+        <result property="reservedStock" column="reserved_stock"/>
+        <result property="availableStock" column="available_stock"/>
+        <result property="preLimitQuantity" column="pre_limit_quantity"/>
+        <result property="preCurrentOrders" column="pre_current_orders"/>
+        <result property="reservedGlobal" column="reserved_global"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <select id="findInventoryPage" resultMap="InventoryDTOMap">
+        SELECT
+        sg.sku_id,
+        sg.pre_limit_quantity,
+        sg.pre_current_orders,
+        sg.reserved_global,
+        <choose>
+            <when test="warehouseId != null">
+                COALESCE(ss.physical_stock, 0) as physical_stock,
+                COALESCE(ss.reserved_stock, 0) as reserved_stock,
+                (COALESCE(ss.physical_stock, 0) - COALESCE(ss.reserved_stock, 0)) as available_stock,
+                ss.updated_at
+            </when>
+            <otherwise>
+                COALESCE(sum_ss.total_physical, 0) as physical_stock,
+                COALESCE(sum_ss.total_reserved, 0) as reserved_stock,
+                (COALESCE(sum_ss.total_physical, 0) - COALESCE(sum_ss.total_reserved, 0)) as available_stock,
+                sg.updated_at
+            </otherwise>
+        </choose>
+        FROM sku_global sg
+
+        <!-- Join tùy theo điều kiện -->
+        <choose>
+            <when test="warehouseId != null">
+                LEFT JOIN sku_stock ss ON sg.sku_id = ss.sku_id AND ss.warehouse_id = #{warehouseId}
+            </when>
+            <otherwise>
+                LEFT JOIN (
+                SELECT sku_id,
+                SUM(physical_stock) as total_physical,
+                SUM(reserved_stock) as total_reserved
+                FROM sku_stock
+                GROUP BY sku_id
+                ) sum_ss ON sg.sku_id = sum_ss.sku_id
+            </otherwise>
+        </choose>
+
+        <where>
+            <if test="skuId != null">
+                AND sg.sku_id = #{skuId}
+            </if>
+        </where>
+
+        ORDER BY
+        <choose>
+            <when test="sortField != null and sortField != ''">
+                ${sortField} ${sortDirection}
+            </when>
+            <otherwise>
+                sg.sku_id DESC
+            </otherwise>
+        </choose>
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countLocalStock" resultType="long">
+        SELECT COUNT(sg.sku_id)
+        FROM sku_global sg
+        <where>
+            <if test="skuId != null">
+                AND sg.sku_id = #{skuId}
+            </if>
+        </where>
+    </select>
+
+    <select id="countGlobalStock" resultType="long">
+        SELECT COUNT(*)
+        FROM sku_global
+        <where>
+            <if test="skuId != null">
+                AND sku_id = #{skuId}
+            </if>
+        </where>
+    </select>
+
+
+
+    <select id="checkSkusSellable" resultType="com.gsvn.inventoryservice.model.dto.SkuSellableDTO">
+        SELECT
+        COALESCE(sg.sku_id, sub.sku_id) as skuId,
+        COALESCE(sub.physical_available, 0) as physicalAvailable,
+        COALESCE(sg.pre_limit_quantity, 0) as preLimit,
+        COALESCE(sg.pre_current_orders, 0) as preOrders
+        FROM sku_global sg
+        FULL OUTER JOIN (
+        SELECT
+        sku_id,
+        SUM(physical_stock - reserved_stock) as physical_available
+        FROM sku_stock
+        <where>
+            <if test="skuIds != null and skuIds.size() > 0">
+                sku_id IN
+                <foreach item="id" collection="skuIds" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY sku_id
+        ) sub ON sg.sku_id = sub.sku_id
+        <where>
+            <if test="skuIds != null and skuIds.size() > 0">
+                COALESCE(sg.sku_id, sub.sku_id) IN
+                <foreach item="id" collection="skuIds" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <update id="decreaseReservedGlobal">
+        UPDATE sku_global
+        SET reserved_global = reserved_global - #{quantity},
+            version = version + 1,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE sku_code like #{skuCode}
+          AND reserved_global >= #{quantity}
+    </update>
+    <update id="increaseReservedLocal">
+        UPDATE sku_stock
+        SET reserved_stock = reserved_stock - #{quantity},
+            version = version + 1,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE sku_code like #{skuCode}
+          AND reserved_global >= #{quantity}
+          AND warehouse_id = #{warehouseId}
+    </update>
+    <update id="decreasePhysicalAndReservedLocal">
+        UPDATE sku_stock
+        SET physical_stock = physical_stock - #{quantity},
+            reserved_stock = reserved_stock - #{quantity},
+            version = version + 1,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE sku_code like #{skuCode}
+          AND warehouse_id = #{warehouseId}
+          AND physical_stock >= #{quantity}
+          AND reserved_stock >= #{quantity}
+    </update>
+
+
+
+</mapper>
