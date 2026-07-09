@@ -435,6 +435,52 @@ services:
       - HRM_SERVICE_PASSWORD=${HRM_SERVICE_PASSWORD}
       - JWT_SIGNER_KEY=${JWT_SIGNER_KEY}
       - INTERNAL_API_KEY=${INTERNAL_API_KEY}
+  product-service:
+    build:
+      context: ../ProductService
+      dockerfile: Dockerfile
+    container_name: gsvn-product-service
+    ports:
+      - "${PRODUCT_SERVICE_PORT}:5006"
+    networks:
+      - gsvn_network
+    depends_on:
+      consul-server-1:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - PRODUCT_SERVICE_PORT=${PRODUCT_SERVICE_PORT}
+
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - PRODUCT_DB_SCHEMA=${PRODUCT_DB_SCHEMA}
+
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - PRODUCT_REDIS_DATABASE=${PRODUCT_REDIS_DATABASE}
+      - SPRING_RABBITMQ_HOST=${RABBITMQ_HOST}
+      - SPRING_RABBITMQ_PORT=${RABBITMQ_PORT}
+      - SPRING_RABBITMQ_USERNAME=${RABBITMQ_USER}
+      - SPRING_RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+
+      - PRODUCT_SERVICE_USER=${PRODUCT_SERVICE_USER}
+      - PRODUCT_SERVICE_PASSWORD=${PRODUCT_SERVICE_PASSWORD}
+      - JWT_SIGNER_KEY=${JWT_SIGNER_KEY}
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY}
+      - CONSUL_HOST=${CONSUL_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
     networks:
       - gsvn_network
     depends_on:
