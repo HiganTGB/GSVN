@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gsvn.cartservice.mapper.CartMapper">
+
+    <resultMap id="CartResultMap" type="com.gsvn.cartservice.model.entity.Cart">
+        <id property="id" column="id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <collection property="items" ofType="com.gsvn.cartservice.model.entity.CartItem">
+            <id property="id" column="item_id"/>
+            <result property="cartId" column="id"/>
+            <result property="skuId" column="sku_id"/>
+            <result property="isDeposit" column="is_deposit"/>
+            <result property="quantity" column="quantity"/>
+            <result property="createdAt" column="item_created_at"/>
+            <result property="updatedAt" column="item_updated_at"/>
+        </collection>
+    </resultMap>
+
+    <select id="findByCustomerId" resultMap="CartResultMap">
+        SELECT
+            c.id, c.customer_id, c.created_at, c.updated_at,
+            ci.id as item_id, ci.sku_id, ci.is_deposit, ci.quantity,
+            ci.created_at as item_created_at, ci.updated_at as item_updated_at
+        FROM cart c
+                 LEFT JOIN cart_item ci ON c.id = ci.cart_id
+        WHERE c.customer_id = #{customerId}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO cart (customer_id)
+        VALUES (#{customerId})
+    </insert>
+
+    <delete id="deleteByCustomerId">
+        DELETE FROM cart
+        WHERE customer_id = #{customerId}
+    </delete>
+
+    <select id="findById" resultMap="CartResultMap">
+        SELECT
+            id,
+            customer_id,
+            created_at,
+            updated_at
+        FROM cart
+        WHERE id = #{id}
+    </select>
+</mapper>
