@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gsvn.promotionservice.mapper.VoucherMapper">
+
+    <resultMap id="VoucherMap" type="com.gsvn.promotionservice.model.entity.Voucher">
+        <id property="id" column="id"/>
+        <result property="voucherCode" column="voucher_code"/>
+        <result property="name" column="name"/>
+        <result property="discountType" column="discount_type"/>
+        <result property="discountValue" column="discount_value"/>
+        <result property="maxDiscountAmount" column="max_discount_amount"/>
+        <result property="minOrderValue" column="min_order_value"/>
+        <result property="usageLimit" column="usage_limit"/>
+        <result property="limitPer" column="limit_per_customer"/>
+        <result property="usedCount" column="used_count"/>
+        <result property="startDate" column="start_date"/>
+        <result property="endDate" column="end_date"/>
+        <result property="isActive" column="is_active"/>
+        <result property="version" column="version"/>
+        <result property="deletedAt" column="deleted_at"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO vouchers
+        (voucher_code, name, discount_type, discount_value, max_discount_amount, min_order_value, usage_limit, start_date, end_date,limit_per_customer)
+        VALUES
+            (#{voucherCode}, #{name}, #{discountType}, #{discountValue}, #{maxDiscountAmount}, #{minOrderValue}, #{usageLimit}, #{startDate}, #{endDate},#{limitPer})
+    </insert>
+
+    <select id="findById" resultMap="VoucherMap">
+        SELECT
+            *
+        FROM vouchers
+        WHERE id = #{id}
+          AND deleted_at IS NULL
+    </select>
+    <select id="findByCode" resultMap="VoucherMap">
+        SELECT
+            *
+        FROM vouchers
+        WHERE voucher_code = #{code}
+          AND deleted_at IS NULL
+    </select>
+    <update id="delete">
+        UPDATE vouchers
+        SET deleted_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+
+    <select id="findSearch" resultMap="VoucherMap">
+        SELECT * FROM vouchers
+        <where>
+            AND deleted_at IS NULL
+            <if test="code != null and code != ''">
+                AND voucher_code ILIKE CONCAT('%', #{code}, '%')
+            </if>
+        </where>
+        ORDER BY ${sortField} ${sortOrder}
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countSearch" resultType="long">
+        SELECT COUNT(*) FROM vouchers
+        <where>
+            AND deleted_at IS NULL
+            <if test="code != null and code != ''">
+                AND voucher_code ILIKE CONCAT('%', #{code}, '%')
+            </if>
+        </where>
+    </select>
+
+    <update id="update">
+        UPDATE vouchers
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="discountValue != null">discount_value = #{discountValue},</if>
+            <if test="minOrderValue != null">min_order_value = #{minOrderValue},</if>
+            <if test="usageLimit != null">usage_limit = #{usageLimit},</if>
+            <if test="limitPer != null">limit_per_customer = #{limitPer},</if>
+            <if test="startDate != null">start_date = #{startDate},</if>
+            <if test="endDate != null">end_date = #{endDate},</if>
+            <if test="isActive != null">is_active = #{isActive},</if>
+        </set>
+        WHERE id = #{id} AND deleted_at IS NULL
+    </update>
+    <update id="incrementUsedCount">
+        UPDATE vouchers
+        SET used_count = used_count + 1,
+            version = version + 1,
+            updated_at = NOW()
+        WHERE id = #{id}
+          AND version = #{version}
+          AND used_count &lt; usage_limit
+          AND is_active = TRUE
+          AND deleted_at IS NULL
+    </update>
+    <update id="decrementUsedCount">
+        UPDATE vouchers
+        SET used_count = used_count - 1,
+            version = version + 1,
+            updated_at = NOW()
+        WHERE id = #{id}
+          AND used_count > 0
+    </update>
+</mapper>

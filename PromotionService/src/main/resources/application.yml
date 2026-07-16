@@ -1,0 +1,27 @@
+server:
+  port: ${PROMOTION_SERVICE_PORT:5008}
+
+spring:
+  application:
+    name: promotion-service
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:prod}
+
+mybatis:
+  type-aliases-package: com.gsvn.promotionservice.model.entity
+  mapper-locations: classpath:mappers/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+logging:
+  level:
+    com.gsvn.promotionservice.queue: INFO
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always

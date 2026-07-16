@@ -1,0 +1,21 @@
+
+
+spring:
+  security:
+    user:
+      name: abc1234
+      password: abc1234
+  datasource:
+    url: "jdbc:postgresql://postgres:5432/gsvn_dev?currentSchema=promotion_db"
+    driverClassName: "org.postgresql.Driver"
+    username: postgres
+    password: postgres
+  data:
+    redis:
+      host: redis
+      port: 6379
+      database: 1
+eureka:
+  client:
+    service-url:
+      defaultZone: http://abc1234:abc1234@eureka:8761/eureka/

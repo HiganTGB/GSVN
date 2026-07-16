@@ -1,0 +1,56 @@
+spring:
+  security:
+    user:
+      name: ${PROMOTION_SERVICE_USER:abc1234}
+      password: ${PROMOTION_SERVICE_PASSWORD:abc1234}
+
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:postgres}:${POSTGRES_PORT:5432}/${POSTGRES_DB:gsvn_dev}?currentSchema=${PROMOTION_DB_SCHEMA:promotion_db}
+    driverClassName: org.postgresql.Driver
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:postgres}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 30000
+      connection-timeout: 20000
+      max-lifetime: 1800000
+      pool-name: promotion-service-gsvn-pool
+
+  data:
+    redis:
+      host: ${REDIS_HOST:redis}
+      port: ${REDIS_PORT:6379}
+      database: ${PROMOTION_REDIS_DATABASE:4}
+      username: default
+      password: ${REDIS_PASSWORD:admin1234}
+
+  rabbitmq:
+    host: ${RABBITMQ_HOST:rabbitmq}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:rootadmin}
+    password: ${RABBITMQ_PASSWORD:rootadmin}
+    listener:
+      simple:
+        prefetch: 1
+        acknowledge-mode: auto
+
+  cloud:
+    consul:
+      host: ${CONSUL_HOST:consul-server-1}
+      port: ${CONSUL_PORT:8500}
+      discovery:
+        service-name: promotion-service
+        instance-id: ${spring.application.name}:${server.port}
+        prefer-ip-address: false
+        heartbeat:
+          enabled: true
+          ttl: 60s
+        health-check-critical-timeout: 2m
+
+jwt:
+  signerKey: ${JWT_SIGNER_KEY:5661608670d8591f4a9b407b975e1195d5204481358997c4e512803b87944062}
+
+app:
+  security:
+    internal-api-key: ${INTERNAL_API_KEY:gsvn}
