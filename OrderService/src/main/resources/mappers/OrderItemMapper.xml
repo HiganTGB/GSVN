@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gsvn.orderservice.mapper.OrderItemMapper">
+
+    <resultMap id="OrderItemResultMap" type="com.gsvn.orderservice.model.entity.OrderItem">
+        <id property="id" column="id"/>
+        <result property="orderId" column="order_id"/>
+        <result property="skuCode" column="sku_code"/>
+        <result property="productName" column="product_name"/>
+        <result property="imageUrl" column="image_url"/>
+        <result property="scheduledDate" column="scheduled_date"/>
+        <result property="quantity" column="quantity"/>
+        <result property="unitPrice" column="unit_price"/>
+        <result property="subPrice" column="sub_price"/>
+        <result property="isPreorder" column="is_preorder"/>
+        <result property="isDepositApplied" column="is_deposit_applied"/>
+        <result property="appliedDepositAmount" column="applied_deposit_amount"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <insert id="insertBatch">
+        INSERT INTO order_items (
+        order_id, sku_code, product_name, image_url,
+        scheduled_date, quantity, unit_price, sub_price, is_preorder,
+        is_deposit_applied, applied_deposit_amount
+        ) VALUES
+        <foreach collection="items" item="item" separator=",">
+            (
+            #{item.orderId}, #{item.skuCode},
+            #{item.productName}, #{item.imageUrl}, #{item.scheduledDate},
+            #{item.quantity}, #{item.unitPrice}, #{item.subPrice}, #{item.isPreorder},
+            #{item.isDepositApplied}, #{item.appliedDepositAmount}
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateAllFields" parameterType="com.gsvn.orderservice.model.entity.OrderItem">
+        UPDATE order_items
+        SET
+            sku_code = #{skuCode},
+            product_name = #{productName},
+            image_url = #{imageUrl},
+            scheduled_date = #{scheduledDate},
+            quantity = #{quantity},
+            unit_price = #{unitPrice},
+            sub_price = #{subPrice},
+            is_preorder = #{isPreorder},
+            is_deposit_applied = #{isDepositApplied},
+            applied_deposit_amount = #{appliedDepositAmount}
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateFulfilledQuantity">
+        UPDATE order_items
+        SET fulfilled_quantity = #{fulfilledQuantity}
+        WHERE id = #{id}
+    </update>
+
+    <select id="findByOrderId" resultMap="OrderItemResultMap">
+        SELECT
+            id, order_id, sku_code, product_name, image_url,
+            scheduled_date, quantity, unit_price, sub_price, is_preorder,
+            is_deposit_applied, applied_deposit_amount, created_at
+        FROM order_items
+        WHERE order_id = #{orderId}
+        ORDER BY id ASC
+    </select>
+
+    <update id="updatePriceAndInfo">
+        UPDATE order_items
+        SET
+            unit_price = #{unitPrice},
+            sub_price = #{unitPrice} * quantity,
+            product_name = #{productName}
+        WHERE order_id = #{orderId} AND sku_id = #{skuId}
+    </update>
+
+</mapper>
