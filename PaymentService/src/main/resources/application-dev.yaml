@@ -1,0 +1,29 @@
+
+
+spring:
+  application:
+    name: paymentService
+  security:
+    user:
+      name: abc1234
+      password: abc1234
+  datasource:
+    url: "jdbc:postgresql://postgres:5432/gsvn_dev?currentSchema=order_db"
+    driverClassName: "org.postgresql.Driver"
+    username: postgres
+    password: postgres
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: 5672
+    username: ${RABBITMQ_USER:guest}
+    password: ${RABBITMQ_PASS:guest}
+    listener:
+      simple:
+        retry:
+          enabled: true
+          max-retries: 3
+        acknowledge-mode: auto
+eureka:
+  client:
+    service-url:
+      defaultZone: http://abc1234:abc1234@eureka:8761/eureka/
