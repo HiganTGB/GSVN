@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gsvn.shipmentservice.mapper.ShipmentMapper">
+
+    <insert id="insertShipment" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO shipment (
+            order_code,shipment_code, warehouse_code, delivery_method, status,
+            scheduled_date, total_cod_amount, receiver_name,
+            receiver_phone,receiver_email, province_code, ward_code, address_detail,
+            customer_note, created_at, updated_at,total_weight, length, width, height
+        ) VALUES (
+                     #{orderCode},#{shipmentCode}, #{warehouseCode}, #{deliveryMethod}, #{status},
+                     #{scheduledDate}, #{totalCodAmount}, #{receiverName},
+                     #{receiverPhone},#{receiverEmail}, #{provinceCode}, #{wardCode}, #{addressDetail},
+                     #{customerNote}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP,#{totalWeight}, #{length}, #{width}, #{height}
+                 )
+    </insert>
+    <select id="findById" resultType="com.gsvn.shipmentservice.model.entity.Shipment">
+        SELECT * FROM shipment WHERE id = #{id}
+    </select>
+    <select id="findByOrderCode" resultType="com.gsvn.shipmentservice.model.entity.Shipment">
+        SELECT * FROM shipment WHERE order_code = #{orderCode}
+    </select>
+
+    <select id="findItemsByShipmentId" resultType="com.gsvn.shipmentservice.model.entity.ShipmentItem">
+        SELECT * FROM shipment_item WHERE shipment_id = #{shipmentId}
+    </select>
+    <insert id="insertShipmentItems">
+        INSERT INTO shipment_items (
+        shipment_id, sku_code, quantity, product_name
+        ) VALUES
+        <foreach collection="items" item="item" separator=",">
+            (#{item.shipmentId}, #{item.skuCode}, #{item.quantity},#{item.productName})
+        </foreach>
+    </insert>
+    <select id="findShipmentPage" resultType="com.gsvn.shipmentservice.model.entity.Shipment">
+        SELECT * FROM shipment
+        <where>
+            <if test="orderCode != null and orderCode != ''">
+                AND order_code ILIKE CONCAT('%', #{orderCode}, '%')
+            </if>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+            <if test="warehouseCode != null">
+                AND warehouse_code = #{warehouseCode}
+            </if>
+            <if test="scheduledMonth != null">
+                AND EXTRACT(MONTH FROM scheduled_date) = #{scheduledMonth}
+            </if>
+            <if test="scheduledYear != null">
+                AND EXTRACT(YEAR FROM scheduled_date) = #{scheduledYear}
+            </if>
+        </where>
+        ORDER BY scheduled_date DESC, created_at DESC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="countShipment" resultType="long">
+        SELECT COUNT(*) FROM shipment
+        <where>
+            <if test="orderCode != null and orderCode != ''">
+                AND order_code ILIKE CONCAT('%', #{orderCode}, '%')
+            </if>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+            <if test="warehouseCode != null">
+                AND warehouse_code = #{warehouseCode}
+            </if>
+            <if test="scheduledMonth != null">
+                AND EXTRACT(MONTH FROM scheduled_date) = #{scheduledMonth}
+            </if>
+            <if test="scheduledYear != null">
+                AND EXTRACT(YEAR FROM scheduled_date) = #{scheduledYear}
+            </if>
+        </where>
+    </select>
+    <update id="confirmReadyToPick">
+        UPDATE shipment
+        SET
+            status = 'READY_TO_PICK',
+            warehouse_code = COALESCE(warehouse_code, #{warehouseCode}),
+            confirmed_by = #{confirmedBy},
+            confirmed_at = CURRENT_TIMESTAMP,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+          AND status = 'ON_HOLD'
+    </update>
+    <update id="confirmPacked">
+        UPDATE shipment
+        SET
+            status = 'PACKED',
+            total_weight = #{totalWeight},
+            length = #{length},
+            width = #{width},
+            height = #{height},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+          AND status = 'READY_TO_PICK'
+    </update>
+    <update id="confirmDelivering">
+        UPDATE shipment
+        SET
+            status = 'DELIVERING',
+            delivery_method = #{deliveryMethod},
+            partner_province_code = #{partnerProvinceCode},
+            partner_district_code = #{partnerDistrictCode},
+            partner_ward_code = #{partnerWardCode},
+            actual_shipping_cost = #{actualShippingCost},
+            tracking_number = #{trackingNumber},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+          AND status = 'PACKED'
+    </update>
+    <update id="confirmDelivered">
+        UPDATE shipment
+        SET
+            status = 'DELIVERED',
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+          AND status = 'DELIVERING'
+    </update>
+    <update id="confirmPickupDelivered">
+        UPDATE shipment
+        SET
+            status = 'DELIVERED',
+            delivery_method = 'PICKUP',
+            confirmed_by = #{confirmedBy},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+          AND status = 'READY_TO_PICK'
+          AND delivery_method = 'PICKUP'
+    </update>
+    <update id="updateDeliveryMethod">
+        UPDATE shipment
+        SET
+            delivery_method = #{deliveryMethod},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+          AND status IN ('ON_HOLD', 'READY_TO_PICK')
+    </update>
+    <update id="changeToPickup">
+        UPDATE shipment
+        SET
+            delivery_method = 'PICKUP',
+            partner_province_code = NULL,
+            partner_district_code = NULL,
+            partner_ward_code = NULL,
+            tracking_number = NULL,
+            actual_shipping_cost = 0,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+          AND status IN ('ON_HOLD', 'READY_TO_PICK')
+    </update>
+    <select id="countShipmentNotDeliveredByOrder" resultType="int">
+        SELECT COUNT(*)
+        FROM shipment
+        WHERE status != 'DELIVERED'
+    AND order_code = #{orderCode}
+    </select>
+</mapper>

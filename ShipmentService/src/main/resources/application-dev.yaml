@@ -1,0 +1,19 @@
+
+spring:
+
+  security:
+    user:
+      name: abc1234
+      password: abc1234
+  datasource:
+    url: "jdbc:postgresql://postgres:5432/gsvn_dev?currentSchema=shipping_db"
+    driverClassName: "org.postgresql.Driver"
+    username: postgres
+    password: postgres
+eureka:
+  client:
+    service-url:
+      defaultZone: http://abc1234:abc1234@eureka:8761/eureka/
+app:
+  security:
+    internal-api-key: "key"

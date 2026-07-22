@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gsvn.shipmentservice.mapper.WarehousePartnerMapper">
+
+    <sql id="Base_Column_List">
+        id, warehouse_code, partner_name, shop_id, partner_token, expires_at, updated_at
+    </sql>
+
+    <insert id="save" parameterType="com.gsvn.shipmentservice.model.entity.WarehousePartner" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO warehouse_partner (
+            warehouse_code,
+            partner_name,
+            shop_id,
+            partner_token,
+            expires_at
+        )
+        VALUES (
+                   #{warehouseCode},
+                   #{partnerName},
+                   #{shopId},
+                   #{partnerToken},
+                   #{expiresAt}
+               )
+            ON CONFLICT (warehouse_code, partner_name)
+        DO UPDATE SET
+            partner_token = EXCLUDED.partner_token,
+                           shop_id = EXCLUDED.shop_id,
+                           expires_at = EXCLUDED.expires_at,
+                           updated_at = CURRENT_TIMESTAMP
+    </insert>
+
+    <select id="selectByWarehouseCode" resultType="com.gsvn.shipmentservice.model.entity.WarehousePartner">
+        SELECT <include refid="Base_Column_List" />
+        FROM warehouse_partner
+        WHERE warehouse_code = #{warehouseCode}
+    </select>
+
+    <select id="selectById" resultType="com.gsvn.shipmentservice.model.entity.WarehousePartner">
+        SELECT <include refid="Base_Column_List" />
+        FROM warehouse_partner
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectFirstByWarehouseAndPartner" resultType="com.gsvn.shipmentservice.model.entity.WarehousePartner">
+        SELECT <include refid="Base_Column_List" />
+        FROM warehouse_partner
+        WHERE warehouse_code = #{warehouseCode}
+        AND partner_name = #{partnerName}
+        ORDER BY id ASC
+        LIMIT 1
+    </select>
+
+    <delete id="deleteByWarehouseAndPartner">
+        DELETE FROM warehouse_partner
+        WHERE warehouse_code = #{warehouseCode}
+          AND partner_name = #{partnerName}
+    </delete>
+
+</mapper>
