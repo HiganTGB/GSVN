@@ -1,0 +1,25 @@
+server:
+  port: ${NOTIFICATION_SERVICE_PORT:5015}
+
+spring:
+  application:
+    name: notification-service
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:prod}
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+logging:
+  level:
+    management.health.mail.enabled: false
+    com.gsvn.notificationservice: INFO
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
