@@ -28,6 +28,26 @@ public class OrderController {
     OrderService orderService;
     AuthenticationService authService;
 
+    @PostMapping("/checkout")
+    public ApiResponse<String> customerCreateOrder(@RequestBody @Valid OrderCreateRequest request, HttpServletRequest httpServletRequest) {
+        log.error(request.toString());
+        Long customerIdFromToken = authService.getCustomerIdFromToken();
+        request.setCustomerId(customerIdFromToken);
+        String orderCode = orderService.createOrder(request,httpServletRequest);
+
+        return new ApiResponse<>(orderCode);
+    }
+    @PostMapping("/pos-checkout")
+    public ApiResponse<String> staffCreateOrder(@RequestBody @Valid OrderCreateRequest request) {
+        Long staffId = authService.getStaffIdFromToken();
+
+        if (staffId == null) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+        String orderCode = orderService.createStaffOrder(request);
+
+        return new ApiResponse<>(orderCode);
+    }
     @GetMapping("/my-order")
     public ApiResponse<PageResponse<OrderResponse>> getMyOrders(
             @RequestParam(required = false) String code,

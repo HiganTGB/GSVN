@@ -44,6 +44,7 @@ public class OrderService {
 
     private final OrderMapper orderMapper;
     private final OrderItemMapper orderItemMapper;
+    private final OrderSagaInstanceMapper sagaMapper;
     private final OrderConverter orderConverter;
     private final MessageLogMapper logMapper;
     private final ObjectMapper objectMapper;
@@ -52,6 +53,144 @@ public class OrderService {
     private final MediaClient mediaClient;
 
 
+    @Transactional
+    public String createOrder(OrderCreateRequest request, HttpServletRequest httpServletRequest) {
+        log.info("Creating order for Transaction: {}", request.getTransactionId());
+        // Check customer
+        Long customerId = authenticationService.getCustomerIdFromToken();
+        if (customerId == null && request.getReceiverEmail() == null) {
+            throw new AppException(ErrorCode.MISSING_EMAIL);
+        }
+        // add missing value and conveter
+        Order order = orderConverter.toEntity(request);
+        order.setCustomerId(customerId);
+        // insert order to get order id and code
+        order.setOrderCode(UUID.randomUUID().toString());
+        // get ip for online payment
+        String clientIp = getClientIp(httpServletRequest);
+        order.setClientIp(clientIp);
+        orderMapper.insert(order);
+
+        Long orderId = order.getId();
+        String orderCode = order.getOrderCode();
+
+        // insert Order Item
+        List<OrderItem> items = orderConverter.toItemEntities(request.getItems(), orderId);
+        orderItemMapper.insertBatch(items);
+
+        // Make SagaInstance
+        SagaPayload payload = SagaPayload.builder()
+                .transactionId(request.getTransactionId())
+                .build();
+
+        OrderSagaInstance sagaInstance = OrderSagaInstance.builder()
+                .orderId(orderId)
+                .currentStep(SagaStep.SKU_VALIDATING.name())
+                .status(SagaStatus.STARTED)
+                .payload(payload)
+                .build();
+        sagaMapper.insert(sagaInstance);
+        // update sagaInstance
+        orderMapper.updateSagaId(orderId, sagaInstance.getSagaId());
+
+        // Make validate sku message (1)
+        SkuValidateRequestMessage message = SkuValidateRequestMessage.builder()
+                .orderCode(orderCode)
+                .sagaId(sagaInstance.getSagaId())
+                .items(request.getItems().stream()
+                        .map(item -> SkuValidateRequestMessage.SkuRequestItem.builder()
+                                .skuCode(item.getSkuCode())
+                                .quantity(item.getQuantity())
+                                .isPreorder(item.getIsPreorder())
+                                .build())
+                        .collect(Collectors.toList()))
+                .build();
+        // input into out box
+        try {
+            Outbox outbox = Outbox.builder()
+                    .id(UUID.randomUUID().toString())
+                    .aggregateId(sagaInstance.getSagaId())
+                    .eventType("SKU_VALIDATE_REQ")
+                    .payload(objectMapper.writeValueAsString(message))
+                    .status("PENDING")
+                    .build();
+
+            logMapper.insertOutbox(outbox);
+        } catch (JsonProcessingException e) {
+            log.error("JSON Serialization error for Outbox", e);
+            throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
+        }
+
+        log.info("Order {} created. Saga {} started.", orderCode, sagaInstance.getSagaId());
+        return orderCode;
+    }
+
+    @Transactional
+    public String createStaffOrder(OrderCreateRequest request) {
+        log.info("Creating order for Transaction: {}", request.getTransactionId());
+
+
+        Order order = orderConverter.toEntity(request);
+
+
+
+        Long staffId = authenticationService.getStaffIdFromToken();
+        if (staffId == null ) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+        order.setStaffId(staffId);
+        order.setOrderCode(UUID.randomUUID().toString());
+        orderMapper.insert(order);
+        Long orderId = order.getId();
+        List<OrderItem> items = orderConverter.toItemEntities(request.getItems(), orderId);
+        orderItemMapper.insertBatch(items);
+
+
+        SagaPayload payload = SagaPayload.builder()
+                .transactionId(request.getTransactionId())
+                .build();
+
+        OrderSagaInstance sagaInstance = OrderSagaInstance.builder()
+                .orderId(orderId)
+                .currentStep(SagaStep.SKU_VALIDATING.name())
+                .status(SagaStatus.STARTED)
+                .payload(payload)
+                .build();
+
+        sagaMapper.insert(sagaInstance);
+
+
+        orderMapper.updateSagaId(orderId, sagaInstance.getSagaId());
+
+
+        SkuValidateRequestMessage message = SkuValidateRequestMessage.builder()
+                .orderCode(order.getOrderCode())
+                .sagaId(sagaInstance.getSagaId())
+                .items(request.getItems().stream()
+                        .map(item -> SkuValidateRequestMessage.SkuRequestItem.builder()
+                                .quantity(item.getQuantity())
+                                .isPreorder(item.getIsPreorder())
+                                .build())
+                        .collect(Collectors.toList()))
+                .build();
+        try {
+            Outbox outbox = Outbox.builder()
+                    .id(UUID.randomUUID().toString())
+                    .aggregateId(sagaInstance.getSagaId())
+                    .eventType("SKU_VALIDATE_REQ")
+                    .payload(objectMapper.writeValueAsString(message))
+                    .status("PENDING")
+                    .build();
+
+            logMapper.insertOutbox(outbox);
+        } catch (JsonProcessingException e) {
+            log.error("JSON Serialization error for Outbox", e);
+            throw new RuntimeException("Could not serialize saga message");
+        }
+
+        log.info("Order {} created. Saga {} started.", order.getOrderCode(), sagaInstance.getSagaId());
+        return order.getOrderCode();
+    }
 
     private String getClientIp(HttpServletRequest request) {
         String ip = request.getHeader("X-ForwardED-FOR");
