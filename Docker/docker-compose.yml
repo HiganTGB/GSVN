@@ -481,11 +481,296 @@ services:
       - INTERNAL_API_KEY=${INTERNAL_API_KEY}
       - CONSUL_HOST=${CONSUL_HOST}
       - CONSUL_PORT=${CONSUL_PORT}
+  inventory-service:
+    build:
+      context: ../InventoryService
+      dockerfile: Dockerfile
+    container_name: gsvn-inventory-service
+    ports:
+      - "${INVENTORY_SERVICE_PORT}:5007"
+    networks:
+      - gsvn_network
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - INVENTORY_SERVICE_PORT=${INVENTORY_SERVICE_PORT}
+      - SPRING_RABBITMQ_HOST=${RABBITMQ_HOST}
+      - SPRING_RABBITMQ_PORT=${RABBITMQ_PORT}
+      - SPRING_RABBITMQ_USERNAME=${RABBITMQ_USER}
+      - SPRING_RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - INVENTORY_DB_SCHEMA=${INVENTORY_DB_SCHEMA}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - INVENTORY_REDIS_DATABASE=${INVENTORY_REDIS_DATABASE}
+      - JWT_SIGNER_KEY=${JWT_SIGNER_KEY}
+      - ENCRYPTION_SECRET_KEY=${ENCRYPTION_SECRET_KEY}
+      - ENCRYPTION_SALT=${ENCRYPTION_SALT}
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY}
+      - CONSUL_HOST=${CONSUL_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+    depends_on:
+      consul-server-1:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+  cart-service:
+    build:
+      context: ../CartService
+      dockerfile: Dockerfile
+    container_name: gsvn-cart-service
+    ports:
+      - "${CART_SERVICE_PORT}:5012"
     networks:
       - gsvn_network
     depends_on:
       consul-server-1:
         condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+
+      - SPRING_PROFILES_ACTIVE=prod
+      - CART_SERVICE_PORT=5012
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - CART_DB_SCHEMA=${CART_DB_SCHEMA}
+      - CART_REDIS_DATABASE=${CART_REDIS_DATABASE}
+      - CART_SERVICE_USER=${CART_SERVICE_USER}
+      - CART_SERVICE_PASSWORD=${CART_SERVICE_PASSWORD}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - CONSUL_HOST=${CONSUL_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+
+
+      - JWT_SIGNER_KEY=${JWT_SIGNER_KEY}
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY}
+  promotion-service:
+    build:
+      context: ../PromotionService
+      dockerfile: Dockerfile
+    container_name: gsvn-promotion-service
+    ports:
+      - "${PROMOTION_SERVICE_PORT}:5008"
+    networks:
+      - gsvn_network
+    depends_on:
+      consul-server-1:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - PROMOTION_SERVICE_PORT=${PROMOTION_SERVICE_PORT}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - PROMOTION_DB_SCHEMA=${PROMOTION_DB_SCHEMA}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - PROMOTION_REDIS_DATABASE=${PROMOTION_REDIS_DATABASE}
+      - SPRING_RABBITMQ_HOST=${RABBITMQ_HOST}
+      - SPRING_RABBITMQ_PORT=${RABBITMQ_PORT}
+      - SPRING_RABBITMQ_USERNAME=${RABBITMQ_USER}
+      - SPRING_RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+      - PROMOTION_SERVICE_USER=${PROMOTION_SERVICE_USER}
+      - PROMOTION_SERVICE_PASSWORD=${PROMOTION_SERVICE_PASSWORD}
+      - JWT_SIGNER_KEY=${JWT_SIGNER_KEY}
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY}
+      - CONSUL_HOST=${CONSUL_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+  search-service:
+    build:
+      context: ../SearchService
+      dockerfile: Dockerfile
+    container_name: gsvn-search-service
+    ports:
+      - "${SEARCH_SERVICE_PORT}:5010"
+    networks:
+      - gsvn_network
+    depends_on:
+      consul-server-1:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SEARCH_SERVICE_PORT=${SEARCH_SERVICE_PORT}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - SEARCH_REDIS_DATABASE=${SEARCH_REDIS_DATABASE}
+
+      - SEARCH_SERVICE_USER=${SEARCH_SERVICE_USER}
+      - SEARCH_SERVICE_PASSWORD=${SEARCH_SERVICE_PASSWORD}
+      - JWT_SIGNER_KEY=${JWT_SIGNER_KEY}
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY}
+      - CONSUL_HOST=${CONSUL_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+  order-service:
+    build:
+      context: ../OrderService
+      dockerfile: Dockerfile
+    container_name: gsvn-order-service
+    ports:
+      - "${ORDER_SERVICE_PORT}:5013"
+    networks:
+      - gsvn_network
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - ORDER_SERVICE_PORT=${ORDER_SERVICE_PORT}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - ORDER_DB_SCHEMA=${ORDER_DB_SCHEMA}
+      - REDIS_HOST=${REDIS_HOST}
+      - ORDER_REDIS_DATABASE=${ORDER_REDIS_DATABASE}
+      - SPRING_RABBITMQ_HOST=${RABBITMQ_HOST}
+      - SPRING_RABBITMQ_PORT=${RABBITMQ_PORT}
+      - SPRING_RABBITMQ_USERNAME=${RABBITMQ_USER}
+      - SPRING_RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+      - SPRING_RABBITMQ_VIRTUAL_HOST=${RABBITMQ_VHOST}
+      - JWT_SIGNER_KEY=${JWT_SIGNER_KEY}
+      - APP_ORDER_TIME_OUT=${ORDER_TIMEOUT}
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY}
+      - CONSUL_HOST=${CONSUL_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+    depends_on:
+      consul-server-1:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+  notification-service:
+    build:
+      context: ../NotificationService
+      dockerfile: Dockerfile
+    container_name: gsvn-notification-service
+    ports:
+      - "${NOTIFICATION_SERVICE_PORT}:5013"
+    networks:
+      - gsvn_network
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - NOTIFICATION_SERVICE_PORT=${NOTIFICATION_SERVICE_PORT}
+      - SPRING_MAIL_HOST=${MAIL_HOST}
+      - SPRING_MAIL_PORT=${MAIL_PORT}
+      - SPRING_MAIL_USERNAME=${MAIL_USERNAME}
+      - SPRING_MAIL_PASSWORD=${MAIL_PASSWORD}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - SPRING_DATA_REDIS_DATABASE=${NOTIFICATION_REDIS_DATABASE}
+      - NOTIFICATION_SERVICE_USER=${NOTIFICATION_SERVICE_USER}
+      - NOTIFICATION_SERVICE_PASSWORD=${NOTIFICATION_SERVICE_PASSWORD}
+      - JWT_SIGNER_KEY=${JWT_SIGNER_KEY}
+      - APP_SECURITY_INTERNAL_API_KEY=${INTERNAL_API_KEY}
+      - CONSUL_HOST=${CONSUL_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+    depends_on:
+      consul-server-1:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+  payment-service:
+    build:
+      context: ../PaymentService
+      dockerfile: Dockerfile
+    container_name: gsvn-payment-service
+    ports:
+      - "${PAYMENT_SERVICE_PORT}:5013"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - PAYMENT_SERVICE_PORT=${PAYMENT_SERVICE_PORT}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - PAYMENT_DB_SCHEMA=${PAYMENT_DB_SCHEMA}
+      - REDIS_HOST=${REDIS_HOST}
+      - PAYMENT_REDIS_DATABASE=${PAYMENT_REDIS_DATABASE}
+      - SPRING_RABBITMQ_HOST=${RABBITMQ_HOST}
+      - SPRING_RABBITMQ_PORT=${RABBITMQ_PORT}
+      - SPRING_RABBITMQ_USERNAME=${RABBITMQ_USER}
+      - SPRING_RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+      - VNP_PAY_URL=${VNP_PAY_URL}
+      - VNP_API_URL=${VNP_API_URL}
+      - VNP_RETURN_URL=${VNP_RETURN_URL}
+      - VNP_TMN_CODE=${VNP_TMN_CODE}
+      - VNP_HASH_SECRET=${VNP_HASH_SECRET}
+      - JWT_SIGNER_KEY=${JWT_SIGNER_KEY}
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY}
+      - CONSUL_HOST=${CONSUL_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+    depends_on:
+      consul-server-1:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - gsvn_network
+    deploy:
+      resources:
+        limits:
+          memory: 350M
+  shipment-service:
+    build:
+      context: ../ShipmentService
+      dockerfile: Dockerfile
+    container_name: gsvn-shipment-service
+    ports:
+      - "${SHIPMENT_SERVICE_PORT}:5009"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SHIPMENT_SERVICE_PORT=${SHIPMENT_SERVICE_PORT}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - SHIPMENT_DB_SCHEMA=${SHIPMENT_DB_SCHEMA}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - SHIPMENT_REDIS_DATABASE=${SHIPMENT_REDIS_DATABASE}
+      - SHIPMENT_SERVICE_USER=${SHIPMENT_SERVICE_USER}
+      - SHIPMENT_SERVICE_PASSWORD=${SHIPMENT_SERVICE_PASSWORD}
+      - JWT_SIGNER_KEY=${JWT_SIGNER_KEY}
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY}
+      - ENCRYPTION_SECRET_KEY=${ENCRYPTION_SECRET_KEY}
+      - ENCRYPTION_SALT=${ENCRYPTION_SALT}
+      - CONSUL_HOST=${CONSUL_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+    depends_on:
+      consul-server-1:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - gsvn_network
 volumes:
   postgres_data: {}
   postgres_data:
