@@ -56,5 +56,16 @@ public class AuthenticationController {
         var result = authenticationService.authenticate(new AuthenticationRequest(request.getEmail(),request.getPassword()));
         return new ApiResponse<>(result);
     }
+    @PostMapping("/forgot-password")
+    ApiResponse<String> register(@RequestBody @Valid ForgotPasswordRequest request)  {
+         authenticationService.requestResetPassword(request.email());
+
+        return new ApiResponse<>(request.email());
+    }
+    @PostMapping("/reset-password")
+    public ApiResponse<Boolean> resetPassword(@RequestBody ResetPasswordRequest request) {
+        authenticationService.resetPassword(request.getToken(), request.getNewPassword());
+        return new ApiResponse<>(true);
+    }
 
 }

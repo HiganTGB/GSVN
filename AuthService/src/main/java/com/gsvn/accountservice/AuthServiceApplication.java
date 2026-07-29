@@ -10,8 +10,6 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @EnableAsync
 @EnableDiscoveryClient
 @EnableFeignClients(basePackages = "com.gsvn.accountservice.client")
-// TODO: change to Mybatis
-// TODO: decouple this into two separate services: auth and account manager.
 public class AuthServiceApplication {
 
     public static void main(String[] args) {

@@ -18,6 +18,10 @@ public class RegisterRequest {
 
     @NotBlank(message = "PASSWORD_REQUIRED")
     @Size(min = 8, message = "PASSWORD_TOO_SHORT")
+    @Pattern(
+            regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,50}$",
+            message = "PASSWORD_TOO_WEAK"
+    )
     private  String password;
 
     @Pattern(regexp = "^\\d{10}$", message = "INVALID_PHONE_NUMBER")

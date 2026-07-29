@@ -1,10 +1,8 @@
 package com.gsvn.accountservice.controller;
 
 import com.gsvn.accountservice.common.ApiResponse;
-import com.gsvn.accountservice.model.dto.request.PermissionRequest;
 import com.gsvn.accountservice.model.dto.response.PermissionResponse;
 import com.gsvn.accountservice.service.PermissionService;
-import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

@@ -30,7 +30,7 @@ public class SecurityConfiguration {
     private final String[] PUBLIC_ENDPOINTS = {
             "/api/v1/users", "/api/v1/auth/token", "/api/v1/auth/introspect", "/api/v1/auth/logout", "/api/v1/auth/refresh"
             , "/api/v1/auth/outbound/authentication","/api/v1/auth/forgot-password",
-            "/api/v1/auth/reset-password"
+            "/api/v1/auth/reset-password",       "/api/v1/auth/register"
     };
     @Autowired
     private CustomJwtDecoder customJwtDecoder;
@@ -46,7 +46,7 @@ public class SecurityConfiguration {
         httpSecurity
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
+                        .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers("/api/v1/*/internal/**").permitAll()
                 .anyRequest()
                 .authenticated());

@@ -3,7 +3,6 @@ package com.gsvn.accountservice.config;
 
 import com.gsvn.accountservice.model.internal.IntrospectRequest;
 import com.gsvn.accountservice.service.AuthenticationService;
-import com.nimbusds.jose.JOSEException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
@@ -15,7 +14,6 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.spec.SecretKeySpec;
-import java.text.ParseException;
 import java.util.Objects;
 
 @Component

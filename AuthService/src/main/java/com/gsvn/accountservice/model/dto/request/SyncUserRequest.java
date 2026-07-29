@@ -17,6 +17,9 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class SyncUserRequest {
+    @NotBlank(message = "USERNAME_REQUIRED")
+    @Size(min = 3, max = 20, message = "USERNAME_INVALID_SIZE")
+    String userName;
 
     @NotBlank(message = "EMAIL_REQUIRED")
     @Email(message = "INVALID_EMAIL_FORMAT")
