@@ -1,7 +1,6 @@
 package com.gsvn.promotionservice.queue;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.gsvn.promotionservice.exc.AppException;
 import com.gsvn.promotionservice.exc.ErrorCode;
 import com.gsvn.promotionservice.mapper.MessageLogMapper;
@@ -18,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.databind.ObjectMapper;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -66,7 +66,7 @@ public class VoucherInboxProcessor {
         }
     }
 
-    private void handleApplyVoucher(VoucherRequestMessage request) throws JsonProcessingException {
+    private void handleApplyVoucher(VoucherRequestMessage request) {
         Voucher voucher = voucherMapper.findByCode(request.getVoucherCode());
 
         // 1. Kiểm tra tính hợp lệ
@@ -137,7 +137,7 @@ public class VoucherInboxProcessor {
     private VoucherRequestMessage parsePayload(String payload) {
         try {
             return mapper.readValue(payload, VoucherRequestMessage.class);
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             throw new AppException(ErrorCode.INVALID_REQUEST_BODY);
         }
     }
@@ -154,7 +154,7 @@ public class VoucherInboxProcessor {
         usageHistoryMapper.insert(history);
     }
 
-    private void sendResponse(VoucherRequestMessage req, boolean success, BigDecimal discount, String errorMsg) throws JsonProcessingException {
+    private void sendResponse(VoucherRequestMessage req, boolean success, BigDecimal discount, String errorMsg){
         VoucherResponseMessage response = VoucherResponseMessage.builder()
                 .orderCode(req.getOrderCode())
                 .sagaId(req.getSagaId())
