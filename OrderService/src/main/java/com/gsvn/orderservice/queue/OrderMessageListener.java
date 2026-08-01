@@ -1,6 +1,6 @@
 package com.gsvn.orderservice.queue;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.gsvn.orderservice.config.RabbitMQConfig;
 import com.gsvn.orderservice.config.RabbitMQTimeoutConfig;
 import com.gsvn.orderservice.mapper.MessageLogMapper;
@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.UUID;
 

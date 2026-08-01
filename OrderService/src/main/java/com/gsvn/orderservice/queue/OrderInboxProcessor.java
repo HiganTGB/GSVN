@@ -1,7 +1,5 @@
 package com.gsvn.orderservice.queue;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gsvn.orderservice.client.NotificationClient;
 import com.gsvn.orderservice.exc.AppException;
 import com.gsvn.orderservice.exc.ErrorCode;
@@ -19,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.databind.ObjectMapper;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -185,7 +184,7 @@ public class OrderInboxProcessor {
     private <T> T parsePayload(String payload, Class<T> clazz) {
         try {
             return mapper.readValue(payload, clazz);
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             throw new AppException(ErrorCode.INVALID_REQUEST_BODY);
         }
     }
@@ -275,7 +274,7 @@ public class OrderInboxProcessor {
                     .retryCount(0)
                     .build();
             logMapper.insertOutbox(outbox);
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
         }
     }
