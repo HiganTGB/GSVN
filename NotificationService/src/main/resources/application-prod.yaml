@@ -39,5 +39,9 @@ jwt:
   signerKey: ${JWT_SIGNER_KEY:5661608670d8591f4a9b407b975e1195d5204481358997c4e512803b87944062}
 
 app:
+  time:
+    rest-password : ${TIME_RESET_PASSWORD:5}
+  url:
+    reset-password: ${URL_RESET_PASSWORD:http://localhost:5137/reset-password?token=}
   security:
     internal-api-key: ${INTERNAL_API_KEY:gsvn}

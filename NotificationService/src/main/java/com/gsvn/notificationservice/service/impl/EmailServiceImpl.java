@@ -15,6 +15,10 @@ import java.util.Random;
 public class EmailServiceImpl implements EmailService {
     @Autowired
     private JavaMailSender mailSender;
+    @Value("${app.url.reset-password}")
+    private String resetUrl;
+    @Value("${app.time.reset-password}")
+    private int resetTtl;
 
     @Autowired
     private OtpStorageServiceImpl otpStorageService;
