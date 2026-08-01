@@ -1,6 +1,6 @@
 package com.gsvn.cartservice.controller;
 
-import com.gsvn.cartservice.common.ApiResponse; // Sử dụng record của bạn
+import com.gsvn.cartservice.common.ApiResponse;
 import com.gsvn.cartservice.model.dto.request.AddToCartRequest;
 import com.gsvn.cartservice.model.dto.request.GuestCartRequest;
 import com.gsvn.cartservice.model.dto.request.UpdateCartItemRequest;
