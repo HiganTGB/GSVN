@@ -1,11 +1,11 @@
-package com.gsvn.mediaservice.service;
+package com.gsvn.mediaservice.service.impl;
 
 import com.gsvn.mediaservice.config.MinioConfig;
 import com.gsvn.mediaservice.exc.AppException;
 import com.gsvn.mediaservice.exc.ErrorCode;
+import com.gsvn.mediaservice.service.ImageService;
 import io.minio.*;
 import io.minio.http.Method;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class MinioService {
+public class ImageServiceImpl implements ImageService {
 
     private final MinioClient minioClient;
     private final MinioConfig minioConfig;

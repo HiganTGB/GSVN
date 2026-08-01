@@ -3,7 +3,7 @@ package com.gsvn.mediaservice.controller;
 
 import com.gsvn.mediaservice.common.ApiResponse;
 import com.gsvn.mediaservice.common.UploadType;
-import com.gsvn.mediaservice.service.MinioService;
+import com.gsvn.mediaservice.service.ImageService;
 import com.gsvn.mediaservice.exc.AppException;
 import com.gsvn.mediaservice.exc.ErrorCode;
 
@@ -25,7 +25,7 @@ import java.util.Map;
 @Slf4j
 public class MediaController {
 
-    private final MinioService minioService;
+    private final ImageService imageService;
 
     @PostMapping("/upload")
     public ApiResponse<String> upload(
@@ -39,7 +39,7 @@ public class MediaController {
         String objectPath;
 
         if (uploadType.isRequireResize() && file.getContentType().startsWith("image/")) {
-            objectPath = minioService.uploadAndResizeImage(
+            objectPath = imageService.uploadAndResizeImage(
                     uploadType.getFolder(),
                     id,
                     file,
@@ -47,7 +47,7 @@ public class MediaController {
                     uploadType.getHeight()
             );
         } else {
-            objectPath = minioService.uploadFile(uploadType.getFolder(), id, file,false);
+            objectPath = imageService.uploadFile(uploadType.getFolder(), id, file,false);
         }
 
         return ApiResponse.<String>builder().result(objectPath).build();
@@ -59,7 +59,7 @@ public class MediaController {
             return ApiResponse.<String>builder().result("").build();
         }
 
-        String url = minioService.getPresignedUrl(path);
+        String url = imageService.getPresignedUrl(path);
         return ApiResponse.<String>builder()
                 .result(url)
                 .build();
@@ -67,7 +67,7 @@ public class MediaController {
 
     @DeleteMapping("/delete")
     public ApiResponse<Void> deleteFile(@RequestParam("path") String path) {
-        minioService.deleteFile(path,false);
+        imageService.deleteFile(path,false);
         return ApiResponse.<Void>builder()
                 .message("File deleted successfully")
                 .build();
@@ -80,7 +80,7 @@ public class MediaController {
                     .build();
         }
 
-        Map<String, String> urls = minioService.getPresignedUrls(paths);
+        Map<String, String> urls = imageService.getPresignedUrls(paths);
 
         return ApiResponse.<Map<String, String>>builder()
                 .result(urls)
