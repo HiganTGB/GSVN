@@ -1,6 +1,6 @@
 package com.gsvn.shipmentservice.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 
 import com.gsvn.shipmentservice.common.ApiResponse;
 import com.gsvn.shipmentservice.exc.ErrorCode;
@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 
