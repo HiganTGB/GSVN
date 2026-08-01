@@ -1,6 +1,6 @@
 package com.gsvn.productservice.queue;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.gsvn.productservice.mapper.MessageLogMapper;
 import com.gsvn.productservice.model.entity.Outbox;
 import com.gsvn.productservice.queue.message.SkuValidateResponseMessage;
@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
 

@@ -1,7 +1,6 @@
 package com.gsvn.productservice.queue;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.gsvn.productservice.exc.AppException;
 import com.gsvn.productservice.exc.ErrorCode;
 import com.gsvn.productservice.mapper.MessageLogMapper;
@@ -16,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,7 +58,7 @@ public class ProductInboxProcessor {
         }
     }
 
-    private void validateAndSendResponse(SkuValidateRequestMessage request) throws JsonProcessingException {
+    private void validateAndSendResponse(SkuValidateRequestMessage request){
         List<String> skuIds = request.getItems().stream()
                 .map(SkuValidateRequestMessage.SkuRequestItem::getSkuCode)
                 .collect(Collectors.toList());
@@ -109,7 +109,7 @@ public class ProductInboxProcessor {
                 .build();
     }
 
-    private void sendResponse(SkuValidateRequestMessage req, List<SkuValidateResponseMessage.SkuResponseItem> items, boolean hasError, String errorMsg) throws JsonProcessingException {
+    private void sendResponse(SkuValidateRequestMessage req, List<SkuValidateResponseMessage.SkuResponseItem> items, boolean hasError, String errorMsg){
         SkuValidateResponseMessage res = SkuValidateResponseMessage.builder()
                 .orderCode(req.getOrderCode())
                 .sagaId(req.getSagaId())
@@ -132,7 +132,7 @@ public class ProductInboxProcessor {
     private SkuValidateRequestMessage parsePayload(String payload) {
         try {
             return objectMapper.readValue(payload, SkuValidateRequestMessage.class);
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             throw new AppException(ErrorCode.INVALID_REQUEST_BODY);
         }
     }
