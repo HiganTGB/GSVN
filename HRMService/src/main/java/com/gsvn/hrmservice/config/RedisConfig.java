@@ -1,9 +1,7 @@
 package com.gsvn.hrmservice.config;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -15,9 +13,12 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+
+import org.springframework.data.redis.serializer.GenericJacksonJsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.time.Duration;
 
@@ -53,46 +54,14 @@ public class RedisConfig {
     @Bean
     @Primary
     public ObjectMapper objectMapper() {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
-        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        return mapper;
+        return JsonMapper.builder().build();
     }
 
-    private ObjectMapper redisObjectMapper() {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
-        mapper.activateDefaultTyping(
-                mapper.getPolymorphicTypeValidator(),
-                ObjectMapper.DefaultTyping.NON_FINAL,
-                JsonTypeInfo.As.PROPERTY
-        );
-        return mapper;
-    }
-
-    @Bean
-    @Primary
-    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
-        RedisTemplate<String, Object> template = new RedisTemplate<>();
-        template.setConnectionFactory(connectionFactory);
-
-        StringRedisSerializer stringSerializer = new StringRedisSerializer();
-        GenericJackson2JsonRedisSerializer jsonSerializer =
-                new GenericJackson2JsonRedisSerializer(redisObjectMapper());
-
-        template.setKeySerializer(stringSerializer);
-        template.setHashKeySerializer(stringSerializer);
-        template.setValueSerializer(jsonSerializer);
-        template.setHashValueSerializer(jsonSerializer);
-
-        template.afterPropertiesSet();
-        return template;
-    }
 
     @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
-        GenericJackson2JsonRedisSerializer jsonSerializer =
-                new GenericJackson2JsonRedisSerializer(redisObjectMapper());
+        GenericJacksonJsonRedisSerializer jsonSerializer =
+                new GenericJacksonJsonRedisSerializer(objectMapper());
 
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
                 .entryTtl(Duration.ofMinutes(10))
@@ -103,5 +72,24 @@ public class RedisConfig {
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(config)
                 .build();
+    }
+
+    @Bean
+    @Primary
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
+        RedisTemplate<String, Object> template = new RedisTemplate<>();
+        template.setConnectionFactory(connectionFactory);
+
+        StringRedisSerializer stringSerializer = new StringRedisSerializer();
+        GenericJacksonJsonRedisSerializer jsonSerializer =
+                new GenericJacksonJsonRedisSerializer(objectMapper());
+
+        template.setKeySerializer(stringSerializer);
+        template.setHashKeySerializer(stringSerializer);
+        template.setValueSerializer(jsonSerializer);
+        template.setHashValueSerializer(jsonSerializer);
+
+        template.afterPropertiesSet();
+        return template;
     }
 }
