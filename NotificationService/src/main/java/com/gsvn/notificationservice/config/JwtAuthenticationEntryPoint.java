@@ -1,6 +1,6 @@
 package com.gsvn.notificationservice.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 
 import com.gsvn.notificationservice.common.ApiResponse;
 import com.gsvn.notificationservice.exc.ErrorCode;
