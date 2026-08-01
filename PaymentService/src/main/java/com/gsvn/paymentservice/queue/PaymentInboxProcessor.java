@@ -1,7 +1,5 @@
 package com.gsvn.paymentservice.queue;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gsvn.paymentservice.exc.AppException;
 import com.gsvn.paymentservice.exc.ErrorCode;
 import com.gsvn.paymentservice.model.entity.*;
@@ -17,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.databind.ObjectMapper;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -85,7 +84,7 @@ public class PaymentInboxProcessor {
     private PaymentRequestMessage parsePayload(String payload) {
         try {
             return mapper.readValue(payload, PaymentRequestMessage.class);
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             throw new AppException(ErrorCode.INVALID_REQUEST_BODY);
         }
     }
@@ -127,7 +126,7 @@ public class PaymentInboxProcessor {
         }
     }
 
-    private void saveToOutbox(String sagaId, String eventType, Object payload) throws JsonProcessingException {
+    private void saveToOutbox(String sagaId, String eventType, Object payload) {
         Outbox outbox = Outbox.builder()
                 .id(UUID.randomUUID().toString())
                 .aggregateId(sagaId)

@@ -1,6 +1,6 @@
 package com.gsvn.paymentservice.queue;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.gsvn.paymentservice.config.RabbitMQConfig;
 import com.gsvn.paymentservice.mapper.MessageLogMapper;
 import com.gsvn.paymentservice.model.entity.Inbox;
@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.ObjectMapper;
 
 
 import java.util.UUID;
