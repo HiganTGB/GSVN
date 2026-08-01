@@ -4,7 +4,7 @@ package com.gsvn.inventoryservice.config;
 
 
 import com.gsvn.inventoryservice.model.internal.IntrospectRequest;
-import com.gsvn.inventoryservice.service.AuthenticationService;
+import com.gsvn.inventoryservice.service.impl.AuthenticationServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
@@ -23,7 +23,7 @@ public class CustomJwtDecoder implements JwtDecoder {
     private String signerKey;
 
     @Autowired
-    private AuthenticationService authenticationService;
+    private AuthenticationServiceImpl authenticationService;
 
     private NimbusJwtDecoder nimbusJwtDecoder = null;
 

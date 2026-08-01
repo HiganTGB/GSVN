@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.4.3'
+    id 'org.springframework.boot' version '4.1.0'
     id 'io.spring.dependency-management' version '1.1.7'
 }
 
@@ -38,13 +38,13 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 
-    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+    implementation("tools.jackson.core:jackson-databind:3.2.1")
     implementation 'com.nimbusds:nimbus-jose-jwt:10.0'
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     implementation 'com.rabbitmq:amqp-client:5.28.0'
-    implementation 'org.springframework.boot:spring-boot-starter-amqp:3.2.4'
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
 
 
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'

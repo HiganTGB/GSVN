@@ -1,6 +1,6 @@
 package com.gsvn.inventoryservice.queue;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.gsvn.inventoryservice.config.RabbitMQConfig;
 import com.gsvn.inventoryservice.mapper.MessageLogMapper;
 import com.gsvn.inventoryservice.model.entity.Inbox;
@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.UUID;
 

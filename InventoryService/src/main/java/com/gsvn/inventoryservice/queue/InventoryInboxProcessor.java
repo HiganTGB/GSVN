@@ -1,7 +1,6 @@
 package com.gsvn.inventoryservice.queue;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.gsvn.inventoryservice.exc.AppException;
 import com.gsvn.inventoryservice.exc.ErrorCode;
 import com.gsvn.inventoryservice.mapper.*;
@@ -13,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.UUID;
 
@@ -118,7 +118,7 @@ public class InventoryInboxProcessor {
     private InventoryRequestMessage parsePayload(String payload) {
         try {
             return mapper.readValue(payload, InventoryRequestMessage.class);
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             throw new AppException(ErrorCode.INVALID_REQUEST_BODY);
         }
     }
@@ -139,7 +139,7 @@ public class InventoryInboxProcessor {
         stockLogMapper.insertLog(stockLog);
     }
 
-    private void sendResponse(InventoryRequestMessage msg, boolean success, String errorMsg) throws JsonProcessingException {
+    private void sendResponse(InventoryRequestMessage msg, boolean success, String errorMsg){
         InventoryResponseMessage response = InventoryResponseMessage.builder()
                 .orderCode(msg.getOrderCode())
                 .sagaId(msg.getSagaId())

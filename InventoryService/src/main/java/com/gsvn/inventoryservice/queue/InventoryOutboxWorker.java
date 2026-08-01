@@ -1,6 +1,6 @@
 package com.gsvn.inventoryservice.queue;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.gsvn.inventoryservice.mapper.MessageLogMapper;
 import com.gsvn.inventoryservice.model.entity.Outbox;
 import com.gsvn.inventoryservice.model.saga.OrderEventType;
@@ -8,6 +8,7 @@ import com.gsvn.inventoryservice.queue.message.InventoryResponseMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
 

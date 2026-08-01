@@ -5,7 +5,6 @@ import com.gsvn.inventoryservice.common.PageResponse;
 import com.gsvn.inventoryservice.model.dto.request.InboundRequest;
 import com.gsvn.inventoryservice.model.dto.response.InboundResponse;
 import com.gsvn.inventoryservice.service.InboundService;
-import com.gsvn.inventoryservice.service.PdfExportService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
