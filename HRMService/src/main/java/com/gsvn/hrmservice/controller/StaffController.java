@@ -9,6 +9,7 @@ import com.gsvn.hrmservice.service.StaffService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,34 +23,41 @@ public class StaffController {
     private final StaffService staffService;
 
     @PostMapping
+    @PreAuthorize("hasAuthority('all') or hasAuthority('staff_create')")
     public ApiResponse<StaffResponse> create(@RequestBody @Valid StaffCreateRequest request) {
         return new ApiResponse<>(staffService.create(request));
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('staff_update')")
     public ApiResponse<StaffResponse> update(@PathVariable Long id, @RequestBody @Valid StaffRequest request) {
         return new ApiResponse<>(staffService.update(id, request));
     }
     @PutMapping("/{id}/account")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('staff_create')")
     public ApiResponse<StaffResponse> initAccount(@PathVariable Long id) {
         return new ApiResponse<>(staffService.addAccountForStaff(id));
     }
     @GetMapping("/active")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('staff_update')")
     public ApiResponse<List<StaffResponse>> getAll() {
         return new ApiResponse<>(staffService.getActiveStaff());
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('staff_read')")
     public ApiResponse<StaffResponse> getById(@PathVariable Long id) {
         return new ApiResponse<>(staffService.getById(id));
     }
     @PostMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAuthority('all') or hasAuthority('staff_update')")
     public ApiResponse<String> uploadAvatar(
             @PathVariable Long id,
             @RequestPart("file") MultipartFile file) {
         return new ApiResponse<>(staffService.uploadStaffAvatar(id, file));
     }
     @GetMapping("/search")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('staff_read')")
     public ApiResponse<PageResponse<StaffResponse>> search(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) Integer warehouseId,
@@ -70,6 +78,7 @@ public class StaffController {
         ));
     }
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('staff_delete')")
     public ApiResponse<Void> delete(@PathVariable Long id) {
         staffService.delete(id);
         return new ApiResponse<>();

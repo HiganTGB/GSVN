@@ -8,6 +8,7 @@ import com.gsvn.inventoryservice.model.dto.response.SupplierResponse;
 import com.gsvn.inventoryservice.service.SupplierService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,11 +21,13 @@ public class SupplierController {
     private final SupplierService supplierService;
 
     @PostMapping
+    @PreAuthorize("hasAuthority('all') or hasAuthority('supplier_read')")
     public ApiResponse<SupplierResponse> create(@RequestBody @Valid SupplierRequest request) {
         return new ApiResponse<>(supplierService.create(request));
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('supplier_update')")
     public ApiResponse<SupplierResponse> update(
             @PathVariable Integer id,
             @RequestBody @Valid SupplierRequest request) {
@@ -32,17 +35,20 @@ public class SupplierController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('supplier_read')")
     public ApiResponse<SupplierResponse> getById(@PathVariable Integer id) {
         return new ApiResponse<>(supplierService.getById(id));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('supplier_delete')")
     public ApiResponse<Void> delete(@PathVariable Integer id) {
         supplierService.delete(id);
         return new ApiResponse<>();
     }
 
     @GetMapping
+    @PreAuthorize("hasAuthority('all') or hasAuthority('supplier_read')")
     public ApiResponse<PageResponse<SupplierResponse>> getPage(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) Boolean isActive,
@@ -55,6 +61,7 @@ public class SupplierController {
     }
 
     @GetMapping("/all")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('supplier_read')")
     public ApiResponse<List<SupplierResponse>> getAll() {
         return new ApiResponse<>(supplierService.getAll());
     }

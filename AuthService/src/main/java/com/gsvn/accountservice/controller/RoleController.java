@@ -11,6 +11,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,10 +26,12 @@ public class RoleController {
     RoleService roleService;
 
     @PostMapping
+    @PreAuthorize("hasAuthority('all') or hasAuthority('role_create')")
     ApiResponse<RoleResponse> createRole(@RequestBody @Valid RoleRequest request) {
         return new ApiResponse<>(roleService.create(request));
     }
     @PutMapping("/{roleId}")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('role_update')")
     ApiResponse<RoleResponse> updateRole(@RequestBody @Valid RoleRequest request, @PathVariable Integer roleId) {
         return new ApiResponse<>(roleService.update(request,roleId));
     }
@@ -37,6 +40,7 @@ public class RoleController {
         return new ApiResponse<>(roleService.getRoles());
     }
     @DeleteMapping("/{roleId}")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('role_delete')")
     ApiResponse<Void> deleteRole(@PathVariable Integer roleId) {
         roleService.delete(roleId);
         return new ApiResponse<>();
@@ -47,6 +51,7 @@ public class RoleController {
         return new ApiResponse<>(roleService.getRolePermissions(roleId));
     }
     @GetMapping("/search")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('role_read')")
     public ApiResponse<PageResponse<RoleResponse>> search(
             @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "id") String sortBy,

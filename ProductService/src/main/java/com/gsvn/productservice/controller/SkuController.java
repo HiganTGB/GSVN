@@ -7,6 +7,7 @@ import com.gsvn.productservice.model.dto.response.SkuResponse;
 import com.gsvn.productservice.service.SkuService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +25,7 @@ public class SkuController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('all') or hasAuthority('product_update')")
     public ApiResponse<SkuResponse> createSku(
             @PathVariable Integer productId,
             @RequestBody @Valid SkuRequest request) {
@@ -31,6 +33,7 @@ public class SkuController {
     }
 
     @PutMapping("/{skuId}")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('product_update')")
     public ApiResponse<SkuResponse> updateSku(
             @PathVariable Long skuId,
             @RequestBody @Valid SkuRequest request, @PathVariable String productId) {

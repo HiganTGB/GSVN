@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,6 +22,7 @@ public class CategoryController {
     CategoryService categoryService;
 
     @PostMapping
+    @PreAuthorize("hasAuthority('all') or hasAuthority('category_read')")
     public ApiResponse<CategoryResponse> create(@RequestBody @Valid CategoryRequest request) {
         return new ApiResponse<>(categoryService.create(request));
     }
@@ -41,13 +43,15 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('category_update')")
     public ApiResponse<CategoryResponse> update(
             @PathVariable Integer id,
             @RequestBody @Valid CategoryRequest request) {
         return new ApiResponse<>(categoryService.update(id, request));
     }
     @DeleteMapping("/{id}")
-    public ApiResponse<CategoryResponse> update(
+    @PreAuthorize("hasAuthority('all') or hasAuthority('category_delete')")
+    public ApiResponse<CategoryResponse> delete(
             @PathVariable Integer id) {
         categoryService.delete(id);
         return new ApiResponse<>();

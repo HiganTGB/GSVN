@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -21,6 +22,7 @@ public class CustomerController {
     CustomerServiceImpl customerService;
 
     @PostMapping
+    @PreAuthorize("hasAuthority('all') or hasAuthority('customer_read')")
     public ApiResponse<CustomerResponse> createCustomer(@RequestBody @Valid CustomerRequest request) {
         return new ApiResponse<>(customerService.create(request));
     }
@@ -30,6 +32,7 @@ public class CustomerController {
     }
 
     @PutMapping("/{customerId}")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('customer_update')")
     public ApiResponse<CustomerResponse> updateCustomer(
             @PathVariable long customerId,
             @RequestBody @Valid CustomerRequest request) {
@@ -37,11 +40,13 @@ public class CustomerController {
     }
 
     @GetMapping("/{customerId}")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('customer_read')")
     public ApiResponse<CustomerResponse> getCustomer(@PathVariable long customerId) {
         return new ApiResponse<>(customerService.getById(customerId));
     }
 
     @DeleteMapping("/{customerId}")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('customer_delete')")
     public ApiResponse<Void> deleteCustomer(@PathVariable long customerId) {
         customerService.delete(customerId);
         return new ApiResponse<>();
@@ -58,6 +63,7 @@ public class CustomerController {
     }
 
     @GetMapping("/search")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('customer_read')")
     public ApiResponse<PageResponse<CustomerResponse>> search(
             @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "id") String sortBy,

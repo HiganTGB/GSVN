@@ -16,6 +16,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -38,6 +39,7 @@ public class OrderController {
         return new ApiResponse<>(orderCode);
     }
     @PostMapping("/pos-checkout")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('order_create')")
     public ApiResponse<String> staffCreateOrder(@RequestBody @Valid OrderCreateRequest request) {
         Long staffId = authService.getStaffIdFromToken();
 
@@ -59,6 +61,7 @@ public class OrderController {
         return new ApiResponse<>(response);
     }
     @GetMapping("/search")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('order_read')")
     public ApiResponse<PageResponse<OrderResponse>> searchOrders(
             @RequestParam(required = false) String warehouseCode,
             @RequestParam(required = false) String code,
@@ -81,6 +84,7 @@ public class OrderController {
         return new ApiResponse<>(detail);
     }
     @PostMapping("/{id}/approve")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('order_permission')")
     public ApiResponse<OrderResponse> approve(
             @PathVariable Long id,
             @RequestBody(required = false) OrderApproveRequest request) {

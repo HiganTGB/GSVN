@@ -15,6 +15,7 @@ import com.gsvn.productservice.service.SkuService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,11 +31,13 @@ public class ProductController {
     private final SkuService skuService;
 
     @PostMapping
+    @PreAuthorize("hasAuthority('all') or hasAuthority('product_create')")
     public ApiResponse<Integer> create(@RequestBody @Valid ProductCreateRequest request) {
         return new ApiResponse<>(productService.createProduct(request));
     }
 
     @PutMapping("/{id}/basic")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('product_update')")
     public ApiResponse<ProductBasicResponse> updateBasic(
             @PathVariable Integer id,
             @RequestBody @Valid ProductBasicUpdateRequest request) {
@@ -43,6 +46,7 @@ public class ProductController {
 
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('product_delete')")
     public ApiResponse<Void> delete(@PathVariable Integer id) {
         productService.deleteProduct(id);
         return new ApiResponse<>();
@@ -50,6 +54,7 @@ public class ProductController {
 
 
     @PutMapping("/{id}/pre")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('product_update')")
     public ApiResponse<ProductPreCampaignResponse> updatePreCampaign(
             @PathVariable Integer id,
             @RequestBody @Valid ProductPreOrderUpdateRequest request) {
@@ -57,10 +62,12 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}/pre")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('product_update')")
     public ApiResponse<ProductPreCampaignResponse> resetCampaign(@PathVariable Integer id) {
         return new ApiResponse<>(productService.deletePreCampaign(id));
     }
 
+    @PreAuthorize("hasAuthority('all') or hasAuthority('product_update')")
     @PostMapping(value = "/{id}/main-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<String> uploadMainImage(
             @PathVariable Integer id,
@@ -116,6 +123,7 @@ public class ProductController {
             @PathVariable Integer id) {
         return new ApiResponse<>(productService.getPreResponse(id));
     }
+    @PreAuthorize("hasAuthority('all') or hasAuthority('product_read')")
     @GetMapping("/{id}/history")
     public ApiResponse<List<PreHistoryResponse>> getHistoryPreCampaign(@PathVariable Integer id)
     {

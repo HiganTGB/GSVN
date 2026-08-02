@@ -7,6 +7,7 @@ import com.gsvn.inventoryservice.model.dto.SkuSellableDTO;
 import com.gsvn.inventoryservice.model.dto.request.InventoryUpdateRequest;
 import com.gsvn.inventoryservice.service.InventoryService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +20,7 @@ public class InventoryController {
     private final InventoryService inventoryService;
 
     @GetMapping("/search")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('stock_read')")
     public ApiResponse<PageResponse<InventoryDTO>> getInventory(
             @RequestParam(required = false) Integer warehouseId,
             @RequestParam(required = false) Integer skuId,

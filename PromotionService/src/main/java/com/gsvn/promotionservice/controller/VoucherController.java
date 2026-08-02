@@ -13,6 +13,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -23,11 +24,13 @@ public class VoucherController {
     VoucherService voucherService;
 
     @PostMapping
+    @PreAuthorize("hasAuthority('all') or hasAuthority('voucher_create')")
     public ApiResponse<VoucherResponse> create(@RequestBody @Valid VoucherRequest request) {
         return new ApiResponse<>(voucherService.create(request));
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('voucher_update')")
     public ApiResponse<VoucherResponse> update(
             @PathVariable Integer id,
             @RequestBody @Valid VoucherRequest request) {
@@ -45,6 +48,7 @@ public class VoucherController {
     }
 
     @GetMapping("/search")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('voucher_read')")
     public ApiResponse<PageResponse<VoucherResponse>> getPage(
             @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "id") String sortBy,

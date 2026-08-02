@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,11 +21,13 @@ public class OutboundController {
     private final OutboundService outboundService;
 
     @PostMapping
+    @PreAuthorize("hasAuthority('all') or hasAuthority('outbound_create')")
     public ApiResponse<OutboundResponse> createOutbound(@RequestBody @Valid OutboundRequest request) {
         return new ApiResponse<>(outboundService.processOutbound(request));
     }
 
     @GetMapping
+    @PreAuthorize("hasAuthority('all') or hasAuthority('stock_read')")
     public ApiResponse<PageResponse<OutboundResponse>> getOutboundPage(
             @RequestParam(required = false) Integer warehouseId,
             @RequestParam(required = false) String type,
@@ -36,10 +39,12 @@ public class OutboundController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('stock_read')")
     public ApiResponse<OutboundResponse> getOutboundDetail(@PathVariable Long id) {
         return new ApiResponse<>(outboundService.getOutboundDetail(id));
     }
     @GetMapping("/{id}/export")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('stock_read')")
     public ResponseEntity<byte[]> exportPdf(@PathVariable Long id) {
         byte[] pdfBytes = outboundService.exportOutboundDetail(id);
         HttpHeaders headers = new HttpHeaders();

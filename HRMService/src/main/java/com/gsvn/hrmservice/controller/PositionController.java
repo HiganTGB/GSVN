@@ -8,6 +8,7 @@ import com.gsvn.hrmservice.service.PositionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,6 +21,7 @@ public class PositionController {
 
     private final PositionService positionService;
     @GetMapping("/search")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('position_read')")
     public ApiResponse<PageResponse<PositionResponse>> getPage(
             @RequestParam(required = false, defaultValue = "") String keyword,
             @RequestParam(required = false, defaultValue = "positionId") String sortBy,
@@ -37,16 +39,19 @@ public class PositionController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('position_read')")
     public ApiResponse<PositionResponse> getById(@PathVariable Integer id) {
         return new ApiResponse<>(positionService.getById(id));
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('all') or hasAuthority('position_create')")
     public ApiResponse<PositionResponse> create(@Valid @RequestBody PositionRequest request) {
         return new ApiResponse<>( positionService.create(request));
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('position_update')")
     public ApiResponse<PositionResponse> update(
             @PathVariable Integer id,
             @RequestBody @Valid PositionRequest request
@@ -55,6 +60,7 @@ public class PositionController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('position_delete')")
     public ApiResponse<Void> delete(@PathVariable Integer id) {
         positionService.delete(id);
         return new ApiResponse<>();

@@ -9,6 +9,7 @@ import com.gsvn.promotionservice.common.PageResponse;
 import com.gsvn.promotionservice.model.dto.response.VoucherResponse;
 import com.gsvn.promotionservice.model.entity.Voucher;
 import com.gsvn.promotionservice.service.AuthenticationService;
+import com.gsvn.promotionservice.service.VoucherService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +19,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class VoucherServiceImpl {
+public class VoucherServiceImpl implements VoucherService {
 
     private final VoucherMapper voucherMapper;
     private final VoucherConverter converter;

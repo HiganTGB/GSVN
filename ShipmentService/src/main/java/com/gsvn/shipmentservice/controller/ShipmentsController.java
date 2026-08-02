@@ -7,6 +7,7 @@ import com.gsvn.shipmentservice.model.dto.request.ShipmentRequest;
 import com.gsvn.shipmentservice.model.dto.response.ShipmentResponse;
 import com.gsvn.shipmentservice.service.ShipmentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,6 +30,7 @@ public class ShipmentsController {
         return new ApiResponse<>(shipmentService.getListByOrderCode(orderCode));
     }
     @GetMapping("/search")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('shipment_read')")
     public ApiResponse<PageResponse<ShipmentResponse>> getPage(
             @RequestParam(required = false) String orderCode,
             @RequestParam(required = false) String status,
@@ -46,6 +48,7 @@ public class ShipmentsController {
         return new ApiResponse<>(shipmentService.getShipmentDetail(id));
     }
     @PatchMapping("/{id}/ready-to-pick")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('shipment_permission')")
     public ApiResponse<Void> confirmReadyToPick(
             @PathVariable Long id,
             @RequestParam String warehouseCode){
@@ -54,6 +57,7 @@ public class ShipmentsController {
     }
 
     @PatchMapping("/{id}/packed")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('shipment_permission')")
     public ApiResponse<Void> confirmPacked(
             @PathVariable Long id,
             @RequestParam Integer totalWeight,
@@ -65,6 +69,7 @@ public class ShipmentsController {
     }
 
     @PatchMapping("/{id}/delivering")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('shipment_permission')")
     public ApiResponse<Void> confirmDelivering(
             @PathVariable Long id,
             @RequestBody ConfirmDeliveringRequest request) {
@@ -73,12 +78,14 @@ public class ShipmentsController {
     }
 
     @PatchMapping("/{id}/delivered")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('shipment_permission')")
     public ApiResponse<Void> confirmDelivered(@PathVariable Long id) {
         shipmentService.confirmDelivered(id);
         return new ApiResponse<>("Shipment delivered successfully", null);
     }
 
     @PatchMapping("/{id}/pickup-delivered")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('shipment_permission')")
     public ApiResponse<Void> confirmPickupDelivered(
             @PathVariable Long id,
             @RequestParam Long confirmedBy) {
@@ -87,6 +94,7 @@ public class ShipmentsController {
     }
 
     @PutMapping("/{id}/delivery-method")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('shipment_permission')")
     public ApiResponse<Void> updateDeliveryMethod(
             @PathVariable Long id,
             @RequestParam String deliveryMethod) {
@@ -95,6 +103,7 @@ public class ShipmentsController {
     }
 
     @PatchMapping("/{id}/change-to-pickup")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('shipment_permission')")
     public ApiResponse<Void> changeToPickup(@PathVariable Long id) {
         shipmentService.changeToPickup(id);
         return new ApiResponse<>("Changed to pickup successfully", null);

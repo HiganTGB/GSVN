@@ -8,6 +8,7 @@ import com.gsvn.hrmservice.service.AuthenticationService;
 import com.gsvn.hrmservice.service.StaffSalaryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,11 +26,13 @@ public class StaffSalaryController {
         return new ApiResponse<>(salaryService.getSalaryInfo(authenticationService.getStaffIdFromToken()));
     }
     @PostMapping("/{staffId}")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('staff_update_salary')")
     public ApiResponse<StaffSalaryResponse> changeSalary(@PathVariable Long staffId, @Valid @RequestBody StaffSalaryRequest request) {
         return new ApiResponse<>(salaryService.changeSalary(staffId, request));
     }
 
     @GetMapping("/{staffId}/history")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('staff_read_salary')")
     public ApiResponse<List<StaffSalaryResponse>> getStaffSalaryHistory(@PathVariable Long staffId) {
         return new ApiResponse<>(salaryService.getStaffSalaryHistory(staffId));
     }

@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -41,6 +42,7 @@ public class LeaveRequestController {
 
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('leave_read')")
     public ApiResponse<LeaveRequestResponse> getDetail(@PathVariable long id) {
         return new ApiResponse<>(leaveService.getById(id));
     }
@@ -54,6 +56,7 @@ public class LeaveRequestController {
     }
 
     @GetMapping("/search")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('leave_read')")
     public ApiResponse<PageResponse<LeaveRequestResponse>> adminFilter(
             @RequestParam(required = false) Status status,
             @RequestParam(required = false) Integer month,
@@ -65,6 +68,7 @@ public class LeaveRequestController {
 
 
     @PostMapping("/{id}/approve")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('leave_permission')")
     public ApiResponse<Void> approve(@PathVariable long id, @RequestBody @Valid LeaveStatusApproveRequest status) {
         leaveService.approveRequest(id, status);
         return new ApiResponse<>(null);

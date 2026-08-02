@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,23 +28,27 @@ public class PayrollController {
 
     private final PayrollService payrollService;
     @PostMapping("/init/{yearMonth}")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('payroll_init')")
     public ApiResponse<Boolean> initPayroll(@PathVariable String yearMonth) {
         payrollService.initMonthlyPayroll(yearMonth);
         return new ApiResponse<>(true);
     }
 
     @GetMapping("/list/{yearMonth}")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('payroll_read')")
     public ApiResponse<List<PayrollResponse>> getPayrollList(@PathVariable String yearMonth) {
         return new ApiResponse<>(payrollService.getPayrollList(yearMonth));
     }
 
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('payroll_read')")
     public ApiResponse<PayrollResponse> getDetail(@PathVariable Long id) {
         return new ApiResponse<>(payrollService.getPayrollDetail(id));
     }
 
     @PostMapping("/{id}/approve")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('payroll_permission')")
     public ApiResponse<Boolean> approvePayroll(
             @PathVariable Long id,
             @RequestBody @Valid PayrollApproveRequest request) {
@@ -52,11 +57,13 @@ public class PayrollController {
     }
 
     @PostMapping("/{id}/confirm-payment")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('payroll_permission')")
     public ApiResponse<Boolean> confirmPayment(@PathVariable Long id) {
         payrollService.confirmPayment(id);
         return new ApiResponse<>(true);
     }
     @GetMapping("/{id}/print")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('payroll_permission')")
     public ResponseEntity<byte[]> print(@PathVariable Long id) {
         byte[] pdf = payrollService.exportPayrollPdf(id);
         return ResponseEntity.ok()
@@ -65,6 +72,7 @@ public class PayrollController {
                 .body(pdf);
     }
     @GetMapping("/search")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('payroll_read')")
     public ApiResponse<PageResponse<PayrollResponse>> adminFilter(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) Integer month,
@@ -81,6 +89,7 @@ public class PayrollController {
         return new ApiResponse<>(payrollService.searchPayrolls(keyword, salaryPeriod,status,page,size));
     }
     @GetMapping("/report")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('payroll_permission')")
     public ApiResponse<PayrollReportResponse> getPayrollReport(
             @RequestParam(required = false) Integer month,
             @RequestParam Integer year)
@@ -96,6 +105,7 @@ public class PayrollController {
         return new ApiResponse<>(report);
     }
     @GetMapping("/report/print")
+    @PreAuthorize("hasAuthority('all') or hasAuthority('payroll_permission')")
     public ResponseEntity<byte[]> printReport(    @RequestParam(required = false) Integer month,
                                                   @RequestParam Integer year) {
         boolean isYearly = (month == null);
