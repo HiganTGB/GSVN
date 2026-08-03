@@ -27,4 +27,5 @@ public interface AuthenticationService {
     void requestResetPassword(String email);
 
     void resetPassword(String token, String newPassword);
+    AuthenticationResponse handleOAuth2Login(String providerName, String providerUserId, String email, String fullName);
 }

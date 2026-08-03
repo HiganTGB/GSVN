@@ -13,7 +13,9 @@ import com.gsvn.accountservice.model.dto.response.UserBaseResponse;
 
 import com.gsvn.accountservice.model.entity.User;
 
+import com.gsvn.accountservice.model.entity.UserProvider;
 import com.gsvn.accountservice.model.internal.CustomerRequest;
+import com.gsvn.accountservice.repository.UserProviderRepository;
 import com.gsvn.accountservice.repository.UserRepository;
 
 import com.gsvn.accountservice.service.UserService;
@@ -33,6 +35,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 
 
 @Service
@@ -42,6 +46,7 @@ import java.util.Objects;
 public class UserServiceImpl implements UserService {
     UserRepository userRepository;
     PasswordEncoder passwordEncoder;
+    UserProviderRepository userProviderRepository;
     CustomerServiceClient customerServiceClient;
     public UserBaseResponse getMyInfo() {
         var context = SecurityContextHolder.getContext();
@@ -150,5 +155,52 @@ public class UserServiceImpl implements UserService {
             case "phone" -> "phone";
             default -> "createdAt";
         };
+    }
+    @Transactional
+    public User processOAuth2User(String providerName, String providerUserId, String email, String fullName) {
+        Optional<UserProvider> providerOpt = userProviderRepository.findByProviderNameAndProviderUserId(providerName, providerUserId);
+
+        User user;
+        if (providerOpt.isPresent()) {
+            user = userRepository.findById(providerOpt.get().getUserId())
+                    .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+            validateUserStatus(user);
+        } else {
+            Optional<User> userOpt = userRepository.findByEmail(email);
+            if (userOpt.isPresent()) {
+                user = userOpt.get();
+                validateUserStatus(user);
+            } else {
+                String randomPassword = UUID.randomUUID().toString();
+                UserBaseRequest registerReq = new UserBaseRequest(email, fullName, randomPassword, null, false);
+
+                user = UserMapper.toUserEntity(registerReq, passwordEncoder.encode(registerReq.getPassword()), false);
+                user = userRepository.save(user);
+
+                try {
+                    var customerReq = new CustomerRequest(fullName, email, null, null, null);
+                    var response = customerServiceClient.createInternalCustomer(customerReq, user.getUserId());
+                    if (response != null && response.result() != null) {
+                        user.setReferenceId(response.result().getCustomerId());
+                        userRepository.save(user);
+                    }
+                } catch (Exception e) {
+                  throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
+                }
+            }
+            UserProvider userProvider = UserProvider.builder()
+                    .userId(user.getUserId())
+                    .providerName(providerName)
+                    .providerUserId(providerUserId)
+                    .build();
+            userProviderRepository.save(userProvider);
+        }
+
+        return user;
+    }
+
+    private void validateUserStatus(User user) {
+        if (user.getDeletedAt() != null) throw new AppException(ErrorCode.USER_NOT_EXISTED);
+        if (!user.getIsActive()) throw new AppException(ErrorCode.USER_LOCKED);
     }
 }

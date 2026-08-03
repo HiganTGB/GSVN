@@ -6,6 +6,7 @@ import com.gsvn.accountservice.model.dto.request.RegisterRequest;
 import com.gsvn.accountservice.model.dto.request.SyncUserRequest;
 import com.gsvn.accountservice.model.dto.request.UserBaseRequest;
 import com.gsvn.accountservice.model.dto.response.UserBaseResponse;
+import com.gsvn.accountservice.model.entity.User;
 
 public interface UserService {
     UserBaseResponse getMyInfo();
@@ -16,4 +17,5 @@ public interface UserService {
     boolean changePassword(ChangePasswordRequest request);
     PageResponse<UserBaseResponse> getUsers(String keyword, Boolean isStaff, String sortBy, String direction, int page, int size);
     UserBaseResponse getById(String id);
+    User processOAuth2User(String providerName, String providerUserId, String email, String fullName);
 }

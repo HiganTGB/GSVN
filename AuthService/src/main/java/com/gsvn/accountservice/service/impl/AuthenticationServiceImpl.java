@@ -14,6 +14,7 @@ import com.gsvn.accountservice.repository.UserRepository;
 import com.gsvn.accountservice.repository.UserRoleRepository;
 import com.gsvn.accountservice.service.AuthenticationService;
 import com.gsvn.accountservice.service.TokenService;
+import com.gsvn.accountservice.service.UserService;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
@@ -37,6 +38,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class AuthenticationServiceImpl implements AuthenticationService {
     private final UserRepository userRepository;
+    private final UserService userService;
     private final UserRoleRepository userRoleRepository;
     private final TokenService tokenService;
     private final PasswordEncoder passwordEncoder;
@@ -228,5 +230,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         } catch (JOSEException | ParseException e) {
             throw new AppException(ErrorCode.ITEM_NOT_EXISTED);
         }
+    }
+    public AuthenticationResponse handleOAuth2Login(String providerName, String providerUserId, String email, String fullName) {
+        User user = userService.processOAuth2User(providerName, providerUserId, email, fullName);
+        return generateAuthResponse(user);
     }
 }
