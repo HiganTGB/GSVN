@@ -22,6 +22,8 @@ public class S3Config {
 
     @Value("${s3.access-key}")
     private String accessKey;
+    @Value("${s3.region}")
+    private String region;
 
     @Value("${s3.secret-key}")
     private String secretKey;
@@ -33,7 +35,7 @@ public class S3Config {
     public S3Client s3Client() {
         return S3Client.builder()
                 .endpointOverride(URI.create(endpoint))
-                .region(Region.US_EAST_1)
+                .region(Region.of(region))
                 .credentialsProvider(StaticCredentialsProvider.create(
                         AwsBasicCredentials.create(accessKey, secretKey)
                 ))
@@ -47,7 +49,7 @@ public class S3Config {
     public S3Presigner s3Presigner() {
         return S3Presigner.builder()
                 .endpointOverride(URI.create(endpoint))
-                .region(Region.US_EAST_1)
+                .region(Region.of(region))
                 .credentialsProvider(StaticCredentialsProvider.create(
                         AwsBasicCredentials.create(accessKey, secretKey)
                 ))

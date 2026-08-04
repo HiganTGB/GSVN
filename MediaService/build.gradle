@@ -31,7 +31,8 @@ dependencies {
     implementation 'com.github.ben-manes.caffeine:caffeine'
     implementation 'org.springframework.cloud:spring-cloud-starter-consul-discovery'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    implementation 'io.minio:minio:8.6.0'
+    implementation(platform("software.amazon.awssdk:bom:2.47.6"))
+    implementation("software.amazon.awssdk:s3:2.47.5")
     implementation 'commons-io:commons-io:2.15.1'
     implementation 'org.apache.commons:commons-compress:1.26.1'
 
