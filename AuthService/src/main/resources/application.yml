@@ -6,6 +6,7 @@ spring:
 
 server:
   port: ${AUTH_SERVICE_PORT:5001}
+  forward-headers-strategy: framework
 
 management:
   endpoints:
@@ -15,3 +16,10 @@ management:
   endpoint:
     health:
       show-details: always
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+  use-management-port: false

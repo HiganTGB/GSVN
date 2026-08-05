@@ -780,6 +780,29 @@ services:
         condition: service_healthy
     networks:
       - gsvn_network
+  swagger-ui:
+    image: swaggerapi/swagger-ui:v5.32.12
+    container_name: gsvn-swagger-ui
+    ports:
+      - "8088:8080"
+    environment:
+      URLS: >-
+        [
+           { name: 'Auth Service', url: 'http://${SWAGGER_BASE_HOST:-localhost}:${AUTH_SERVICE_PORT}/v3/api-docs' },
+           { name: 'Customer Service', url: 'http://${SWAGGER_BASE_HOST:-localhost}:${CUSTOMER_SERVICE_PORT}/v3/api-docs' },
+           { name: 'Product Service', url: 'http://${SWAGGER_BASE_HOST:-localhost}:${PRODUCT_SERVICE_PORT}/v3/api-docs' },
+           { name: 'Inventory Service', url: 'http://${SWAGGER_BASE_HOST:-localhost}:${INVENTORY_SERVICE_PORT}/v3/api-docs' },
+           { name: 'Order Service', url: 'http://${SWAGGER_BASE_HOST:-localhost}:${ORDER_SERVICE_PORT}/v3/api-docs' },
+           { name: 'Cart Service', url: 'http://${SWAGGER_BASE_HOST:-localhost}:${CART_SERVICE_PORT}/v3/api-docs' },
+           { name: 'Payment Service', url: 'http://${SWAGGER_BASE_HOST:-localhost}:${PAYMENT_SERVICE_PORT}/v3/api-docs' },
+           { name: 'Shipment Service', url: 'http://${SWAGGER_BASE_HOST:-localhost}:${SHIPMENT_SERVICE_PORT}/v3/api-docs' },
+           { name: 'Promotion Service', url: 'http://${SWAGGER_BASE_HOST:-localhost}:${PROMOTION_SERVICE_PORT}/v3/api-docs' },
+           { name: 'HRM Service', url: 'http://${SWAGGER_BASE_HOST:-localhost}:5003/v3/api-docs' },
+         ]
+      PERSIST_AUTHORIZATION: "true"
+      DOC_EXPANSION: "none"
+    networks:
+      - gsvn_network
 volumes:
   postgres_data: {}
   postgres_data:

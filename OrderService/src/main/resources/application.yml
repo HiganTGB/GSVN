@@ -1,6 +1,6 @@
 server:
   port: ${ORDER_SERVICE_PORT:5013}
-
+  forward-headers-strategy: framework
 spring:
   application:
     name: order-service
@@ -16,7 +16,13 @@ mybatis:
   type-aliases-package: com.gsvn.orderservice.model.entity
   configuration:
     default-enum-type-handler: org.apache.ibatis.type.EnumTypeHandler
-
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+  use-management-port: false
 logging:
   level:
     com.gsvn.orderservice: INFO

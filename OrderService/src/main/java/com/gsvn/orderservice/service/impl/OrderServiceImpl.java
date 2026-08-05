@@ -1,7 +1,6 @@
 package com.gsvn.orderservice.service.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.gsvn.orderservice.client.MediaClient;
 import com.gsvn.orderservice.client.ShipmentFeignClient;
 import com.gsvn.orderservice.common.ApiResponse;
@@ -30,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import tools.jackson.databind.ObjectMapper;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -118,7 +118,7 @@ public class OrderServiceImpl implements OrderService {
                     .build();
 
             logMapper.insertOutbox(outbox);
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             log.error("JSON Serialization error for Outbox", e);
             throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
         }
@@ -185,7 +185,7 @@ public class OrderServiceImpl implements OrderService {
                     .build();
 
             logMapper.insertOutbox(outbox);
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             log.error("JSON Serialization error for Outbox", e);
             throw new RuntimeException("Could not serialize saga message");
         }

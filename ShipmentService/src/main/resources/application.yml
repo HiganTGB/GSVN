@@ -1,5 +1,6 @@
 server:
   port: ${SHIPMENT_SERVICE_PORT:5009}
+  forward-headers-strategy: framework
 spring:
   application:
     name: shipment-service
@@ -16,3 +17,10 @@ mybatis:
   configuration:
     map-underscore-to-camel-case: true
     default-enum-type-handler: org.apache.ibatis.type.EnumTypeHandler
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+  use-management-port: false

@@ -38,7 +38,11 @@ public class SecurityConfiguration {
             "/api/v1/auth/reset-password",
             "/api/v1/auth/register",
             "/oauth2/**",
-            "/login/oauth2/**"
+            "/login/oauth2/**",
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html"
+
     };
     @Autowired
     private CustomJwtDecoder customJwtDecoder;

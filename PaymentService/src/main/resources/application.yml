@@ -1,6 +1,6 @@
 server:
   port: ${PAYMENT_SERVICE_PORT:5014}
-
+  forward-headers-strategy: framework
 spring:
   application:
     name: payment-service
@@ -24,3 +24,10 @@ management:
   endpoint:
     health:
       show-details: always
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+  use-management-port: false

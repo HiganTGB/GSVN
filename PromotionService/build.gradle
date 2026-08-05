@@ -48,6 +48,7 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     implementation 'com.rabbitmq:amqp-client:5.28.0'
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.1.0")
 }
 
 tasks.named('test') {

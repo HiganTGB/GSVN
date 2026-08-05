@@ -29,7 +29,9 @@ public class SecurityConfiguration {
 
     private final String[] PUBLIC_ENDPOINTS = {
             "/api/v1/inventory/*",
-            "/api/v1/sku-stocks/**"
+            "/api/v1/sku-stocks/**",  "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html"
     };
 
     @Autowired

@@ -1,6 +1,6 @@
 server:
   port: ${PROMOTION_SERVICE_PORT:5008}
-
+  forward-headers-strategy: framework
 spring:
   application:
     name: promotion-service
@@ -25,3 +25,10 @@ management:
   endpoint:
     health:
       show-details: always
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+  use-management-port: false

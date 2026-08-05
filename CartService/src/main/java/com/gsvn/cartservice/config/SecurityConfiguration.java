@@ -26,7 +26,10 @@ public class SecurityConfiguration {
 
     private final String[] PUBLIC_ENDPOINTS = {
             "/api/v1/cart/guest",
-            "/api/v1/cart/**"
+            "/api/v1/cart/**",
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html"
     };
 
     @Autowired

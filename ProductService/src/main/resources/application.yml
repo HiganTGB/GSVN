@@ -1,5 +1,6 @@
 server:
   port: ${PRODUCT_SERVICE_PORT:5006}
+  forward-headers-strategy: framework
 spring:
   application:
     name: product-service
@@ -24,3 +25,10 @@ management:
   endpoint:
     health:
       show-details: always
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+  use-management-port: false

@@ -9,7 +9,6 @@ import com.gsvn.hrmservice.model.dto.request.StaffSalaryRequest;
 import com.gsvn.hrmservice.model.dto.response.StaffSalaryResponse;
 import com.gsvn.hrmservice.model.entity.Staff;
 import com.gsvn.hrmservice.model.entity.StaffSalary;
-import com.gsvn.hrmservice.service.AuthenticationService;
 import com.gsvn.hrmservice.service.PositionService;
 import com.gsvn.hrmservice.service.StaffSalaryService;
 import lombok.RequiredArgsConstructor;
