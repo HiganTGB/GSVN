@@ -10,22 +10,23 @@
 
 The platform consists of **14 decoupled microservices**, each running on its dedicated port and managing its isolated storage schema or database:
 
-| Service Name | Port | Database / Storage Schema | Primary Responsibility |
-| :--- | :--- | :--- | :--- |
-| **Auth Service** | `5001` | PostgreSQL (`acc_db`), Redis (DB 1) | User authentication, identity management & JWT issuance |
-| **Media Service** | `5002` | MinIO Storage (`media`, `temp` buckets) | Asset uploading, image optimization & storage |
-| **HRM Service** | `5003` | PostgreSQL (`hrm_db`), Redis (DB 2) | Staff & internal human resources management |
-| **Customer Service** | `5004` | PostgreSQL (`customer_db`), Redis (DB 6) | Customer profiles & account information |
-| **Address Service** | `5005` | SQLite (`address_db.db`) | Geolocation & shipping address management |
-| **Product Service** | `5006` | PostgreSQL (`product_db`), Redis (DB 3) | Dynamic product catalog (EAV Model) & categories |
-| **Inventory Service**| `5007` | PostgreSQL (`inventory_db`), Redis (DB 7) | Stock control, warehouse management & encryption |
-| **Promotion Service**| `5008` | PostgreSQL (`promotion_db`), Redis (DB 4) | Vouchers, discounts & promotional campaigns |
-| **Shipment Service** | `5009` | PostgreSQL (`shipping_db`), Redis (DB 6) | Shipping integration with GHN API |
-| **Search Service** | `5010` | Redis (DB 3) | Fast search index & product filtering |
-| **Cart Service** | `5012` | PostgreSQL (`cart_db`), Redis (DB 8) | Shopping cart management |
-| **Order Service** | `5013` | PostgreSQL (`order_db`), Redis (DB 7) | Order lifecycle & Saga transaction execution |
-| **Payment Service** | `5014` | PostgreSQL (`payment_db`), Redis (DB 7) | VNPay Sandbox integration & instant processing |
-| **Notification** | `5015` | Redis (DB 9), SMTP Mail Server | Asynchronous email & push notifications |
+
+| Service Name | Port | Database / Storage Schema            | Primary Responsibility |
+| --- | --- |--------------------------------------| --- |
+| **Auth Service** | `5001` | PostgreSQL (`acc_db`)                | User authentication, identity management & JWT issuance |
+| **Media Service** | `5002` | S3 Storage (`media`, `temp` buckets) | Asset uploading, image optimization & storage |
+| **HRM Service** | `5003` | PostgreSQL (`hrm_db`)                | Staff & internal human resources management |
+| **Customer Service** | `5004` | PostgreSQL (`customer_db`)           | Customer profiles & account information |
+| **Address Service** | `5005` | SQLite (`address_db.db`)             | Geolocation & shipping address management |
+| **Product Service** | `5006` | PostgreSQL (`product_db`)            | Dynamic product catalog (EAV Model) & categories |
+| **Inventory Service** | `5007` | PostgreSQL (`inventory_db`)          | Stock control, warehouse management & encryption |
+| **Promotion Service** | `5008` | PostgreSQL (`promotion_db`)          | Vouchers, discounts & promotional campaigns |
+| **Shipment Service** | `5009` | PostgreSQL (`shipping_db`)           | Shipping integration with GHN API |
+| **Search Service** | `5010` | In-memory / Indexing                 | Fast search index & product filtering |
+| **Cart Service** | `5012` | PostgreSQL (`cart_db`)               | Shopping cart management |
+| **Order Service** | `5013` | PostgreSQL (`order_db`)              | Order lifecycle & Saga transaction execution |
+| **Payment Service** | `5014` | PostgreSQL (`payment_db`)            | VNPay Sandbox integration & instant processing |
+| **Notification** | `5015` | SMTP Mail Server                     | Asynchronous email & push notifications |
 
 ### Core Infrastructure Components
 * **API Gateway & Admin UI:** Kong Gateway managed via **Konga Admin UI** (`:1337`).
