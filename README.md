@@ -1,4 +1,4 @@
-# [GSVN - E-commerce]
+# [[Outdated] GSVN - E-commerce]
 
 ## Overview
 
