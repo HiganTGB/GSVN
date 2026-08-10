@@ -816,7 +816,7 @@ volumes:
   consul_data_3: { }
 networks:
   gsvn_network:
-    driver: bridge    driver: bridge
+    driver: bridge
     ipam:
       config:
         - subnet: 172.19.0.0/16
