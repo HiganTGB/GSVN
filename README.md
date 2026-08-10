@@ -1,94 +1,132 @@
-# [[Outdated] GSVN - E-commerce]
+# GSVN - Microservices E-Commerce Platform
 
 ## Overview
 
-This project is a backend system designed to allow users to make purchases, similar to the functionality found on the Goodsmile US website. It provides the necessary infrastructure for managing product catalogs, user accounts, order processing, and integrates with VNPAY for payment processing. The system's database is also designed with a future transition to a microservices architecture in mind.
+**GSVN** is a high-performance, scalable backend ecosystem for an e-commerce platform inspired by the Goodsmile website. Built on Java 21 and Spring Boot, the system adopts a distributed **Microservices Architecture** with 12 specialized services, service discovery, centralized API routing, asynchronous messaging, and containerized deployment.
 
-## Features
-* **Database Design for Microservice Transition:** The database schema has been designed with future migration to a microservices architecture in mind. This foresight allows for smoother scalability and independent deployment of services when resources permit.
-* **Orchestrated Transactions with Saga Pattern via RabbitMQ:** Implements the Saga pattern, utilizing RabbitMQ for asynchronous communication and ensuring data consistency across the entire order lifecycle, including order placement, inventory holding, and payment processing.
-* **Centralized Logging with Filebeat and Logstash:** Implements Filebeat for log shipping and Logstash for log processing and management, providing a centralized system for monitoring and debugging.
-* **Faster Search with Elasticsearch:** Utilizes Elasticsearch to provide fast and efficient product search capabilities.
-* **User Authentication via Keycloak and Spring Addons OIDC Starter:** Implements a secure user authentication system leveraging Keycloak as the identity provider and the Spring Addons OIDC Starter library for integration.
-## Technologies Used
-* **Core** : Spring Boot - Java 17
-* **Database:** MySQL,MongoDB,ElasticSearch
-* **Message Broker:** RabbitMQ
-* **Caching:** Redis
-* **Authentication:** Keycloak, [Spring Addons OIDC Starter](https://github.com/ch4mpy/spring-addons/blob/master/spring-addons-starter-oidc/README.MD).
-* **Object Storage:** Minio
-* **Library:** MapStruct,Querydsl
-* **Log** : LogStash,FileBeat
-## Explanation
-## Future Development
-* **Microservices Architecture Transition:** Transition to microservices with Eureka and Kong Gateway.
-* **Real-time Communication:** Implement WebSocket instead of polling for real-time updates.
-* **Refund,Cancel Functionality:** Add support for refunds in VNPAY.
-* **Message Queue Alternatives:** Explore the possibility of using Kafka instead of RabbitMQ.
-* **More Functionality:** Discount,Shipping,Messaging System,
-A more detailed explanation of the project's architecture, design decisions, or key concepts. This section can provide deeper insights into how the project works.
-## API Documentation
-Under development with Swagger
-## Getting Started / Installation / Usage
+---
 
-# Setup and Usage Guide
+## Architecture & System Services
 
-This document outlines the steps to set up and use the services defined in the `docker-compose.yml` file and the Java backend application configured in the `Dockerfile` and `pom.xml`.
+The platform consists of **14 decoupled microservices**, each running on its dedicated port and managing its isolated storage schema or database:
 
-## Prerequisites
+| Service Name | Port | Database / Storage Schema | Primary Responsibility |
+| :--- | :--- | :--- | :--- |
+| **Auth Service** | `5001` | PostgreSQL (`acc_db`), Redis (DB 1) | User authentication, identity management & JWT issuance |
+| **Media Service** | `5002` | MinIO Storage (`media`, `temp` buckets) | Asset uploading, image optimization & storage |
+| **HRM Service** | `5003` | PostgreSQL (`hrm_db`), Redis (DB 2) | Staff & internal human resources management |
+| **Customer Service** | `5004` | PostgreSQL (`customer_db`), Redis (DB 6) | Customer profiles & account information |
+| **Address Service** | `5005` | SQLite (`address_db.db`) | Geolocation & shipping address management |
+| **Product Service** | `5006` | PostgreSQL (`product_db`), Redis (DB 3) | Dynamic product catalog (EAV Model) & categories |
+| **Inventory Service**| `5007` | PostgreSQL (`inventory_db`), Redis (DB 7) | Stock control, warehouse management & encryption |
+| **Promotion Service**| `5008` | PostgreSQL (`promotion_db`), Redis (DB 4) | Vouchers, discounts & promotional campaigns |
+| **Shipment Service** | `5009` | PostgreSQL (`shipping_db`), Redis (DB 6) | Shipping integration with GHN API |
+| **Search Service** | `5010` | Redis (DB 3) | Fast search index & product filtering |
+| **Cart Service** | `5012` | PostgreSQL (`cart_db`), Redis (DB 8) | Shopping cart management |
+| **Order Service** | `5013` | PostgreSQL (`order_db`), Redis (DB 7) | Order lifecycle & Saga transaction execution |
+| **Payment Service** | `5014` | PostgreSQL (`payment_db`), Redis (DB 7) | VNPay Sandbox integration & instant processing |
+| **Notification** | `5015` | Redis (DB 9), SMTP Mail Server | Asynchronous email & push notifications |
 
-To follow the steps below, ensure you have the following software installed on your system:
+### Core Infrastructure Components
+* **API Gateway & Admin UI:** Kong Gateway managed via **Konga Admin UI** (`:1337`).
+* **Service Discovery:** 3-Node **HashiCorp Consul Cluster** (`:8500`).
+* **Message Broker:** **RabbitMQ** (`:5672`) for distributed events and Saga/Outbox workflows.
+* **Storage & Caching:** **PostgreSQL** (`:5432`), **Redis** (`:6379`), and **MinIO Object Storage** (`:9000` / Console `:9001`).
 
-* **Docker Engine:** Latest version recommended.
-* **Docker Compose:** Latest version recommended.
-* **Maven:** (Only required if you want to manually rebuild the Java application) Version 3.x.
-* **Java Development Kit (JDK):** (Only required if you want to manually rebuild the Java application) Version 17.
+---
 
-## Installation Steps
+## Key Technical Features
 
-1.  **Clone Repository (optional):** If the backend application source code is not already on your machine, clone the repository containing it.
+* **API Gateway & Routing:** All requests are routed through **Kong Gateway**, enforcing security, rate limiting, and RBAC authorization across services.
+* **Distributed Transactions (Saga & Outbox Patterns):** Uses **RabbitMQ** and **Resilience4j Circuit Breakers** to handle asynchronous distributed order processing and ensure data consistency.
+* **Dynamic EAV Database Schema:** Implements an Entity-Attribute-Value model in **PostgreSQL** to handle 100+ dynamic attributes across SKUs and pre-order date ranges.
+* **Security:** Hybrid **JWT Authentication** combined with **Google OAuth2** for identity verification.
+* **Payment & Shipping Integration:** Native sandbox integrations with **VNPay Payment Gateway** and **GHN (Giao Hàng Nhanh)** real-time shipping calculation.
+* **Multi-Stage Docker Builds:** Optimized Docker Compose configuration using Spring Boot layertools to accelerate rebuilds and reduce image sizes.
 
-    ```bash
-    git clone <repository_address>
-    cd <repository_directory_name>
-    ```
+---
 
-2**Build and Run Docker Containers:** Use the `docker-compose up` command to build the images and start the containers defined in `docker-compose.yml`. Add the `-d` flag to run the containers in detached (background) mode.
+## Getting Started
 
-    ```bash
-    docker-compose up -d
-    ```
+### Prerequisites
 
-    This command will:
-    * Create the `gsvn-network` network.
-    * Create the `mysql_data` and `mongodb_data` volumes.
-    * Build the image for the `gsvnbackend` service based on the `Dockerfile` (if the image doesn't exist).
-    * Start the containers in the order of their dependencies (e.g., `mysql-db` will start before `gsvnbackend`).
-    * Expose the specified ports on your host machine.
+* **Docker Engine** (v20.10+) & **Docker Compose**
+* **JDK 21** & **Maven 3.8+** (Optional, for manual local builds)
+
+---
+
+### Installation & Deployment Steps
+
+1. **Clone the Repository:**
+   ```bash
+   git clone [https://github.com/HiganTGB/GSVN.git](https://github.com/HiganTGB/GSVN.git)
+   cd GSVN/docker
+2. **Prepare Environment Variables from Example File**
+```
+cp .env.example .env
+
+```
 
 
-**Important Notes:**
-* **Filebeat Configuration:** The `filebeat.yml` file is configured to monitor log files in `/var/log/server/`. You might need to adjust this path to match the actual location of your application's log files within the container. You can also control the log output format and location of your Java backend application by configuring the `logback.xml` file in your project.
-* **Maven Generate Scripts:** Before running the Docker Compose setup, ensure you have executed the Maven command to generate necessary source code, especially for QueryDSL. Run the following command in your backend project directory:
-    ```bash
-    mvn generate-sources
-    ```
-* **Kibana User:** If Kibana is not working due to Elasticsearch not yet providing a user, you might need to run a user creation script within the Elasticsearch container. Look for a script named `create_user.sh` in script folder. You can execute commands inside the Elasticsearch container using `docker exec -it elastic /bin/bash` and then run the script. Refer to the Elasticsearch documentation for specific user creation instructions if needed.
-* **MinIO Bucket Creation:** To utilize MinIO for storage, you will likely need to create buckets. You can do this using the MinIO console UI (at `http://localhost:9001`) or the MinIO client (`mc`). For example, using `create_buckets.sh` in script folder:
-    ```bash
-    bash create_buckets.sh
-    ```
-  Replace `your-bucket-name` with the desired name for your bucket.
-
-To stop all running containers, you can use the command:
-
+3. **Start Core Infrastructure:**
 ```bash
-docker-compose down
+docker compose up -d postgres redis rabbitmq consul-server-1 consul-server-2 consul-server-3 minio
+
+```
+
+
+4. **Initialize Kong Gateway & Konga Admin UI:**
+```bash
+# Run database migrations for Kong
+docker compose up kong-migrations
+
+# Start Kong database and Konga UI database
+docker compose up -d kong-database konga-db
+
+# Prepare Konga seed data
+docker compose up konga-prepare
+
+# Launch Gateway & Management UI
+docker compose up -d kong konga
+
+```
+
+
+5. **Configure Kong Gateway & MinIO Keys:**
+* Open **Konga UI** at `http://localhost:1337` and connect to Kong Admin (`http://kong:8001`).
+* Navigate to **Snapshots** $\rightarrow$ **Import from file** $\rightarrow$ select `snapshot.json` in the `docker` folder $\rightarrow$ Click **Restore All**.
+* Open **MinIO Console** at `http://localhost:9001` $\rightarrow$ Create an **Access Key** $\rightarrow$ Update `MINIO_ACCESS_KEY` & `MINIO_SECRET_KEY` in your `.env` file.
+
+
+6. **Build & Launch All Microservices:**
+```bash
+docker compose build
+docker compose up -d
+
 ```
 
 
 
-## Contact
+---
 
-You can reach me via [Outlook](mailto:giabao21sgu@outlook.com).
+## System Management & Dashboard Links
+
+Once the system is running, access the following management consoles:
+
+* **HashiCorp Consul (Service Discovery):** [http://localhost:8500](http://localhost:8500)
+* **Konga UI (API Gateway Admin):** [http://localhost:1337](http://localhost:1337)
+* **MinIO Console (Object Storage):** [http://localhost:9001](http://localhost:9001)
+* **Swagger API Docs:** [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+
+---
+
+## Future Improvements
+
+* **Elasticsearch Search Engine:** Integrate Elasticsearch into `Search Service` for high-performance full-text query processing.
+* **Kubernetes Orchestration:** Migrate services from Docker Compose to Kubernetes (K8s) clusters on cloud infrastructure.
+* **Centralized Observability:** Build an ELK/PLG stack (Prometheus, Grafana, Loki) for real-time log monitoring and metrics collection.
+* **UI:** Develop a Frontend application.
+* **Gateway** : using Kong OSS instead of Konga
+
+
 
