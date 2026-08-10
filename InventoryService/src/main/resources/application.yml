@@ -10,7 +10,10 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
-
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
 logging:
   level:
     com.gsvn.inventoryservice.queue: INFO
@@ -35,3 +38,23 @@ management:
   endpoint:
     health:
       show-details: always
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        sliding-window-type: COUNT_BASED
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 5000ms
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+    instances:
+      auth-service:
+        base-config: default
+      hrm-service:
+        base-config: default
+      shipment-service:
+        base-config: default
+      rabbitmq-publisher:
+        base-config: default

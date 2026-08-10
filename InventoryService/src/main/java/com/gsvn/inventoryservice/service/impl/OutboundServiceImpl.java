@@ -152,7 +152,7 @@ public class OutboundServiceImpl implements OutboundService {
 
             return os.toByteArray();
         } catch (Exception e) {
-            throw new RuntimeException("Lỗi render PDF: " + e.getMessage());
+            throw new RuntimeException("Error render PDF: " + e.getMessage());
         }
     }
 }

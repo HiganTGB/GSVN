@@ -5,6 +5,7 @@ import com.gsvn.orderservice.queue.message.InventoryRequestMessage;
 import com.gsvn.orderservice.queue.message.PaymentRequestMessage;
 import com.gsvn.orderservice.queue.message.SkuValidateRequestMessage;
 import com.gsvn.orderservice.queue.message.VoucherRequestMessage;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -17,6 +18,7 @@ public class OrderMessagePublisher {
 
     private final RabbitTemplate rabbitTemplate;
     //(3)
+    @CircuitBreaker(name = "rabbitmq-publisher")
     public void sendSkuValidateRequest(SkuValidateRequestMessage message) {
         log.info("Sending SKU validation request for Order: {}", message.getOrderCode());
         rabbitTemplate.convertAndSend(
@@ -26,6 +28,7 @@ public class OrderMessagePublisher {
         );
     }
     //(21)
+    @CircuitBreaker(name = "rabbitmq-publisher")
     public void sendInventoryReserveRequest(InventoryRequestMessage message) {
         log.info("Sending Inventory Reservation request for Order: {}", message.getOrderCode());
         rabbitTemplate.convertAndSend(
@@ -35,6 +38,7 @@ public class OrderMessagePublisher {
         );
     }
     //(25)
+    @CircuitBreaker(name = "rabbitmq-publisher")
     public void sendVoucherApplyRequest(VoucherRequestMessage message) {
         log.info("Sending Voucher Apply request for Order: {} with Voucher ID: {}",
                 message.getOrderCode(), message.getVoucherCode());
@@ -44,7 +48,7 @@ public class OrderMessagePublisher {
                 message
         );
     }
-
+    @CircuitBreaker(name = "rabbitmq-publisher")
     public void sendPaymentRequest(PaymentRequestMessage message) {
         log.info("Sending Payment URL request for Order: {}", message.getOrderCode());
         rabbitTemplate.convertAndSend(

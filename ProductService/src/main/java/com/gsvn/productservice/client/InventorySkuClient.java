@@ -1,6 +1,6 @@
 package com.gsvn.productservice.client;
 
-
+import com.gsvn.productservice.client.fallback.InventorySkuClientFallbackFactory;
 import com.gsvn.productservice.common.ApiResponse;
 import com.gsvn.productservice.config.InternalFeignConfig;
 import com.gsvn.productservice.model.internal.SkuGlobalConfigResponse;
@@ -12,7 +12,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-@FeignClient(name = "inventory-service",contextId = "inventory",path ="/api/v1/inventory", configuration = InternalFeignConfig.class )
+@FeignClient(
+        name = "inventory-service",
+        contextId = "inventory",
+        path = "/api/v1/inventory",
+        configuration = InternalFeignConfig.class,
+        fallbackFactory = InventorySkuClientFallbackFactory.class
+)
 public interface InventorySkuClient {
 
     @PutMapping("/internal/sync")

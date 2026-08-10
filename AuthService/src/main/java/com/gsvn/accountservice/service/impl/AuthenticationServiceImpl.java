@@ -23,6 +23,8 @@ import com.nimbusds.jwt.SignedJWT;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -48,7 +50,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Value("${jwt.refreshable-duration}") @NonFinal long REFRESHABLE_DURATION;
     @Value("${jwt.reset-password-duration:900}") @NonFinal long RESET_PASSWORD_DURATION;
     // protected final String GRANT_TYPE = "authorization_code";
-
     public IntrospectResponse introspect(IntrospectRequest request) {
         try {
             verifyToken(request.token(), false);
@@ -60,8 +61,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         User user = userRepository.findByEmail(request.email())
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-
+                .orElseGet(() ->
+                {
+                    log.warn("Login:{} not existed.",request.email());
+                    throw new AppException(ErrorCode.USER_NOT_EXISTED);
+                });
         validateUserStatus(user);
 
         if (!passwordEncoder.matches(request.password(), user.getPassword())) {
@@ -80,8 +84,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         tokenService.blacklistToken(userId, jit, remainingTime);
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED));
-
+                .orElseGet(() -> {
+                    log.warn("Refresh:{} not existed.",email);
+                    throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);});
         return generateAuthResponse(user);
     }
     public void logout(LogoutRequest request) {
@@ -89,7 +94,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             var signedJWT = verifyToken(request.token(), true);
             String jit = signedJWT.getJWTClaimsSet().getJWTID();
             String userId = signedJWT.getJWTClaimsSet().getStringClaim("userId");
-
             tokenService.blacklistToken(userId, jit, getRemainingMillis(signedJWT));
         } catch (Exception e) {
             log.info("Logout: Token already invalid or expired.");
@@ -106,7 +110,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         // Lưu vào Redis (Whitelist & Session management)
         tokenService.saveToken(user.getUserId(), accessToken, VALID_DURATION, TimeUnit.SECONDS);
         tokenService.saveToken(user.getUserId(), refreshToken, REFRESHABLE_DURATION, TimeUnit.SECONDS);
-
         return new AuthenticationResponse(accessToken, refreshToken, true);
     }
     private String generateToken(User user, Set<Integer> roleIds, long duration, boolean isRefresh) {
@@ -153,7 +156,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             jwsObject.sign(new MACSigner(SIGNER_KEY.getBytes()));
             return jwsObject.serialize();
         } catch (JOSEException e) {
-            log.error("Cannot sign JWT", e);
+            log.error("SignToken: Can't sign token for [subject={}]", claimsSet.getSubject(), e);
             throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
         }
     }
@@ -211,12 +214,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         PasswordResetRequest mailRequest = new PasswordResetRequest();
         mailRequest.setEmail(email);
         mailRequest.setToken(token);
-
-        try {
-            notificationClient.sendResetPasswordEmail(mailRequest);
-        } catch (Exception e) {
-            throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
-        }
+        notificationClient.sendResetPasswordEmail(mailRequest);
     }
     public void resetPassword(String token, String newPassword) {
         try {

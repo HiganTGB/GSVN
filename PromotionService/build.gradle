@@ -49,6 +49,8 @@ dependencies {
     implementation 'com.rabbitmq:amqp-client:5.28.0'
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.1.0")
+    implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j:5.0.2")
+    implementation("org.springframework.boot:spring-boot-starter-aop:4.0.0-M2")
 }
 
 tasks.named('test') {

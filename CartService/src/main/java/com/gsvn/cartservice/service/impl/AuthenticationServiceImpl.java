@@ -26,13 +26,8 @@ import org.springframework.stereotype.Service;
 public class AuthenticationServiceImpl implements AuthenticationService {
     private final AuthServiceFeignClient authServiceFeignClient;
     public IntrospectResponse introspect(IntrospectRequest introspectRequest) {
-        try {
-            ApiResponse<IntrospectResponse> response = authServiceFeignClient.authenticate(introspectRequest);
-            return response.result();
-        } catch (Exception e) {
-            log.info(e.getMessage());
-            return new IntrospectResponse(false);
-        }
+        ApiResponse<IntrospectResponse> response = authServiceFeignClient.authenticate(introspectRequest);
+        return response.result();
     }
     public Long getCustomerIdFromToken() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();

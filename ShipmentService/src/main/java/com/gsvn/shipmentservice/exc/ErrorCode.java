@@ -23,7 +23,8 @@ public enum ErrorCode {
     SKU_EXISTED(1054,"SKU existed and linked to variant",HttpStatus.CONFLICT),
     SHIPMENT_NOT_FOUND(1060, "Shipment not found", HttpStatus.NOT_FOUND),
     INVALID_STATUS_TRANSITION(1061, "Invalid status transition", HttpStatus.BAD_REQUEST),
-    LIMIT_ONE_OPTION(1054,"Only one options to sync skus",HttpStatus.CONFLICT);
+    LIMIT_ONE_OPTION(1054,"Only one options to sync skus",HttpStatus.CONFLICT),
+    SERVICE_UNAVAILABLE(1011, "Service is temporarily unavailable, please try again later", HttpStatus.SERVICE_UNAVAILABLE);
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;
         this.message = message;

@@ -50,7 +50,6 @@ public class RedisConfig {
         return new LettuceConnectionFactory(config);
     }
     @Bean
-    @Primary
     public ObjectMapper objectMapper() {
         return JsonMapper.builder().build();
     }

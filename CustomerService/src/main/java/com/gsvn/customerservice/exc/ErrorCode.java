@@ -17,6 +17,7 @@ public enum ErrorCode {
     UNAUTHORIZED(1008, "You do not have permission", HttpStatus.FORBIDDEN),
     INVALID_DOB(1009, "Your age must be at least {min}", HttpStatus.BAD_REQUEST),
     INVALID_REQUEST_BODY(1010,"Request body is missing or invalid",HttpStatus.BAD_REQUEST),
+    SERVICE_UNAVAILABLE(1011, "Service is temporarily unavailable, please try again later", HttpStatus.SERVICE_UNAVAILABLE),
     ITEM_NOT_EXISTED(1052,"Item not existed",HttpStatus.BAD_REQUEST);
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;

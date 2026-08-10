@@ -2,6 +2,7 @@ package com.gsvn.customerservice.client;
 
 
 
+import com.gsvn.customerservice.client.fallback.UserServiceFeignClientFallbackFactory;
 import com.gsvn.customerservice.common.ApiResponse;
 import com.gsvn.customerservice.config.InternalFeignConfig;
 import com.gsvn.customerservice.model.internal.SyncUserRequest;
@@ -18,7 +19,8 @@ import java.util.Set;
         name = "auth-service",
         contextId = "user",
         path = "/api/v1/users",
-        configuration = InternalFeignConfig.class
+        configuration = InternalFeignConfig.class,
+        fallbackFactory = UserServiceFeignClientFallbackFactory.class
 )
 public interface UserServiceFeignClient {
     @PostMapping("/internal/create")

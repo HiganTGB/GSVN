@@ -1,6 +1,7 @@
 package com.gsvn.productservice.client;
 
 
+import com.gsvn.productservice.client.fallback.RoleServiceFeignClientFallbackFactory;
 import com.gsvn.productservice.common.ApiResponse;
 
 import com.gsvn.productservice.config.InternalFeignConfig;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 
 
-@FeignClient(name = "auth-service",contextId = "auth",path ="/api/v1/auth", configuration = InternalFeignConfig.class )
+@FeignClient(name = "auth-service",contextId = "auth",path ="/api/v1/auth", configuration = InternalFeignConfig.class,fallbackFactory = RoleServiceFeignClientFallbackFactory.class)
 public interface AuthServiceFeignClient {
     @PostMapping("/internal/introspect")
     ApiResponse<IntrospectResponse> authenticate(@RequestBody IntrospectRequest request);

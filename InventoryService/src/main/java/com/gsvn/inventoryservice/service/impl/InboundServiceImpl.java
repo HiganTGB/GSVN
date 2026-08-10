@@ -162,7 +162,7 @@ public class InboundServiceImpl implements InboundService {
             return os.toByteArray();
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException("Lỗi render PDF: " + e.getMessage());
+            throw new RuntimeException("Error render PDF: " + e.getMessage());
         }
     }
 

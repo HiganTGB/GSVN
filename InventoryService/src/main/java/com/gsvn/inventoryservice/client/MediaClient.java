@@ -2,6 +2,7 @@ package com.gsvn.inventoryservice.client;
 
 
 
+import com.gsvn.inventoryservice.client.fallback.AuthServiceFeignClientFallbackFactory;
 import com.gsvn.inventoryservice.common.ApiResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
@@ -11,7 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Map;
 
-@FeignClient(name = "media-service", path = "/api/v1/media")
+@FeignClient(name = "media-service", path = "/api/v1/media",fallbackFactory = AuthServiceFeignClientFallbackFactory.class)
 public interface MediaClient {
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     ApiResponse<String> upload(

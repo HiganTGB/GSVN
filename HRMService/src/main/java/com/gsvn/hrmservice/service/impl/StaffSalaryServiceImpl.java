@@ -36,7 +36,7 @@ public class StaffSalaryServiceImpl implements StaffSalaryService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         var position=positionService.getById(request.getPositionId());
         if(position.getPositionId().equals(request.getPositionId())&&(staff.getBaseSalary().equals(request.getBaseSalary())))
-        throw new AppException(ErrorCode.INVALID_REQUEST_BODY);
+        {   throw new AppException(ErrorCode.INVALID_REQUEST_BODY);}
         StaffSalary newSalary = salaryConverter.toEntity(request,staffId);
         newSalary.setPositionName(position.getPositionName());
         newSalary.setStaffId(staffId);

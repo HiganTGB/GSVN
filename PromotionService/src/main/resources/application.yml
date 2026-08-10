@@ -6,7 +6,10 @@ spring:
     name: promotion-service
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:prod}
-
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
 mybatis:
   type-aliases-package: com.gsvn.promotionservice.model.entity
   mapper-locations: classpath:mappers/*.xml
@@ -32,3 +35,23 @@ springdoc:
     path: /swagger-ui.html
     enabled: true
   use-management-port: false
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        sliding-window-type: COUNT_BASED
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 5000ms
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+    instances:
+      auth-service:
+        base-config: default
+      inventory-service:
+        base-config: default
+      media-service:
+        base-config: default
+      rabbitmq-publisher:
+        base-config: default

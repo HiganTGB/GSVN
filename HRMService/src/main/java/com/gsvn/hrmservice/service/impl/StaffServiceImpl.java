@@ -133,13 +133,9 @@ public class StaffServiceImpl implements StaffService {
         var position=positionService.getById(staff.getPositionId());
         String presignedUrl = null;
         if (staff.getAvatarUrl() != null && !staff.getAvatarUrl().isBlank()) {
-            try {
                 var mediaResponse = mediaClient.getPreviewUrl(staff.getAvatarUrl());
                 presignedUrl = mediaResponse.result();
                 staff.setAvatarUrl(presignedUrl);
-            } catch (Exception e) {
-                log.error("Failed to get preview URL for staff {}: {}", id, e.getMessage());
-            }
         }
         return converter.toResponse(staff,position);
     }
@@ -202,7 +198,6 @@ public class StaffServiceImpl implements StaffService {
                 .toList();
 
         if (!allPaths.isEmpty()) {
-            try {
                 ApiResponse<Map<String, String>> mediaResponse = mediaClient.getPreviewUrls(allPaths);
                 if (mediaResponse != null && mediaResponse.result() != null) {
                     Map<String, String> urlMap = mediaResponse.result();
@@ -211,9 +206,6 @@ public class StaffServiceImpl implements StaffService {
                         staff.setAvatarUrl(signedUrl);
                     });
                 }
-            } catch (Exception e) {
-                log.error("Lỗi khi gọi Media-Service: ", e);
-            }
         }
 
         return PageResponse.of(responses, total, page, size);
@@ -226,7 +218,6 @@ public class StaffServiceImpl implements StaffService {
         validateImage(file);
         var staff = mapper.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-        try {
             ApiResponse<String> response = mediaClient.upload(
                     file,
                     UploadType.STAFF_AVATAR.name().toLowerCase(),
@@ -240,21 +231,9 @@ public class StaffServiceImpl implements StaffService {
             staff.setAvatarUrl(response.result());
             mapper.update(staff);
             if (oldPath != null && !oldPath.isBlank()) {
-                try {
-                    mediaClient.deleteFile(oldPath);
-                } catch (Exception e) {
-                    log.warn("Failed to delete old avatar at {}: {}", oldPath, e.getMessage());
-                }
+                mediaClient.deleteFile(oldPath);
             }
             return response.result();
-        } catch (FeignException e) {
-            log.error("Error calling media-service for staff {}: status {}, message {}",
-                    id, e.status(), e.getMessage());
-            throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
-        } catch (Exception e) {
-            log.error("Unexpected error during avatar upload for staff {}: ", id, e);
-            throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
-        }
     }
 
     private void validateImage(MultipartFile file) {

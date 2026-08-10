@@ -34,13 +34,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     AuthServiceFeignClient authServiceFeignClient;
     RoleServiceFeignClient roleServiceFeignClient;
     public IntrospectResponse introspect(IntrospectRequest introspectRequest) {
-        try {
-            ApiResponse<IntrospectResponse> response = authServiceFeignClient.authenticate(introspectRequest);
-            return response.result();
-        } catch (Exception e) {
-            log.info(e.getMessage());
-            return new IntrospectResponse(false);
-        }
+        ApiResponse<IntrospectResponse> response = authServiceFeignClient.authenticate(introspectRequest);
+        return response.result();
     }
     public Set<String> getPermissionByListRole(List<Integer> roleIds) {
         if (roleIds == null || roleIds.isEmpty()) return Collections.emptySet();
@@ -52,14 +47,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
     @Cacheable(value = "role_permissions", key = "#roleId", unless = "#result == null")
     public Set<String> getPermissionsBySingleRole(Integer roleId) {
-        try {
-            ApiResponse<Set<String>> response = roleServiceFeignClient.getPermissionRoleInternal(roleId);
-
-            if (response != null && response.result() != null) {
-                return response.result();
-            }
-        } catch (Exception e) {
-           return Collections.emptySet();
+        ApiResponse<Set<String>> response = roleServiceFeignClient.getPermissionRoleInternal(roleId);
+        if (response != null && response.result() != null) {
+            return response.result();
         }
         return Collections.emptySet();
     }

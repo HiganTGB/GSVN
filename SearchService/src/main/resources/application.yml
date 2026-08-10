@@ -1,5 +1,6 @@
 server:
   port: ${SEARCH_SERVICE_PORT:5010}
+  forward-headers-strategy: framework
 spring:
   application:
     name: search-service

@@ -2,6 +2,7 @@ package com.gsvn.inventoryservice.client;
 
 
 
+import com.gsvn.inventoryservice.client.fallback.WarehousePartnerClientFallbackFactory;
 import com.gsvn.inventoryservice.config.InternalFeignConfig;
 import com.gsvn.inventoryservice.model.internal.WarehousePartnerRequest;
 import com.gsvn.inventoryservice.common.ApiResponse;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@FeignClient(name = "shipment-service", path = "/api/v1/warehouseconfig/internal",configuration = InternalFeignConfig.class)
+@FeignClient(name = "shipment-service", path = "/api/v1/warehouseconfig/internal",configuration = InternalFeignConfig.class,fallbackFactory = WarehousePartnerClientFallbackFactory.class)
 public interface WarehousePartnerClient {
 
     @PostMapping("/{code}/partners")

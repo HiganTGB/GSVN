@@ -7,10 +7,12 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
-
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
 server:
   port: ${HRM_SERVICE_PORT:5003}
-
   forward-headers-strategy: framework
 springdoc:
   api-docs:
@@ -25,3 +27,19 @@ mybatis:
   configuration:
     map-underscore-to-camel-case: true
     default-enum-type-handler: org.apache.ibatis.type.EnumTypeHandler
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        sliding-window-type: COUNT_BASED
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 5000ms
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+    instances:
+      auth-service:
+        base-config: default
+      media-service:
+        base-config: default

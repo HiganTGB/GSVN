@@ -55,18 +55,16 @@ public class CustomerServiceImpl implements CustomerService {
     }
     @Transactional(rollbackFor = Exception.class)
     public CustomerResponse update(Long customerId, CustomerRequest request) {
-        var customer=getEntityById(customerId);
-        customer=customerConverter.toEntity(request);
-        customerMapper.update(customer);
-        if(customer.getUserId()!=null)
-        {
-            try {
-                userServiceFeignClient.sync(customer.getUserId(), new SyncUserRequest(request.getEmail(), request.getPhoneNumber(), false));
-            } catch (Exception ex) {
-                throw new AppException(ErrorCode.USER_NOT_EXISTED);
-            }
+        var existingCustomer=getEntityById(customerId);
+        existingCustomer=customerConverter.toEntity(request);
+        customerMapper.update(existingCustomer);
+        if (existingCustomer.getUserId() != null) {
+            userServiceFeignClient.sync(
+                    existingCustomer.getUserId(),
+                    new SyncUserRequest(request.getEmail(), request.getPhoneNumber(), false)
+            );
         }
-        return customerConverter.toResponse(customer);
+        return customerConverter.toResponse(existingCustomer);
     }
 
     @Transactional(rollbackFor = Exception.class)

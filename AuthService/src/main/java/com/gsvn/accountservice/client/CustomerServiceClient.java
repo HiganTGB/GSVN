@@ -1,6 +1,7 @@
 package com.gsvn.accountservice.client;
 
 
+import com.gsvn.accountservice.client.fallback.CustomerServiceClientFallbackFactory;
 import com.gsvn.accountservice.common.ApiResponse;
 import com.gsvn.accountservice.model.internal.CustomerRequest;
 import com.gsvn.accountservice.model.internal.CustomerResponse;
@@ -14,9 +15,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @FeignClient(
         name = "customer-service",
-        contextId = "customer",
+        contextId = "customerServiceClient",
         path = "/api/v1/customers",
-        configuration = InternalFeignConfig.class
+        configuration = InternalFeignConfig.class,
+        fallbackFactory = CustomerServiceClientFallbackFactory.class
 )
 public interface CustomerServiceClient {
     @PostMapping("/internal/{userId}/byUser")
