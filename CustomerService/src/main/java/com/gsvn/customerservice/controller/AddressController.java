@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,18 +27,21 @@ public class AddressController {
 
     @Operation(summary = "Get my saved addresses", description = "Retrieves a list of all saved delivery address cards for the currently authenticated customer.")
     @GetMapping
+    @PreAuthorize("hasAuthority('ROLE_CUSTOMER')")
     public ApiResponse<List<AddressCardDTO>> getMyAddresses() {
         return new ApiResponse<>(addressCardService.getMyAddresses());
     }
 
     @Operation(summary = "Create new address card", description = "Adds a new delivery address card to the logged-in customer's profile.")
     @PostMapping
+    @PreAuthorize("hasAuthority('ROLE_CUSTOMER')")
     public ApiResponse<AddressCardDTO> createAddress(@RequestBody @Valid AddressCardDTO dto) {
         return new ApiResponse<>(addressCardService.createAddress(dto));
     }
 
     @Operation(summary = "Set address as default", description = "Sets a specific saved address card as the primary/default delivery address.")
     @PatchMapping("/{id}/set-default")
+    @PreAuthorize("hasAuthority('ROLE_CUSTOMER')")
     public ApiResponse<Void> setDefault(
             @Parameter(description = "ID of the target address card") @PathVariable("id") Integer addressId) {
         addressCardService.setAsDefault(addressId);
@@ -46,6 +50,7 @@ public class AddressController {
 
     @Operation(summary = "Delete saved address", description = "Removes a specific saved delivery address card from the customer's account.")
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_CUSTOMER')")
     public ApiResponse<Void> deleteAddress(
             @Parameter(description = "ID of the address card to delete") @PathVariable("id") Integer addressId) {
         addressCardService.deleteAddress(addressId);

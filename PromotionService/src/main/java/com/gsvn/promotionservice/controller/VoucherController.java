@@ -30,14 +30,14 @@ public class VoucherController {
 
     @Operation(summary = "Create voucher", description = "Creates a new promotional discount voucher campaign.")
     @PostMapping
-    @PreAuthorize("hasAuthority('all') or hasAuthority('voucher_create')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('voucher_create'))")
     public ApiResponse<VoucherResponse> create(@RequestBody @Valid VoucherRequest request) {
         return new ApiResponse<>(voucherService.create(request));
     }
 
     @Operation(summary = "Update voucher", description = "Updates details and terms of an existing discount voucher by ID.")
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('voucher_update')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('voucher_update'))")
     public ApiResponse<VoucherResponse> update(
             @Parameter(description = "ID of the voucher") @PathVariable Integer id,
             @RequestBody @Valid VoucherRequest request) {
@@ -46,6 +46,7 @@ public class VoucherController {
 
     @Operation(summary = "Get voucher by ID", description = "Retrieves detailed information of a specific voucher by ID.")
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_CUSTOMER', 'ROLE_STAFF')")
     public ApiResponse<VoucherResponse> getById(
             @Parameter(description = "ID of the voucher") @PathVariable Integer id) {
         return new ApiResponse<>(voucherService.getById(id));
@@ -53,6 +54,7 @@ public class VoucherController {
 
     @Operation(summary = "Get voucher by code", description = "Validates and retrieves voucher details by its unique promotional promo code.")
     @GetMapping("/{code}/byCode")
+    @PreAuthorize("hasAnyAuthority('ROLE_CUSTOMER', 'ROLE_STAFF')")
     public ApiResponse<VoucherResponse> getById(
             @Parameter(description = "Unique promotional voucher code (e.g., SUMMER2026)") @PathVariable String code) {
         return new ApiResponse<>(voucherService.getByCode(code));
@@ -60,7 +62,7 @@ public class VoucherController {
 
     @Operation(summary = "Search vouchers with pagination", description = "Retrieves a paginated list of vouchers filtered by keyword with dynamic sorting.")
     @GetMapping("/search")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('voucher_read')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('voucher_read'))")
     public ApiResponse<PageResponse<VoucherResponse>> getPage(
             @Parameter(description = "Keyword to search vouchers by name, code, or description")
             @RequestParam(required = false) String keyword,

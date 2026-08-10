@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -39,6 +40,7 @@ public class PaymentController {
 
     @Operation(summary = "Get transaction history", description = "Retrieves a paginated list of payment transactions (VNPay, COD) with optional keyword filtering.")
     @GetMapping("/history")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('payment_read'))")
     public ApiResponse<PageResponse<PaymentTransaction>> getHistory(
             @Parameter(description = "Keyword to filter transactions")
             @RequestParam(required = false) String keyword,

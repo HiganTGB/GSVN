@@ -29,14 +29,14 @@ public class BrandController {
 
     @Operation(summary = "Create brand", description = "Creates a new product brand record in the catalog.")
     @PostMapping
-    @PreAuthorize("hasAuthority('all') or hasAuthority('brand_read')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('brand_create'))")
     public ApiResponse<BrandResponse> create(@RequestBody @Valid BrandRequest request) {
         return new ApiResponse<>(brandService.create(request));
     }
 
     @Operation(summary = "Update brand", description = "Updates an existing brand profile by ID.")
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('brand_update')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('brand_update'))")
     public ApiResponse<BrandResponse> update(
             @Parameter(description = "ID of the brand") @PathVariable Integer id,
             @RequestBody @Valid BrandRequest request) {
@@ -52,7 +52,7 @@ public class BrandController {
 
     @Operation(summary = "Delete brand", description = "Deletes a brand record by ID.")
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('brand_delete')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('brand_delete'))")
     public ApiResponse<Void> delete(
             @Parameter(description = "ID of the brand to delete") @PathVariable Integer id) {
         brandService.delete(id);

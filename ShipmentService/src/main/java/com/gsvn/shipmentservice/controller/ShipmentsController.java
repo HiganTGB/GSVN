@@ -33,6 +33,7 @@ public class ShipmentsController {
 
     @Operation(summary = "Get shipments by order code", description = "Retrieves all shipment packages associated with a specific order code.")
     @GetMapping("/byOrder/{orderCode}")
+    @PreAuthorize("hasAnyAuthority('ROLE_CUSTOMER', 'ROLE_STAFF')")
     public ApiResponse<List<ShipmentResponse>> getShipmentByOrder(
             @Parameter(description = "Unique code of the order") @PathVariable String orderCode) {
         return new ApiResponse<>(shipmentService.getListByOrderCode(orderCode));
@@ -40,7 +41,7 @@ public class ShipmentsController {
 
     @Operation(summary = "Search shipments with filters", description = "Retrieves a paginated list of shipments filtered by order code, status, warehouse code, or month/year created.")
     @GetMapping("/search")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('shipment_read')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('shipment_read'))")
     public ApiResponse<PageResponse<ShipmentResponse>> getPage(
             @Parameter(description = "Filter by order code") @RequestParam(required = false) String orderCode,
             @Parameter(description = "Filter by shipment status (e.g., PENDING, PACKED, DELIVERING)") @RequestParam(required = false) String status,
@@ -56,6 +57,7 @@ public class ShipmentsController {
 
     @Operation(summary = "Get shipment detail", description = "Retrieves detailed information of a specific shipment package by ID.")
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_CUSTOMER', 'ROLE_STAFF')")
     public ApiResponse<ShipmentResponse> getDetail(
             @Parameter(description = "ID of the shipment package") @PathVariable Long id) {
         return new ApiResponse<>(shipmentService.getShipmentDetail(id));
@@ -63,7 +65,7 @@ public class ShipmentsController {
 
     @Operation(summary = "Confirm ready to pick status", description = "Updates shipment status to READY_TO_PICK and assigns picking task to designated warehouse.")
     @PatchMapping("/{id}/ready-to-pick")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('shipment_permission')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('shipment_permission'))")
     public ApiResponse<Void> confirmReadyToPick(
             @Parameter(description = "ID of the shipment package") @PathVariable Long id,
             @Parameter(description = "Code of the picking warehouse") @RequestParam String warehouseCode) {
@@ -73,7 +75,7 @@ public class ShipmentsController {
 
     @Operation(summary = "Confirm packed status", description = "Updates shipment status to PACKED with physical dimensions and total parcel weight.")
     @PatchMapping("/{id}/packed")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('shipment_permission')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('shipment_permission'))")
     public ApiResponse<Void> confirmPacked(
             @Parameter(description = "ID of the shipment package") @PathVariable Long id,
             @Parameter(description = "Total parcel weight in grams") @RequestParam Integer totalWeight,
@@ -86,7 +88,7 @@ public class ShipmentsController {
 
     @Operation(summary = "Confirm delivering status", description = "Handovers package to courier partner and sets status to DELIVERING.")
     @PatchMapping("/{id}/delivering")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('shipment_permission')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('shipment_permission'))")
     public ApiResponse<Void> confirmDelivering(
             @Parameter(description = "ID of the shipment package") @PathVariable Long id,
             @RequestBody ConfirmDeliveringRequest request) {
@@ -96,7 +98,7 @@ public class ShipmentsController {
 
     @Operation(summary = "Confirm delivered status", description = "Marks home delivery shipment as DELIVERED upon successful customer drop-off.")
     @PatchMapping("/{id}/delivered")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('shipment_permission')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('shipment_permission'))")
     public ApiResponse<Void> confirmDelivered(
             @Parameter(description = "ID of the shipment package") @PathVariable Long id) {
         shipmentService.confirmDelivered(id);
@@ -105,7 +107,7 @@ public class ShipmentsController {
 
     @Operation(summary = "Confirm pickup order delivered", description = "Marks store self-pickup shipment as DELIVERED when handed over to customer in-store.")
     @PatchMapping("/{id}/pickup-delivered")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('shipment_permission')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('shipment_permission'))")
     public ApiResponse<Void> confirmPickupDelivered(
             @Parameter(description = "ID of the shipment package") @PathVariable Long id,
             @Parameter(description = "ID of the staff member confirming pickup") @RequestParam Long confirmedBy) {
@@ -115,7 +117,7 @@ public class ShipmentsController {
 
     @Operation(summary = "Update delivery method", description = "Updates delivery method configuration for a specific shipment package.")
     @PutMapping("/{id}/delivery-method")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('shipment_permission')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('shipment_permission'))")
     public ApiResponse<Void> updateDeliveryMethod(
             @Parameter(description = "ID of the shipment package") @PathVariable Long id,
             @Parameter(description = "New delivery method (e.g., EXPRESS, STANDARD, PICKUP)") @RequestParam String deliveryMethod) {
@@ -125,7 +127,7 @@ public class ShipmentsController {
 
     @Operation(summary = "Switch delivery mode to store pickup", description = "Converts shipment delivery method from standard delivery to store self-pickup.")
     @PatchMapping("/{id}/change-to-pickup")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('shipment_permission')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('shipment_permission'))")
     public ApiResponse<Void> changeToPickup(
             @Parameter(description = "ID of the shipment package") @PathVariable Long id) {
         shipmentService.changeToPickup(id);

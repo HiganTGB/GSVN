@@ -36,6 +36,7 @@ public class OrderController {
 
     @Operation(summary = "Customer online checkout", description = "Self-service endpoint for customers to place online orders with automatic customer identification from authentication token.")
     @PostMapping("/checkout")
+    @PreAuthorize("hasAuthority('ROLE_CUSTOMER')")
     public ApiResponse<String> customerCreateOrder(@RequestBody @Valid OrderCreateRequest request, HttpServletRequest httpServletRequest) {
         log.error(request.toString());
         Long customerIdFromToken = authService.getCustomerIdFromToken();
@@ -47,7 +48,7 @@ public class OrderController {
 
     @Operation(summary = "Staff POS checkout", description = "Endpoint for store staff to create POS orders directly at retail counters.")
     @PostMapping("/pos-checkout")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('order_create')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('order_create'))")
     public ApiResponse<String> staffCreateOrder(@RequestBody @Valid OrderCreateRequest request) {
         Long staffId = authService.getStaffIdFromToken();
 
@@ -61,6 +62,7 @@ public class OrderController {
 
     @Operation(summary = "Get personal order history", description = "Self-service endpoint for logged-in customers to view their paginated order history.")
     @GetMapping("/my-order")
+    @PreAuthorize("hasAuthority('ROLE_CUSTOMER')")
     public ApiResponse<PageResponse<OrderResponse>> getMyOrders(
             @Parameter(description = "Filter by specific order code") @RequestParam(required = false) String code,
             @Parameter(description = "Filter by order status (e.g., PENDING, COMPLETED, CANCELLED)") @RequestParam(required = false) String status,
@@ -73,7 +75,7 @@ public class OrderController {
 
     @Operation(summary = "Search orders with filters", description = "Admin/Staff endpoint to filter and search orders by warehouse, code, customer email, phone, or status.")
     @GetMapping("/search")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('order_read')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('order_read'))")
     public ApiResponse<PageResponse<OrderResponse>> searchOrders(
             @Parameter(description = "Filter by warehouse code") @RequestParam(required = false) String warehouseCode,
             @Parameter(description = "Filter by order code") @RequestParam(required = false) String code,
@@ -93,6 +95,7 @@ public class OrderController {
 
     @Operation(summary = "Get order detail", description = "Retrieves comprehensive information for a specific order by ID.")
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_CUSTOMER', 'ROLE_STAFF')")
     public ApiResponse<OrderResponse> getOrderDetail(
             @Parameter(description = "ID of the order") @PathVariable Long id) {
         OrderResponse detail = orderService.getOrderDetail(id);
@@ -101,13 +104,13 @@ public class OrderController {
 
     @Operation(summary = "Approve and split packages", description = "Approves a pending order and splits it into fulfillment package assignments.")
     @PostMapping("/{id}/approve")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('order_permission')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('order_permission'))")
     public ApiResponse<OrderResponse> approve(
             @Parameter(description = "ID of the order to approve") @PathVariable Long id,
             @RequestBody(required = false) OrderApproveRequest request) {
 
         OrderResponse result = orderService.approveOrder(id, request.getNote());
-        return new ApiResponse<>("Duyệt đơn và tách kiện hàng thành công", result);
+        return new ApiResponse<>("Successfully approved order and split into packages", result);
     }
 
     @Operation(summary = "Update shipment status (Internal)", description = "Internal endpoint invoked by Shipment/Delivery Service to synchronize order fulfillment status.")

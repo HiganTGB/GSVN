@@ -25,27 +25,33 @@ import java.util.Set;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class RoleController {
+
     RoleService roleService;
+
     @Operation(summary = "Create role", description = "Creates a new role with assigned permissions.")
     @PostMapping
-    @PreAuthorize("hasAuthority('all') or hasAuthority('role_create')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('role_create'))")
     ApiResponse<RoleResponse> createRole(@RequestBody @Valid RoleRequest request) {
         return new ApiResponse<>(roleService.create(request));
     }
+
     @PutMapping("/{roleId}")
     @Operation(summary = "Update role", description = "Updates an existing role details and permissions by role ID.")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('role_update')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('role_update'))")
     ApiResponse<RoleResponse> updateRole(@RequestBody @Valid RoleRequest request, @PathVariable Integer roleId) {
-        return new ApiResponse<>(roleService.update(request,roleId));
+        return new ApiResponse<>(roleService.update(request, roleId));
     }
+
     @GetMapping
     @Operation(summary = "Get all roles", description = "Retrieves a complete list of all roles.")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('role_read'))")
     ApiResponse<List<RoleResponse>> getRoles() {
         return new ApiResponse<>(roleService.getRoles());
     }
+
     @DeleteMapping("/{roleId}")
     @Operation(summary = "Delete role", description = "Deletes a role by its ID.")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('role_delete')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('role_delete'))")
     ApiResponse<Void> deleteRole(@PathVariable Integer roleId) {
         roleService.delete(roleId);
         return new ApiResponse<>();
@@ -53,12 +59,14 @@ public class RoleController {
 
     @GetMapping("/{roleId}")
     @Operation(summary = "Get permissions by role ID", description = "Retrieves details of all permissions assigned to a specific role.")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('role_read'))")
     ApiResponse<Set<PermissionResponse>> getPermissionRole(@PathVariable Integer roleId) {
         return new ApiResponse<>(roleService.getRolePermissions(roleId));
     }
+
     @GetMapping("/search")
     @Operation(summary = "Search roles with pagination", description = "Filters roles by keyword and returns a paginated list with dynamic sorting.")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('role_read')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('role_read'))")
     public ApiResponse<PageResponse<RoleResponse>> search(
             @Parameter(description = "Keyword to filter roles by name or description")
             @RequestParam(required = false) String keyword,
@@ -83,6 +91,7 @@ public class RoleController {
                 size
         ));
     }
+
     @GetMapping("/internal/{roleId}")
     @Operation(summary = "Get permission codes by role ID (Internal)", description = "Retrieves permission string codes")
     ApiResponse<Set<String>> getPermissionRoleInternal(@PathVariable Integer roleId) {

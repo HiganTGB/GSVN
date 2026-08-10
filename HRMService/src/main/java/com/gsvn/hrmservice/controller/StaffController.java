@@ -31,14 +31,14 @@ public class StaffController {
 
     @Operation(summary = "Create staff", description = "Creates a new staff profile record.")
     @PostMapping
-    @PreAuthorize("hasAuthority('all') or hasAuthority('staff_create')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('staff_create'))")
     public ApiResponse<StaffResponse> create(@RequestBody @Valid StaffCreateRequest request) {
         return new ApiResponse<>(staffService.create(request));
     }
 
     @Operation(summary = "Update staff", description = "Updates an existing staff profile by ID.")
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('staff_update')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('staff_update'))")
     public ApiResponse<StaffResponse> update(
             @Parameter(description = "ID of the staff member") @PathVariable Long id,
             @RequestBody @Valid StaffRequest request) {
@@ -47,7 +47,7 @@ public class StaffController {
 
     @Operation(summary = "Initialize user account for staff", description = "Provisions a system user account for an existing staff profile.")
     @PutMapping("/{id}/account")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('staff_create')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('staff_create'))")
     public ApiResponse<StaffResponse> initAccount(
             @Parameter(description = "ID of the staff member") @PathVariable Long id) {
         return new ApiResponse<>(staffService.addAccountForStaff(id));
@@ -55,14 +55,14 @@ public class StaffController {
 
     @Operation(summary = "Get active staff list", description = "Retrieves a list of all currently active staff members.")
     @GetMapping("/active")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('staff_update')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('staff_update'))")
     public ApiResponse<List<StaffResponse>> getAll() {
         return new ApiResponse<>(staffService.getActiveStaff());
     }
 
     @Operation(summary = "Get staff by ID", description = "Retrieves detailed profile information for a specific staff member.")
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('staff_read')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('staff_read'))")
     public ApiResponse<StaffResponse> getById(
             @Parameter(description = "ID of the staff member") @PathVariable Long id) {
         return new ApiResponse<>(staffService.getById(id));
@@ -73,7 +73,7 @@ public class StaffController {
             description = "Uploads a profile picture for a staff member using multipart form-data and returns the uploaded image URL."
     )
     @PostMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasAuthority('all') or hasAuthority('staff_update')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('staff_update'))")
     public ApiResponse<String> uploadAvatar(
             @Parameter(description = "ID of the staff member") @PathVariable Long id,
             @Parameter(
@@ -86,7 +86,7 @@ public class StaffController {
 
     @Operation(summary = "Search staff members", description = "Retrieves a paginated list of staff members with optional filtering by keyword, warehouse, and position.")
     @GetMapping("/search")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('staff_read')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('staff_read'))")
     public ApiResponse<PageResponse<StaffResponse>> search(
             @Parameter(description = "Keyword to search by staff name, code, or phone") @RequestParam(required = false) String keyword,
             @Parameter(description = "Filter by warehouse ID") @RequestParam(required = false) Integer warehouseId,
@@ -109,7 +109,7 @@ public class StaffController {
 
     @Operation(summary = "Delete staff profile", description = "Deletes or deactivates a staff member profile by ID.")
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('staff_delete')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('staff_delete'))")
     public ApiResponse<Void> delete(
             @Parameter(description = "ID of the staff member to delete") @PathVariable Long id) {
         staffService.delete(id);
@@ -118,12 +118,14 @@ public class StaffController {
 
     @Operation(summary = "Get own staff profile", description = "Self-service endpoint to retrieve staff profile details for the currently authenticated employee.")
     @GetMapping("/profile/my-info")
+    @PreAuthorize("hasAuthority('ROLE_STAFF')")
     public ApiResponse<StaffResponse> getMyInfo() {
         return new ApiResponse<>(staffService.getMyInfo());
     }
 
     @Operation(summary = "Update own staff profile", description = "Self-service endpoint to update staff profile details for the currently authenticated employee.")
     @PutMapping("/profile/my-info")
+    @PreAuthorize("hasAuthority('ROLE_STAFF')")
     public ApiResponse<StaffResponse> updateMyInfo(@RequestBody @Valid StaffRequest request) {
         return new ApiResponse<>(staffService.updateMyInfo(request));
     }

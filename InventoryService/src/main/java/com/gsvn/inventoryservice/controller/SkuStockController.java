@@ -26,7 +26,7 @@ public class SkuStockController {
 
     @Operation(summary = "Get SKU stock in specific warehouse", description = "Retrieves current stock availability and reserved quantity for a specific SKU in a designated warehouse.")
     @GetMapping
-    @PreAuthorize("hasAuthority('all') or hasAuthority('stock_read')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('stock_read'))")
     public ApiResponse<SkuStockResponse> getStock(
             @Parameter(description = "ID of the SKU") @RequestParam Long skuId,
             @Parameter(description = "ID of the target warehouse") @RequestParam Integer warehouseId) {
@@ -36,7 +36,7 @@ public class SkuStockController {
 
     @Operation(summary = "Get SKU stock across all warehouses", description = "Retrieves a list of stock availability for a specific SKU across all registered warehouses.")
     @GetMapping("/all-warehouses")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('stock_read')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('stock_read'))")
     public ApiResponse<List<SkuStockResponse>> getAllWarehousesStock(
             @Parameter(description = "ID of the SKU") @RequestParam("skuId") Long skuId) {
         return new ApiResponse<>(skuStockService.getStockAll(skuId));

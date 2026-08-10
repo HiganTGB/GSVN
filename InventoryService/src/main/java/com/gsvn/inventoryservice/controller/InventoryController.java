@@ -26,7 +26,7 @@ public class InventoryController {
 
     @Operation(summary = "Search warehouse inventory", description = "Retrieves a paginated list of stock levels filtered by warehouse or SKU ID with dynamic sorting.")
     @GetMapping("/search")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('stock_read')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('stock_read'))")
     public ApiResponse<PageResponse<InventoryDTO>> getInventory(
             @Parameter(description = "Filter by warehouse ID") @RequestParam(required = false) Integer warehouseId,
             @Parameter(description = "Filter by SKU ID") @RequestParam(required = false) Integer skuId,

@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,12 +23,14 @@ public class WishlistController {
 
     @Operation(summary = "Get my wishlist", description = "Retrieves a list of all saved favorite products for the currently authenticated customer.")
     @GetMapping
+    @PreAuthorize("hasAuthority('ROLE_CUSTOMER')")
     public ApiResponse<List<Wishlist>> getMyWishlist() {
         return new ApiResponse<>(wishlistService.getMyWishlist());
     }
 
     @Operation(summary = "Add product to wishlist", description = "Adds a specific master product to the logged-in customer's wishlist.")
     @PostMapping("/{productId}")
+    @PreAuthorize("hasAuthority('ROLE_CUSTOMER')")
     public ApiResponse<Void> addToWishlist(
             @Parameter(description = "ID of the product to add") @PathVariable Integer productId) {
         wishlistService.addToWishlist(productId);
@@ -36,6 +39,7 @@ public class WishlistController {
 
     @Operation(summary = "Remove product from wishlist", description = "Removes a specific product from the logged-in customer's wishlist.")
     @DeleteMapping("/{productId}")
+    @PreAuthorize("hasAuthority('ROLE_CUSTOMER')")
     public ApiResponse<Void> removeFromWishlist(
             @Parameter(description = "ID of the product to remove") @PathVariable Integer productId) {
         wishlistService.removeFromWishlist(productId);

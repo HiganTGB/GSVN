@@ -39,14 +39,14 @@ public class ProductController {
 
     @Operation(summary = "Create product", description = "Creates a new master product entry in the catalog.")
     @PostMapping
-    @PreAuthorize("hasAuthority('all') or hasAuthority('product_create')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('product_create'))")
     public ApiResponse<Integer> create(@RequestBody @Valid ProductCreateRequest request) {
         return new ApiResponse<>(productService.createProduct(request));
     }
 
     @Operation(summary = "Update basic product details", description = "Updates basic information for an existing product by ID.")
     @PutMapping("/{id}/basic")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('product_update')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('product_update'))")
     public ApiResponse<ProductBasicResponse> updateBasic(
             @Parameter(description = "ID of the product") @PathVariable Integer id,
             @RequestBody @Valid ProductBasicUpdateRequest request) {
@@ -55,7 +55,7 @@ public class ProductController {
 
     @Operation(summary = "Delete product", description = "Deletes or soft-deletes a product from the catalog by ID.")
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('product_delete')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('product_delete'))")
     public ApiResponse<Void> delete(
             @Parameter(description = "ID of the product to delete") @PathVariable Integer id) {
         productService.deleteProduct(id);
@@ -64,7 +64,7 @@ public class ProductController {
 
     @Operation(summary = "Update Pre-Order campaign", description = "Configures or updates Pre-Order campaign settings and timeline for a product.")
     @PutMapping("/{id}/pre")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('product_update')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('product_update'))")
     public ApiResponse<ProductPreCampaignResponse> updatePreCampaign(
             @Parameter(description = "ID of the product") @PathVariable Integer id,
             @RequestBody @Valid ProductPreOrderUpdateRequest request) {
@@ -73,15 +73,15 @@ public class ProductController {
 
     @Operation(summary = "Reset/Delete Pre-Order campaign", description = "Removes active Pre-Order campaign configuration from a product.")
     @DeleteMapping("/{id}/pre")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('product_update')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('product_update'))")
     public ApiResponse<ProductPreCampaignResponse> resetCampaign(
             @Parameter(description = "ID of the product") @PathVariable Integer id) {
         return new ApiResponse<>(productService.deletePreCampaign(id));
     }
 
     @Operation(summary = "Upload main product image", description = "Uploads a main showcase image for the product using multipart form-data.")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('product_update')")
     @PostMapping(value = "/{id}/main-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('product_update'))")
     public ApiResponse<String> uploadMainImage(
             @Parameter(description = "ID of the product") @PathVariable Integer id,
             @Parameter(
@@ -101,6 +101,7 @@ public class ProductController {
 
     @Operation(summary = "Add image to product gallery", description = "Uploads an additional image to the product gallery.")
     @PostMapping(value = "/{id}/gallery", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('product_update'))")
     public ApiResponse<List<String>> addGalleryImage(
             @Parameter(description = "ID of the product") @PathVariable Integer id,
             @Parameter(
@@ -113,6 +114,7 @@ public class ProductController {
 
     @Operation(summary = "Delete image from product gallery", description = "Removes a specific gallery image by its storage object name.")
     @DeleteMapping("/{id}/gallery")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('product_update'))")
     public ApiResponse<Void> deleteGalleryImage(
             @Parameter(description = "ID of the product") @PathVariable Integer id,
             @Parameter(description = "Storage object name of the image to remove") @RequestParam String objectName) {
@@ -154,8 +156,8 @@ public class ProductController {
     }
 
     @Operation(summary = "Get Pre-Order campaign history", description = "Retrieves historical logs of Pre-Order campaigns for a specific product.")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('product_read')")
     @GetMapping("/{id}/history")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('product_read'))")
     public ApiResponse<List<PreHistoryResponse>> getHistoryPreCampaign(
             @Parameter(description = "ID of the product") @PathVariable Integer id) {
         return new ApiResponse<>(productService.getPreHistoryResponse(id));

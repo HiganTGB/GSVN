@@ -29,14 +29,14 @@ public class InboundController {
 
     @Operation(summary = "Create stock inbound receipt", description = "Processes and creates a new stock inbound receipt for inventory replenishment or returns.")
     @PostMapping
-    @PreAuthorize("hasAuthority('all') or hasAuthority('inbound_create')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('inbound_create'))")
     public ApiResponse<InboundResponse> createInbound(@RequestBody @Valid InboundRequest request) {
         return new ApiResponse<>(inboundService.processInbound(request));
     }
 
     @Operation(summary = "Search stock inbound receipts", description = "Retrieves a paginated list of inbound receipts filtered by warehouse, supplier, transaction type, or keyword.")
     @GetMapping
-    @PreAuthorize("hasAuthority('all') or hasAuthority('inbound_read')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('inbound_read'))")
     public ApiResponse<PageResponse<InboundResponse>> getInboundPage(
             @Parameter(description = "Filter by destination warehouse ID") @RequestParam(required = false) Integer warehouseId,
             @Parameter(description = "Filter by supplier ID") @RequestParam(required = false) Integer supplierId,
@@ -50,7 +50,7 @@ public class InboundController {
 
     @Operation(summary = "Get inbound receipt detail", description = "Retrieves detailed information of a specific stock inbound receipt by ID.")
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('inbound_read')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('inbound_read'))")
     public ApiResponse<InboundResponse> getInboundDetail(
             @Parameter(description = "ID of the inbound receipt") @PathVariable Long id) {
         return new ApiResponse<>(inboundService.getInboundDetail(id));
@@ -63,7 +63,7 @@ public class InboundController {
             content = @Content(mediaType = MediaType.APPLICATION_PDF_VALUE, schema = @Schema(type = "string", format = "binary"))
     )
     @GetMapping("/{id}/export")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('inbound_read')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('inbound_read'))")
     public ResponseEntity<byte[]> exportPdf(
             @Parameter(description = "ID of the inbound receipt to export") @PathVariable Long id) {
         byte[] pdfBytes = inboundService.exportInboundDetail(id);

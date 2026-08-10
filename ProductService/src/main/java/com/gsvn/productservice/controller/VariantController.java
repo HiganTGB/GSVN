@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +25,7 @@ public class VariantController {
 
     @Operation(summary = "Synchronize product variants", description = "Performs a batch update and synchronization of variant option combinations (e.g., Size, Color) for a specific master product.")
     @PutMapping("/sync")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('product_update'))")
     public ApiResponse<Void> syncVariants(
             @Parameter(description = "ID of the master product") @PathVariable Integer productId,
             @RequestBody @Valid List<ProductVariantSyncRequest.VariantUpdateDto> request) {

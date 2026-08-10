@@ -29,7 +29,7 @@ public class CategoryController {
 
     @Operation(summary = "Create category", description = "Creates a new product category record in the catalog.")
     @PostMapping
-    @PreAuthorize("hasAuthority('all') or hasAuthority('category_read')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('category_create'))")
     public ApiResponse<CategoryResponse> create(@RequestBody @Valid CategoryRequest request) {
         return new ApiResponse<>(categoryService.create(request));
     }
@@ -55,7 +55,7 @@ public class CategoryController {
 
     @Operation(summary = "Update category", description = "Updates details of an existing category by ID.")
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('category_update')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('category_update'))")
     public ApiResponse<CategoryResponse> update(
             @Parameter(description = "ID of the category") @PathVariable Integer id,
             @RequestBody @Valid CategoryRequest request) {
@@ -64,7 +64,7 @@ public class CategoryController {
 
     @Operation(summary = "Delete category", description = "Deletes a category by ID.")
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('category_delete')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('category_delete'))")
     public ApiResponse<CategoryResponse> delete(
             @Parameter(description = "ID of the category to delete") @PathVariable Integer id) {
         categoryService.delete(id);

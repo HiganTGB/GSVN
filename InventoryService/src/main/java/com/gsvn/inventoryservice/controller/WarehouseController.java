@@ -28,14 +28,14 @@ public class WarehouseController {
 
     @Operation(summary = "Create warehouse", description = "Creates a new physical warehouse location in the system.")
     @PostMapping
-    @PreAuthorize("hasAuthority('all') or hasAuthority('warehouse_create')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('warehouse_create'))")
     public ApiResponse<WarehouseResponse> create(@RequestBody @Valid WarehouseRequest request) {
         return new ApiResponse<>(warehouseService.create(request));
     }
 
     @Operation(summary = "Update warehouse", description = "Updates details of an existing warehouse location by ID.")
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('warehouse_update')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('warehouse_update'))")
     public ApiResponse<WarehouseResponse> update(
             @Parameter(description = "ID of the warehouse") @PathVariable Integer id,
             @RequestBody @Valid WarehouseRequest request) {
@@ -44,7 +44,7 @@ public class WarehouseController {
 
     @Operation(summary = "Get warehouse by ID", description = "Retrieves detailed profile information for a specific warehouse by ID.")
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('warehouse_read')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('warehouse_read'))")
     public ApiResponse<WarehouseResponse> getById(
             @Parameter(description = "ID of the warehouse") @PathVariable Integer id) {
         return new ApiResponse<>(warehouseService.getById(id));
@@ -52,7 +52,7 @@ public class WarehouseController {
 
     @Operation(summary = "Delete warehouse", description = "Deletes or deactivates a warehouse location by ID.")
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('warehouse_delete')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('warehouse_delete'))")
     public ApiResponse<Void> delete(
             @Parameter(description = "ID of the warehouse to delete") @PathVariable Integer id) {
         warehouseService.delete(id);
@@ -61,7 +61,7 @@ public class WarehouseController {
 
     @Operation(summary = "Search warehouses with pagination", description = "Retrieves a paginated list of warehouses filtered by keyword with dynamic sorting.")
     @GetMapping("/search")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('warehouse_read')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('warehouse_read'))")
     public ApiResponse<PageResponse<WarehouseResponse>> getPage(
             @Parameter(description = "Keyword to filter warehouses by name, code, or address")
             @RequestParam(required = false) String keyword,
@@ -83,14 +83,14 @@ public class WarehouseController {
 
     @Operation(summary = "Get all warehouses", description = "Retrieves a complete list of all registered warehouses without pagination.")
     @GetMapping("/all")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('warehouse_read')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('warehouse_read'))")
     public ApiResponse<List<WarehouseResponse>> getAll() {
         return new ApiResponse<>(warehouseService.getAll());
     }
 
     @Operation(summary = "Save or update partner integration", description = "Saves integration tokens or credentials for a shipping/logistics partner assigned to a warehouse.")
     @PostMapping("/{id}/partners")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('warehouse_permission')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('warehouse_permission'))")
     public ApiResponse<WarehousePartnerResponse> savePartner(
             @Parameter(description = "ID of the warehouse") @PathVariable Integer id,
             @RequestBody @Valid WarehousePartnerRequest request
@@ -100,7 +100,7 @@ public class WarehouseController {
 
     @Operation(summary = "Delete partner integration", description = "Removes a logistics partner configuration from a specific warehouse by partner name.")
     @DeleteMapping("/{id}/partners/{name}")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('warehouse_permission')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('warehouse_permission'))")
     public ApiResponse<Void> deletePartner(
             @Parameter(description = "ID of the warehouse") @PathVariable Integer id,
             @Parameter(description = "Name of the partner integration to delete") @PathVariable String name
@@ -111,7 +111,7 @@ public class WarehouseController {
 
     @Operation(summary = "Get warehouse partners", description = "Retrieves a list of all active logistics partner configurations for a specific warehouse.")
     @GetMapping("/{id}/partners")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('warehouse_permission')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('warehouse_permission'))")
     public ApiResponse<List<WarehousePartnerResponse>> getPartners(
             @Parameter(description = "ID of the warehouse") @PathVariable Integer id) {
         return new ApiResponse<>(warehouseService.getPartnersByWarehouseId(id));
@@ -119,7 +119,7 @@ public class WarehouseController {
 
     @Operation(summary = "Get decrypted partner token", description = "Retrieves the decrypted integration token for a specific partner at a warehouse.")
     @GetMapping("/{id}/partners/{name}/token")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('warehouse_permission')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('warehouse_permission'))")
     public ApiResponse<String> getDecryptedToken(
             @Parameter(description = "ID of the warehouse") @PathVariable Integer id,
             @Parameter(description = "Name of the partner") @PathVariable String name) {

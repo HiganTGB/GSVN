@@ -27,7 +27,7 @@ public class CustomerController {
 
     @Operation(summary = "Create customer profile", description = "Creates a new customer profile record.")
     @PostMapping
-    @PreAuthorize("hasAuthority('all') or hasAuthority('customer_read')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('customer_create'))")
     public ApiResponse<CustomerResponse> createCustomer(@RequestBody @Valid CustomerRequest request) {
         return new ApiResponse<>(customerService.create(request));
     }
@@ -42,7 +42,7 @@ public class CustomerController {
 
     @Operation(summary = "Update customer profile", description = "Updates details of an existing customer profile by customer ID.")
     @PutMapping("/{customerId}")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('customer_update')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('customer_update'))")
     public ApiResponse<CustomerResponse> updateCustomer(
             @Parameter(description = "ID of the customer") @PathVariable long customerId,
             @RequestBody @Valid CustomerRequest request) {
@@ -51,7 +51,7 @@ public class CustomerController {
 
     @Operation(summary = "Get customer by ID", description = "Retrieves detailed profile information of a specific customer by ID.")
     @GetMapping("/{customerId}")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('customer_read')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('customer_read'))")
     public ApiResponse<CustomerResponse> getCustomer(
             @Parameter(description = "ID of the customer") @PathVariable long customerId) {
         return new ApiResponse<>(customerService.getById(customerId));
@@ -59,7 +59,7 @@ public class CustomerController {
 
     @Operation(summary = "Delete customer profile", description = "Deletes a customer profile record by ID.")
     @DeleteMapping("/{customerId}")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('customer_delete')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('customer_delete'))")
     public ApiResponse<Void> deleteCustomer(
             @Parameter(description = "ID of the customer to delete") @PathVariable long customerId) {
         customerService.delete(customerId);
@@ -68,19 +68,21 @@ public class CustomerController {
 
     @Operation(summary = "Get own customer profile", description = "Self-service endpoint to retrieve profile details for the currently authenticated customer.")
     @GetMapping("/my-info")
+    @PreAuthorize("hasAuthority('ROLE_CUSTOMER')")
     public ApiResponse<CustomerResponse> getMyInfo() {
         return new ApiResponse<>(customerService.getMyInfo());
     }
 
     @Operation(summary = "Update own customer profile", description = "Self-service endpoint to update profile details for the currently authenticated customer.")
     @PutMapping("/my-info")
+    @PreAuthorize("hasAuthority('ROLE_CUSTOMER')")
     public ApiResponse<CustomerResponse> updateMyInfo(@RequestBody @Valid CustomerRequest request) {
         return new ApiResponse<>(customerService.updateMyInfo(request));
     }
 
     @Operation(summary = "Search customers with pagination", description = "Retrieves a paginated list of customers filtered by keyword with dynamic sorting.")
     @GetMapping("/search")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('customer_read')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('customer_read'))")
     public ApiResponse<PageResponse<CustomerResponse>> search(
             @Parameter(description = "Keyword to search by customer name, phone, or email")
             @RequestParam(required = false) String keyword,

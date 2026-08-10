@@ -33,7 +33,7 @@ public class SkuController {
 
     @Operation(summary = "Create SKU variant", description = "Creates a new SKU variant for a specific master product.")
     @PostMapping
-    @PreAuthorize("hasAuthority('all') or hasAuthority('product_update')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('product_update'))")
     public ApiResponse<SkuResponse> createSku(
             @Parameter(description = "ID of the master product") @PathVariable Integer productId,
             @RequestBody @Valid SkuRequest request) {
@@ -42,7 +42,7 @@ public class SkuController {
 
     @Operation(summary = "Update SKU variant", description = "Updates details of an existing SKU variant by its SKU ID.")
     @PutMapping("/{skuId}")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('product_update')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('product_update'))")
     public ApiResponse<SkuResponse> updateSku(
             @Parameter(description = "ID of the SKU variant to update") @PathVariable Long skuId,
             @RequestBody @Valid SkuRequest request,

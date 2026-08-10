@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -24,12 +25,14 @@ public class CartController {
 
     @Operation(summary = "Get my cart", description = "Retrieves current active shopping cart details and items for the authenticated user.")
     @GetMapping
+    @PreAuthorize("hasAuthority('ROLE_CUSTOMER')")
     public ApiResponse<CartResponse> getMyCart() {
         return new ApiResponse<>(cartService.getMyCart());
     }
 
     @Operation(summary = "Add item to cart", description = "Adds a SKU item with a specified quantity to the authenticated user's shopping cart.")
     @PostMapping("/items")
+    @PreAuthorize("hasAuthority('ROLE_CUSTOMER')")
     public ApiResponse<Boolean> addToCart(@RequestBody @Valid AddToCartRequest request) {
         cartService.addToCart(request);
         return new ApiResponse<>(true);
@@ -37,6 +40,7 @@ public class CartController {
 
     @Operation(summary = "Update cart item quantity", description = "Updates the quantity or selection status of a specific item in the shopping cart.")
     @PutMapping("/items/{itemId}")
+    @PreAuthorize("hasAuthority('ROLE_CUSTOMER')")
     public ApiResponse<Boolean> updateItem(
             @Parameter(description = "ID of the cart item") @PathVariable Integer itemId,
             @RequestBody @Valid UpdateCartItemRequest request) {
@@ -46,6 +50,7 @@ public class CartController {
 
     @Operation(summary = "Remove item from cart", description = "Removes a specific item from the shopping cart by cart item ID.")
     @DeleteMapping("/items/{itemId}")
+    @PreAuthorize("hasAuthority('ROLE_CUSTOMER')")
     public ApiResponse<Boolean> removeItem(
             @Parameter(description = "ID of the cart item to remove") @PathVariable Integer itemId) {
         cartService.removeItem(itemId);
@@ -60,6 +65,7 @@ public class CartController {
 
     @Operation(summary = "Synchronize guest cart on login", description = "Merges local guest cart items into the authenticated user's persistent cart upon logging in.")
     @PostMapping("/sync")
+    @PreAuthorize("hasAuthority('ROLE_CUSTOMER')")
     public ApiResponse<Void> syncCart(@RequestBody @Valid GuestCartRequest request) {
         cartService.syncCart(request);
         return new ApiResponse<>(null);
@@ -67,6 +73,7 @@ public class CartController {
 
     @Operation(summary = "Clear shopping cart", description = "Removes all items from the authenticated user's active shopping cart (e.g., after successful order placement).")
     @DeleteMapping("/clear")
+    @PreAuthorize("hasAuthority('ROLE_CUSTOMER')")
     public ApiResponse<Void> clearCart() {
         cartService.clearMyCart();
         return new ApiResponse<>(null);

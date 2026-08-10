@@ -25,7 +25,7 @@ public class WarehousePartnerController {
 
     @Operation(summary = "Save or update warehouse partner integration", description = "Saves or updates integration tokens and API credentials for a logistics carrier assigned to a specific warehouse code.")
     @PostMapping("/{code}/partners")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('warehouse_permission')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('warehouse_permission'))")
     public ApiResponse<WarehousePartnerResponse> savePartner(
             @Parameter(description = "Unique code of the warehouse") @PathVariable String code,
             @RequestBody @Valid WarehousePartnerRequest request
@@ -35,7 +35,7 @@ public class WarehousePartnerController {
 
     @Operation(summary = "Delete warehouse partner integration", description = "Removes a logistics partner configuration from a warehouse by warehouse code and partner name.")
     @DeleteMapping("/{code}/partners/{name}")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('warehouse_permission')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('warehouse_permission'))")
     public ApiResponse<Void> deletePartner(
             @Parameter(description = "Unique code of the warehouse") @PathVariable String code,
             @Parameter(description = "Name of the logistics partner (e.g., GHN, GHTK)") @PathVariable String name
@@ -46,7 +46,7 @@ public class WarehousePartnerController {
 
     @Operation(summary = "Get partners by warehouse code", description = "Retrieves a list of active logistics carrier partner configurations for a specific warehouse code.")
     @GetMapping("/{code}/partners")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('warehouse_permission')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('warehouse_permission'))")
     public ApiResponse<List<WarehousePartnerResponse>> getPartners(
             @Parameter(description = "Unique code of the warehouse") @PathVariable String code) {
         return new ApiResponse<>(warehouseService.getPartnersByWarehouseId(code));
@@ -54,7 +54,7 @@ public class WarehousePartnerController {
 
     @Operation(summary = "Get decrypted partner token", description = "Retrieves the decrypted authentication token for a specific logistics partner at a warehouse.")
     @GetMapping("/{code}/partners/{name}/token")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('warehouse_permission')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('warehouse_permission'))")
     public ApiResponse<String> getDecryptedToken(
             @Parameter(description = "Unique code of the warehouse") @PathVariable String code,
             @Parameter(description = "Name of the logistics partner") @PathVariable String name) {

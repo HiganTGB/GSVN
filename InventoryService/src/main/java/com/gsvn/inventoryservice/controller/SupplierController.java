@@ -26,14 +26,14 @@ public class SupplierController {
 
     @Operation(summary = "Create supplier", description = "Creates a new inventory supplier profile.")
     @PostMapping
-    @PreAuthorize("hasAuthority('all') or hasAuthority('supplier_read')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('supplier_create'))")
     public ApiResponse<SupplierResponse> create(@RequestBody @Valid SupplierRequest request) {
         return new ApiResponse<>(supplierService.create(request));
     }
 
     @Operation(summary = "Update supplier", description = "Updates details of an existing supplier by ID.")
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('supplier_update')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('supplier_update'))")
     public ApiResponse<SupplierResponse> update(
             @Parameter(description = "ID of the supplier") @PathVariable Integer id,
             @RequestBody @Valid SupplierRequest request) {
@@ -42,7 +42,7 @@ public class SupplierController {
 
     @Operation(summary = "Get supplier by ID", description = "Retrieves detailed information of a specific supplier by ID.")
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('supplier_read')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('supplier_read'))")
     public ApiResponse<SupplierResponse> getById(
             @Parameter(description = "ID of the supplier") @PathVariable Integer id) {
         return new ApiResponse<>(supplierService.getById(id));
@@ -50,7 +50,7 @@ public class SupplierController {
 
     @Operation(summary = "Delete supplier", description = "Deletes a supplier record by ID.")
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('supplier_delete')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('supplier_delete'))")
     public ApiResponse<Void> delete(
             @Parameter(description = "ID of the supplier to delete") @PathVariable Integer id) {
         supplierService.delete(id);
@@ -59,7 +59,7 @@ public class SupplierController {
 
     @Operation(summary = "Search suppliers with pagination", description = "Retrieves a paginated list of suppliers filtered by keyword and active status with dynamic sorting.")
     @GetMapping
-    @PreAuthorize("hasAuthority('all') or hasAuthority('supplier_read')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('supplier_read'))")
     public ApiResponse<PageResponse<SupplierResponse>> getPage(
             @Parameter(description = "Keyword to search by supplier name, code, phone, or email")
             @RequestParam(required = false) String keyword,
@@ -84,7 +84,7 @@ public class SupplierController {
 
     @Operation(summary = "Get all suppliers", description = "Retrieves a complete list of all suppliers without pagination.")
     @GetMapping("/all")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('supplier_read')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('supplier_read'))")
     public ApiResponse<List<SupplierResponse>> getAll() {
         return new ApiResponse<>(supplierService.getAll());
     }

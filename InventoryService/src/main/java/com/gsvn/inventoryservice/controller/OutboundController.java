@@ -29,14 +29,14 @@ public class OutboundController {
 
     @Operation(summary = "Create stock outbound receipt", description = "Processes and creates a new stock outbound receipt for orders, transfers, or inventory adjustments.")
     @PostMapping
-    @PreAuthorize("hasAuthority('all') or hasAuthority('outbound_create')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('outbound_create'))")
     public ApiResponse<OutboundResponse> createOutbound(@RequestBody @Valid OutboundRequest request) {
         return new ApiResponse<>(outboundService.processOutbound(request));
     }
 
     @Operation(summary = "Search stock outbound receipts", description = "Retrieves a paginated list of outbound receipts filtered by warehouse, transaction type, or keyword.")
     @GetMapping
-    @PreAuthorize("hasAuthority('all') or hasAuthority('stock_read')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('stock_read'))")
     public ApiResponse<PageResponse<OutboundResponse>> getOutboundPage(
             @Parameter(description = "Filter by source warehouse ID") @RequestParam(required = false) Integer warehouseId,
             @Parameter(description = "Filter by outbound type (e.g., SALE, TRANSFER, DISPOSAL)") @RequestParam(required = false) String type,
@@ -49,7 +49,7 @@ public class OutboundController {
 
     @Operation(summary = "Get outbound receipt detail", description = "Retrieves detailed information of a specific stock outbound receipt by ID.")
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('stock_read')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('stock_read'))")
     public ApiResponse<OutboundResponse> getOutboundDetail(
             @Parameter(description = "ID of the outbound receipt") @PathVariable Long id) {
         return new ApiResponse<>(outboundService.getOutboundDetail(id));
@@ -62,7 +62,7 @@ public class OutboundController {
             content = @Content(mediaType = MediaType.APPLICATION_PDF_VALUE, schema = @Schema(type = "string", format = "binary"))
     )
     @GetMapping("/{id}/export")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('stock_read')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('stock_read'))")
     public ResponseEntity<byte[]> exportPdf(
             @Parameter(description = "ID of the outbound receipt to export") @PathVariable Long id) {
         byte[] pdfBytes = outboundService.exportOutboundDetail(id);

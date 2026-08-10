@@ -27,13 +27,14 @@ public class StaffSalaryController {
 
     @Operation(summary = "Get current base salary", description = "Self-service endpoint to retrieve current base salary details for the authenticated employee.")
     @GetMapping("/my-salary")
+    @PreAuthorize("hasAuthority('ROLE_STAFF')")
     public ApiResponse<StaffSalaryResponse> getCurrentSalary() {
         return new ApiResponse<>(salaryService.getSalaryInfo(authenticationService.getStaffIdFromToken()));
     }
 
     @Operation(summary = "Change or update staff base salary", description = "Updates or sets a new base salary configuration for a specific staff member.")
     @PostMapping("/{staffId}")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('staff_update_salary')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('staff_update_salary'))")
     public ApiResponse<StaffSalaryResponse> changeSalary(
             @Parameter(description = "ID of the staff member") @PathVariable Long staffId,
             @Valid @RequestBody StaffSalaryRequest request) {
@@ -42,7 +43,7 @@ public class StaffSalaryController {
 
     @Operation(summary = "Get staff salary history", description = "Retrieves the historical record of base salary changes for a specific staff member.")
     @GetMapping("/{staffId}/history")
-    @PreAuthorize("hasAuthority('all') or hasAuthority('staff_read_salary')")
+    @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('staff_read_salary'))")
     public ApiResponse<List<StaffSalaryResponse>> getStaffSalaryHistory(
             @Parameter(description = "ID of the staff member") @PathVariable Long staffId) {
         return new ApiResponse<>(salaryService.getStaffSalaryHistory(staffId));
