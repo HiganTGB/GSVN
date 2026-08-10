@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gsvn.promotionservice.mapper.MessageLogMapper">
+
+    <insert id="insertOutbox">
+        INSERT INTO outbox (
+            id, aggregate_id, event_type, payload, status
+        ) VALUES (
+                             #{id},
+                     #{aggregateId}, #{eventType}, #{payload}::jsonb, #{status}
+                 )
+    </insert>
+
+    <select id="findPendingOutbox" resultType="com.gsvn.promotionservice.model.entity.Outbox">
+        SELECT id, aggregate_id as aggregateId, event_type as eventType,
+               payload, status, retry_count as retryCount,
+               last_attempt_at as lastAttemptAt, created_at as createdAt
+        FROM outbox
+        WHERE status = 'PENDING'
+        ORDER BY created_at ASC
+        LIMIT #{limit}
+    </select>
+
+    <update id="updateOutboxStatus">
+        UPDATE outbox
+        SET status = #{status},
+            retry_count = #{retryCount},
+            last_attempt_at = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+    </update>
+
+    <insert id="insertInbox">
+        INSERT INTO inbox (
+            event_id, event_type, payload, status
+        ) VALUES (
+                     #{eventId}, #{eventType}, #{payload}::jsonb, 'PENDING'
+                 )
+        ON CONFLICT (event_id) DO NOTHING
+    </insert>
+
+    <select id="findInboxById" resultType="com.gsvn.promotionservice.model.entity.Inbox">
+        SELECT event_id as eventId, event_type as eventType, payload,
+               status, error_log as errorLog, processed_at as processedAt,
+               received_at as receivedAt
+        FROM inbox
+        WHERE event_id = #{eventId}
+    </select>
+
+    <update id="updateInboxStatus">
+        UPDATE inbox
+        SET status = #{status},
+            error_log = #{errorLog},
+            processed_at = CASE WHEN #{status} = 'PROCESSED' THEN CURRENT_TIMESTAMP ELSE NULL END
+        WHERE event_id = #{eventId}
+    </update>
+
+    <select id="findPendingInbox" resultType="com.gsvn.promotionservice.model.entity.Inbox">
+        SELECT
+            event_id as eventId,
+            event_type as eventType,
+            payload,
+            status,
+            error_log as errorLog,
+            received_at as receivedAt,
+            processed_at as processedAt
+        FROM inbox
+        WHERE status = 'PENDING'
+        ORDER BY received_at ASC
+        LIMIT #{limit}
+    </select>
+</mapper>

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gsvn.inventoryservice.mapper.InboundMapper">
+
+    <resultMap id="InboundReceiptMap" type="com.gsvn.inventoryservice.model.entity.InboundReceipt">
+        <id property="id" column="id"/>
+        <result property="warehouseId" column="warehouse_id"/>
+        <result property="receiptCode" column="receipt_code"/>
+        <result property="sourceOutboundCode" column="source_outbound_code"/>
+        <result property="supplierId" column="supplier_id"/>
+        <result property="type" column="type"/>
+        <result property="note" column="note"/>
+        <result property="staffId" column="staff_id"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <resultMap id="InboundItemMap" type="com.gsvn.inventoryservice.model.entity.InboundItem">
+        <id property="id" column="id"/>
+        <result property="inboundId" column="inbound_id"/>
+        <result property="skuId" column="sku_id"/>
+        <result property="skuCode" column="sku_code"/>
+        <result property="productName" column="product_name"/>
+        <result property="quantity" column="quantity"/>
+        <result property="importPrice" column="import_price"/>
+        <result property="lineTotal" column="line_total"/>
+    </resultMap>
+
+    <insert id="insertReceipt" useGeneratedKeys="true" keyProperty="id">
+
+        INSERT INTO inbound_receipts (
+        warehouse_id,
+        source_outbound_code,
+        supplier_id,
+        type,
+        note,
+        staff_id
+        )
+        VALUES (
+        #{warehouseId},
+        #{sourceOutboundCode},
+        #{supplierId},
+        #{type},
+        #{note},
+        #{staffId}
+        )
+        RETURNING id, receipt_code
+    </insert>
+
+    <insert id="insertBatchItems">
+        INSERT INTO inbound_items (
+        inbound_id,
+        sku_id,
+        sku_code,
+        product_name,
+        quantity,
+        import_price
+        )
+        VALUES
+        <foreach collection="items" item="item" separator=",">
+            (
+            #{item.inboundId},
+            #{item.skuId},
+            #{item.skuCode},
+            #{item.productName},
+            #{item.quantity},
+            #{item.importPrice}
+            )
+        </foreach>
+    </insert>
+
+    <select id="findInboundPage" resultMap="InboundReceiptMap">
+        SELECT * FROM inbound_receipts
+        <where>
+            <if test="warehouseId != null"> AND warehouse_id = #{warehouseId} </if>
+            <if test="type != null"> AND type = #{type} </if>
+            <if test="keyword != null and keyword != ''">
+                AND (LOWER(receipt_code) LIKE LOWER(CONCAT('%', #{keyword}, '%'))
+                OR LOWER(source_outbound_code) LIKE LOWER(CONCAT('%', #{keyword}, '%')))
+            </if>
+        </where>
+        ORDER BY created_at DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countInbound" resultType="long">
+        SELECT COUNT(*) FROM inbound_receipts
+        <where>
+            <if test="warehouseId != null"> AND warehouse_id = #{warehouseId} </if>
+            <if test="supplierId != null"> AND supplier_id = #{supplierId} </if>
+            <if test="type != null"> AND type = #{type} </if>
+            <if test="keyword != null and keyword != ''">
+                AND (LOWER(receipt_code) LIKE LOWER(CONCAT('%', #{keyword}, '%'))
+                OR LOWER(source_outbound_code) LIKE LOWER(CONCAT('%', #{keyword}, '%')))
+            </if>
+        </where>
+    </select>
+
+    <select id="findById" resultMap="InboundReceiptMap">
+        SELECT * FROM inbound_receipts WHERE id = #{id}
+    </select>
+
+    <select id="findItemsByInboundId" resultMap="InboundItemMap">
+        SELECT
+            id,
+            inbound_id,
+            sku_id,
+            sku_code,
+            product_name,
+            quantity,
+            import_price,
+             line_total
+        FROM inbound_items
+        WHERE inbound_id = #{inboundId}
+    </select>
+
+</mapper>

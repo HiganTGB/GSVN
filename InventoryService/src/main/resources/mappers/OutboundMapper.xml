@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gsvn.inventoryservice.mapper.OutboundMapper">
+
+    <resultMap id="OutboundReceiptMap" type="com.gsvn.inventoryservice.model.entity.OutboundReceipt">
+        <id property="id" column="id"/>
+        <result property="warehouseId" column="warehouse_id"/>
+        <result property="receiptCode" column="receipt_code"/>
+        <result property="type" column="type"/>
+        <result property="externalId" column="external_id"/>
+        <result property="staffId" column="staff_id"/>
+        <result property="note" column="note"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <resultMap id="OutboundItemMap" type="com.gsvn.inventoryservice.model.entity.OutboundItem">
+        <id property="id" column="id"/>
+        <result property="outboundId" column="outbound_id"/>
+        <result property="skuId" column="sku_id"/>
+        <result property="skuCode" column="sku_code"/>
+        <result property="productName" column="product_name"/>
+        <result property="quantity" column="quantity"/>
+    </resultMap>
+
+    <insert id="insertReceipt" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO outbound_receipts (
+        warehouse_id,
+        type,
+        external_id,
+        note,
+        staff_id
+        )
+        VALUES (
+        #{warehouseId},
+        #{type},
+        #{externalId},
+        #{note},
+        #{staffId}
+        )
+        RETURNING id, receipt_code
+    </insert>
+
+    <insert id="insertBatchItems">
+        INSERT INTO outbound_items (
+        outbound_id,
+        sku_id,
+        sku_code,
+        product_name,
+        quantity
+        )
+        VALUES
+        <foreach collection="items" item="item" separator=",">
+            (
+            #{item.outboundId},
+            #{item.skuId},
+            #{item.skuCode},
+            #{item.productName},
+            #{item.quantity}
+            )
+        </foreach>
+    </insert>
+
+    <select id="findOutboundPage" resultMap="OutboundReceiptMap">
+        SELECT * FROM outbound_receipts
+        <where>
+            <if test="warehouseId != null"> AND warehouse_id = #{warehouseId} </if>
+            <if test="type != null"> AND type = #{type} </if>
+            <if test="keyword != null and keyword != ''">
+                AND (LOWER(outbound_code) LIKE LOWER(CONCAT('%', #{keyword}, '%'))
+                OR LOWER(external_id) LIKE LOWER(CONCAT('%', #{keyword}, '%')))
+            </if>
+        </where>
+        ORDER BY created_at DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countOutbound" resultType="long">
+        SELECT COUNT(*) FROM outbound_receipts
+        <where>
+            <if test="warehouseId != null"> AND warehouse_id = #{warehouseId} </if>
+            <if test="type != null"> AND type = #{type} </if>
+            <if test="keyword != null and keyword != ''">
+                AND (LOWER(receipt_code) LIKE LOWER(CONCAT('%', #{keyword}, '%'))
+                OR LOWER(external_id) LIKE LOWER(CONCAT('%', #{keyword}, '%')))
+            </if>
+        </where>
+    </select>
+
+    <select id="findById" resultMap="OutboundReceiptMap">
+        SELECT * FROM outbound_receipts WHERE id = #{id}
+    </select>
+
+    <select id="findItemsByOutboundId" resultMap="OutboundItemMap">
+        SELECT
+            id,
+            outbound_id,
+            sku_id,
+            sku_code,
+            product_name,
+            quantity
+        FROM outbound_items
+        WHERE outbound_id = #{outboundId}
+    </select>
+
+</mapper>

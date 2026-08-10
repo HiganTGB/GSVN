@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gsvn.productservice.mapper.CategoryMapper">
+
+    <resultMap id="CategoryResultMap" type="com.gsvn.productservice.model.entity.Category">
+        <id property="id" column="id" />
+        <result property="name" column="name" />
+        <result property="description" column="description" />
+        <result property="parentCategoryId" column="parent_category_id" />
+        <result property="createdAt" column="created_at" />
+        <result property="updatedAt" column="updated_at"/>
+
+        <association property="parentCategory" column="parent_category_id"
+                     select="com.gsvn.productservice.mapper.CategoryMapper.findById" />
+    </resultMap>
+
+    <resultMap id="CategoryWithChildrenMap" extends="CategoryResultMap" type="com.gsvn.productservice.model.entity.Category">
+        <collection property="subCategories" column="id"
+                    select="findChildrenByParentId" ofType="com.gsvn.productservice.model.entity.Category" />
+    </resultMap>
+
+    <select id="findById" resultMap="CategoryResultMap">
+        SELECT * FROM category WHERE id = #{id}
+    </select>
+
+    <select id="findChildrenByParentId" resultMap="CategoryResultMap">
+        SELECT * FROM category WHERE parent_category_id = #{id}
+    </select>
+
+    <select id="findRootCategories" resultMap="CategoryResultMap">
+        SELECT * FROM category WHERE parent_category_id IS NULL
+    </select>
+
+    <select id="findWithChildren" resultMap="CategoryWithChildrenMap">
+        SELECT * FROM category WHERE id = #{id}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO category (name, description, parent_category_id)
+        VALUES (#{name}, #{description}, #{parentCategoryId})
+    </insert>
+
+
+    <select id="findAll">
+        SELECT *
+        FROM category
+        ORDER BY id ASC
+    </select>
+
+    <update id="update">
+        UPDATE category
+        SET name = #{name},
+            description = #{description},
+            parent_category_id = #{parentCategoryId}
+        WHERE id = #{id}
+    </update>
+    <select id="findPage" resultMap="CategoryResultMap">
+        SELECT * FROM category
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND LOWER(name) LIKE LOWER(CONCAT('%', #{keyword}, '%'))
+            </if>
+        </where>
+        ORDER BY parent_category_id ASC, id DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countSearch" resultType="long">
+        SELECT COUNT(*) FROM category
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND LOWER(name) LIKE LOWER(CONCAT('%', #{keyword}, '%'))
+            </if>
+        </where>
+    </select>
+
+    <select id="existsById" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1 FROM category WHERE id = #{id}
+        )
+    </select>
+
+    <select id="existsByName" resultType="boolean">
+        SELECT EXISTS (
+        SELECT 1 FROM category
+        WHERE LOWER(name) = LOWER(#{name})
+        <if test="excludeId != null">
+            AND id != #{excludeId}
+        </if>
+        )
+    </select>
+
+</mapper>

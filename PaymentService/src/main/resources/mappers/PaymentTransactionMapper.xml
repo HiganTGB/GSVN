@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gsvn.paymentservice.mapper.PaymentTransactionMapper">
+
+    <resultMap id="PaymentResultMap" type="com.gsvn.paymentservice.model.entity.PaymentTransaction">
+        <id property="id" column="id"/>
+        <result property="orderCode" column="order_code"/>
+        <result property="shipmentCode" column="shipment_code"/>
+        <result property="referenceId" column="reference_id"/>
+        <result property="confirmedBy" column="confirmed_by"/>
+        <result property="confirmedAt" column="confirmed_at"/>
+        <result property="externalTransactionId" column="external_transaction_id"/>
+        <result property="provider" column="provider"/>
+        <result property="paymentMethod" column="payment_method"/>
+        <result property="amount" column="amount"/>
+        <result property="currency" column="currency"/>
+        <result property="paymentType" column="payment_type"/>
+        <result property="status" column="status"/>
+        <result property="checkoutUrl" column="checkout_url"/>
+        <result property="expiresAt" column="expires_at"/>
+        <result property="providerResponse" column="provider_response"/>
+        <result property="note" column="note"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO payment_transactions (
+             order_code, shipment_code, reference_id, provider,
+            payment_method, amount, payment_type,
+            status, checkout_url, expires_at, provider_response, note
+        ) VALUES (
+                      #{orderCode}, #{shipmentCode}, #{referenceId}, #{provider},
+                     #{paymentMethod}, #{amount}, #{paymentType},
+                     #{status}, #{checkoutUrl}, #{expiresAt},
+                     #{providerResponse}::jsonb, #{note}
+                 )
+    </insert>
+
+    <select id="findById" resultMap="PaymentResultMap">
+        SELECT * FROM payment_transactions WHERE id = #{id}
+    </select>
+
+    <select id="findByReferenceId" resultMap="PaymentResultMap">
+        SELECT * FROM payment_transactions WHERE reference_id = #{referenceId}
+    </select>
+
+    <update id="updateStatus">
+        UPDATE payment_transactions
+        SET status = #{status},
+            external_transaction_id = #{externalId},
+            provider_response = #{providerResponse}::jsonb,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE reference_id = #{referenceId}
+    </update>
+
+    <update id="update">
+        UPDATE payment_transactions
+        SET status = #{status},
+            note = #{note},
+            confirmed_by = #{confirmedBy},
+            external_transaction_id = #{externalTransactionId},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+    </update>
+
+    <select id="findPage" resultMap="PaymentResultMap">
+        SELECT * FROM payment_transactions
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (
+                order_code ILIKE CONCAT('%', #{keyword}, '%')
+                OR reference_id ILIKE CONCAT('%', #{keyword}, '%')
+                OR external_transaction_id ILIKE CONCAT('%', #{keyword}, '%')
+                OR provider ILIKE CONCAT('%', #{keyword}, '%')
+                )
+            </if>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+            <if test="provider != null and provider != ''">
+                AND provider = #{provider}
+            </if>
+        </where>
+        ORDER BY ${sortField} ${sortOrder}
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countSearch" resultType="long">
+        SELECT COUNT(*) FROM payment_transactions
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (
+                order_code ILIKE CONCAT('%', #{keyword}, '%')
+                OR reference_id ILIKE CONCAT('%', #{keyword}, '%')
+                OR external_transaction_id ILIKE CONCAT('%', #{keyword}, '%')
+                )
+            </if>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+        </where>
+    </select>
+    <update id="updateStatusByOrderCode">
+        UPDATE payment_transactions
+        SET status = #{status},
+            confirmed_by = #{confirmedBy},
+            confirmed_at = CURRENT_TIMESTAMP,
+            updated_at = CURRENT_TIMESTAMP,
+            note = CONCAT(note, ' | Updated by Shipment Service')
+        WHERE order_code = #{orderCode}
+          AND payment_method = 'COD'
+          AND status = 'PENDING'
+    </update>
+</mapper>

@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gsvn.orderservice.mapper.OrderMapper">
+
+    <resultMap id="OrderResultMap" type="com.gsvn.orderservice.model.entity.Order">
+        <id property="id" column="id"/>
+        <result property="orderCode" column="order_code"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="warehouseCode" column="warehouse_code"/>
+        <result property="receiverName" column="receiver_name"/>
+        <result property="receiverPhone" column="receiver_phone"/>
+        <result property="receiverEmail" column="receiver_email"/>
+        <result property="provinceCode" column="province_code"/>
+        <result property="wardCode" column="ward_code"/>
+        <result property="addressDetail" column="address_detail"/>
+        <result property="customerNote" column="customer_note"/>
+        <result property="paymentMethod" column="payment_method"/>
+        <result property="deliveryMethod" column="delivery_method"/>
+        <result property="paymentStatus" column="payment_status"/>
+        <result property="totalAmount" column="total_amount"/>
+        <result property="discountAmount" column="discount_amount"/>
+        <result property="finalAmount" column="final_amount"/>
+        <result property="totalRequiredNow" column="total_required_now"/>
+        <result property="amountPaid" column="amount_paid"/>
+        <result property="clientIp" column="client_ip"/>
+        <result property="checkOutUrl" column="check_out_url"/>
+        <result property="referenceId" column="reference_id"/>
+        <result property="voucherCode" column="voucher_code"/>
+        <result property="orderStatus" column="order_status"/>
+        <result property="currentSagaId" column="current_saga_id"/>
+        <result property="staffId" column="staff_id"/>
+        <result property="confirmedBy" column="confirmed_by"/>
+        <result property="confirmedAt" column="confirmed_at"/>
+        <result property="staffNote" column="staff_note"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.gsvn.orderservice.model.entity.Order" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO orders (
+            order_code, customer_id, warehouse_code, receiver_name, receiver_phone,
+            receiver_email, province_code, ward_code, address_detail, customer_note,
+            payment_method, delivery_method, total_amount,
+            discount_amount, final_amount, total_required_now, voucher_code,
+            order_status,client_ip
+        ) VALUES (
+                             #{orderCode},
+                     #{customerId}, #{warehouseCode}, #{receiverName}, #{receiverPhone},
+                     #{receiverEmail}, #{provinceCode}, #{wardCode}, #{addressDetail}, #{customerNote},
+                     #{paymentMethod}, #{deliveryMethod}, #{totalAmount},
+                     #{discountAmount}, #{finalAmount}, #{totalRequiredNow}, #{voucherCode},
+                     'PENDING',#{clientIp}
+                 )
+        RETURNING id, order_code; </insert>
+
+    <update id="updateAllFields" parameterType="com.gsvn.orderservice.model.entity.Order">
+        UPDATE orders
+        <set>
+            <if test="warehouseCode != null">warehouse_code = #{warehouseCode},</if>
+            <if test="receiverName != null">receiver_name = #{receiverName},</if>
+            <if test="receiverPhone != null">receiver_phone = #{receiverPhone},</if>
+            <if test="receiverEmail != null">receiver_email = #{receiverEmail},</if>
+            <if test="provinceCode != null">province_code = #{provinceCode},</if>
+            <if test="wardCode != null">ward_code = #{wardCode},</if>
+            <if test="addressDetail != null">address_detail = #{addressDetail},</if>
+            <if test="customerNote != null">customer_note = #{customerNote},</if>
+
+            <if test="paymentMethod != null">payment_method = #{paymentMethod},</if>
+            <if test="deliveryMethod != null">delivery_method = #{deliveryMethod},</if>
+            <if test="paymentStatus != null">payment_status = #{paymentStatus},</if>
+            <if test="orderStatus != null">order_status = #{orderStatus},</if>
+
+            <if test="totalAmount != null">total_amount = #{totalAmount},</if>
+
+            <if test="discountAmount != null">discount_amount = #{discountAmount},</if>
+            <if test="finalAmount != null">final_amount = #{finalAmount},</if>
+            <if test="totalRequiredNow != null">total_required_now = #{totalRequiredNow},</if>
+            <if test="amountPaid != null">amount_paid = #{amountPaid},</if>
+
+            <if test="currentSagaId != null">current_saga_id = #{currentSagaId},</if>
+            <if test="checkOutUrl != null">check_out_url = #{checkOutUrl},</if>
+            <if test="referenceId != null">reference_id = #{referenceId},</if>
+
+            <if test="staffId != null">staff_id = #{staffId},</if>
+            <if test="confirmedBy != null">confirmed_by = #{confirmedBy},</if>
+            <if test="confirmedAt != null">confirmed_at = #{confirmedAt},</if>
+            <if test="staffNote != null">staff_note = #{staffNote},</if>
+
+            updated_at = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+
+
+    <update id="updateSagaId">
+        UPDATE orders
+        SET current_saga_id = #{sagaId}, updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="confirmOrder">
+        UPDATE orders
+        SET confirmed_by = #{staffId},
+            staff_note = #{note},
+            confirmed_at = NOW(),
+            order_status = 'CONFIRMED',
+            updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateOrderStatus">
+        UPDATE orders
+        SET order_status = #{status}, updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updatePaymentInfo">
+        UPDATE orders
+        SET payment_status = #{paymentStatus},
+            amount_paid = #{amountPaid},
+            updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <select id="findById" resultMap="OrderResultMap">
+        SELECT * FROM orders WHERE id = #{id}
+    </select>
+
+    <select id="findByOrderCode" resultMap="OrderResultMap">
+        SELECT * FROM orders WHERE order_code = #{orderCode}
+    </select>
+
+    <select id="searchOrders" resultMap="OrderResultMap">
+        SELECT * FROM orders
+        <where>
+
+             order_status != 'PENDING'
+
+            <if test="warehouseCode != null and warehouseCode != ''">
+                AND warehouse_code = #{warehouseCode}
+            </if>
+
+            <if test="orderCode != null and orderCode != ''">
+                AND order_code ILIKE CONCAT('%', #{orderCode}, '%')
+            </if>
+
+            <if test="email != null and email != ''">
+                AND receiver_email ILIKE CONCAT('%', #{email}, '%')
+            </if>
+
+            <if test="phone != null and phone != ''">
+                AND receiver_phone ILIKE CONCAT('%', #{phone}, '%')
+            </if>
+
+            <if test="status != null and status != ''">
+                AND order_status = #{status}
+            </if>
+        </where>
+        ORDER BY
+        <choose>
+            <when test="sortBy == 'createdAt'">created_at</when>
+            <when test="sortBy == 'finalAmount'">final_amount</when>
+            <otherwise>created_at</otherwise>
+        </choose>
+        <choose>
+            <when test="direct == 'DESC'">DESC</when>
+            <otherwise>ASC</otherwise>
+        </choose>
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="countSearchOrders" resultType="long">
+        SELECT COUNT(*) FROM orders
+        <where>
+            order_status != 'PENDING'
+            <if test="warehouseCode != null and warehouseCode != ''">
+                AND warehouse_code = #{warehouseCode}
+            </if>
+            <if test="orderCode != null and orderCode != ''">
+                AND order_code ILIKE CONCAT('%', #{orderCode}, '%')
+            </if>
+            <if test="email != null and email != ''">
+                AND receiver_email ILIKE CONCAT('%', #{email}, '%')
+            </if>
+            <if test="phone != null and phone != ''">
+                AND receiver_phone ILIKE CONCAT('%', #{phone}, '%')
+            </if>
+            <if test="status != null and status != ''">
+                AND order_status = #{status}
+            </if>
+        </where>
+    </select>
+
+    <update id="approveOrder">
+        UPDATE orders
+        SET
+            order_status = 'CONFIRMED',
+            confirmed_by = #{confirmedBy},
+            confirmed_at = CURRENT_TIMESTAMP,
+            staff_note = #{note},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+          AND order_status IN ('VALIDATED', 'AWAITING')
+    </update>
+    <select id="getStatusByOrderCode">
+        SELECT order_status
+        FROM orders
+        WHERE order_code = #{orderCode}
+    </select>
+
+    <select id="findByCustomerId" resultMap="OrderResultMap">
+        SELECT * FROM orders
+        WHERE customer_id = #{customerId}
+        <if test="orderCode != null and orderCode != ''">
+            AND order_code ILIKE CONCAT('%', #{orderCode}, '%')
+        </if>
+        <if test="status != null">
+            AND order_status = #{status}
+        </if>
+        ORDER BY created_at DESC
+        <if test="pageSize != null and offset != null">
+            LIMIT #{pageSize} OFFSET #{offset}
+        </if>
+    </select>
+
+    <select id="countByCustomerId" resultType="long">
+        SELECT COUNT(*) FROM orders
+        WHERE customer_id = #{customerId}
+        <if test="orderCode != null and orderCode != ''">
+            AND order_code ILIKE CONCAT('%', #{orderCode}, '%')
+        </if>
+        <if test="status != null">
+            AND order_status = #{status}
+        </if>
+    </select>
+</mapper>

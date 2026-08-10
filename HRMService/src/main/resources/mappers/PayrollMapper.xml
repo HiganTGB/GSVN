@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gsvn.hrmservice.mapper.PayrollMapper">
+    <insert id="insert">
+        INSERT INTO PAYROLLS (
+            staff_id, staff_name, salary_period,
+            position_id, position_name,
+            base_salary, working_days,
+            total_bonus, total_deduction, final_salary, status
+        ) VALUES (
+                     #{staffId}, #{staffName}, #{salaryPeriod},
+                     #{positionId}, #{positionName},
+                     #{baseSalary}, #{workingDays},
+                     #{totalBonus}, #{totalDeduction}, #{finalSalary}, 'PENDING'
+                 )
+        ON CONFLICT (staff_id, salary_period)
+            DO UPDATE SET
+                          position_id = EXCLUDED.position_id,
+                          position_name = EXCLUDED.position_name,
+                          base_salary = EXCLUDED.base_salary,
+                          updated_at = CURRENT_TIMESTAMP
+    </insert>
+
+    <select id="findById" resultType="com.gsvn.hrmservice.model.entity.Payroll">
+        SELECT * FROM PAYROLLS WHERE id = #{id}
+    </select>
+
+    <select id="findAdvanced" resultType="com.gsvn.hrmservice.model.entity.Payroll">
+        SELECT * FROM PAYROLLS
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (staff_name ILIKE CONCAT('%', #{keyword}, '%')
+                OR CAST(staff_id AS TEXT) LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="salaryPeriod != null and salaryPeriod != ''">
+                AND salary_period = #{salaryPeriod}
+            </if>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+        </where>
+        ORDER BY salary_period DESC, staff_name ASC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countAdvanced" resultType="int">
+        SELECT COUNT(*) FROM PAYROLLS
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (staff_name ILIKE CONCAT('%', #{keyword}, '%')
+                OR CAST(staff_id AS TEXT) LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="salaryPeriod != null and salaryPeriod != ''">
+                AND salary_period = #{salaryPeriod}
+            </if>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+        </where>
+    </select>
+
+    <select id="getPayrollListByYearMonth" resultType="com.gsvn.hrmservice.model.entity.Payroll">
+        SELECT * FROM PAYROLLS WHERE salary_period = #{yearMonth}
+    </select>
+
+    <update id="updateApproval">
+        UPDATE PAYROLLS
+        SET total_bonus = #{totalBonus},
+            total_deduction = #{totalDeduction},
+            final_salary = #{finalSalary},
+            status = #{status},
+            note = #{note},
+            approved_by = #{approvedBy},
+            approved_name = #{approvedName},
+            approved_at = now(),
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = #{id} AND status = 'PENDING'
+    </update>
+
+    <update id="markAsPaid">
+        UPDATE PAYROLLS
+        SET status = 'PAID',
+            paid_at = now(),
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = #{id} AND status = 'APPROVED'
+    </update>
+
+    <select id="findHistoryByStaff" resultType="com.gsvn.hrmservice.model.entity.Payroll">
+        SELECT * FROM PAYROLLS
+        WHERE staff_id = #{staffId}
+        ORDER BY salary_period DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countHistoryByStaff" resultType="int">
+        SELECT COUNT(*) FROM PAYROLLS WHERE staff_id = #{staffId}
+    </select>
+
+
+    <select id="getPayrollReport" resultType="com.gsvn.hrmservice.model.dto.PayrollReportItem">
+        SELECT
+        ROW_NUMBER() OVER (ORDER BY staff_id) as stt,
+        staff_id,
+        staff_name,
+        base_salary,
+        total_bonus,
+        total_deduction,
+        final_salary
+        FROM PAYROLLS
+        <where>
+            <choose>
+                <when test="type == 'YEARLY'">
+                    AND salary_period LIKE CONCAT(#{period}, '-%')
+                </when>
+                <otherwise>
+                    AND salary_period = #{period}
+                </otherwise>
+            </choose>
+            AND status IN ('APPROVED', 'PAID')
+        </where>
+    </select>
+
+    <select id="getPayrollReportTotal" resultType="com.gsvn.hrmservice.model.dto.PayrollReportItem">
+        SELECT
+        NULL as stt,
+        NULL as staff_id,
+        'TỔNG CỘNG' as staff_name,
+        SUM(base_salary) as base_salary,
+        SUM(total_bonus) as total_bonus,
+        SUM(total_deduction) as total_deduction,
+        SUM(final_salary) as final_salary
+        FROM PAYROLLS
+        <where>
+            <choose>
+                <when test="type == 'YEARLY'">
+                    AND salary_period LIKE CONCAT(#{period}, '-%')
+                </when>
+                <otherwise>
+                    AND salary_period = #{period}
+                </otherwise>
+            </choose>
+            AND status IN ('APPROVED', 'PAID')
+        </where>
+    </select>
+
+
+</mapper>

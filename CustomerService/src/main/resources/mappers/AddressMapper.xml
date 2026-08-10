@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gsvn.customerservice.mapper.AddressMapper">
+    <insert id="insertAddress" useGeneratedKeys="true" keyProperty="addressId" keyColumn="address_id">
+        INSERT INTO address_card (
+            customer_id, receiver_name, receiver_phone,
+            province_code,  ward_code,
+            address_detail, is_default
+        ) VALUES (
+                     #{customerId}, #{receiverName}, #{receiverPhone},
+                     #{provinceCode}, #{wardCode},
+                     #{addressDetail},  #{isDefault}
+                 )
+    </insert>
+
+    <update id="updateAddress">
+        UPDATE address_card
+        <set>
+            <if test="receiverName != null">receiver_name = #{receiverName},</if>
+            <if test="receiverPhone != null">receiver_phone = #{receiverPhone},</if>
+            <if test="provinceId != null">province_code = #{provinceId},</if>
+            <if test="wardId != null">ward_code = #{wardId},</if>
+            <if test="addressDetail != null">address_detail = #{addressDetail},</if>
+            <if test="isDefault != null">is_default = #{isDefault}</if>
+        </set>
+        WHERE address_id = #{addressId}
+    </update>
+
+    <select id="getAddressesByCustomerId" resultType="com.gsvn.customerservice.model.entity.AddressCard">
+        SELECT * FROM address_card
+        WHERE customer_id = #{customerId}
+        ORDER BY is_default DESC, address_id DESC
+    </select>
+
+    <select id="getAddressById" resultType="com.gsvn.customerservice.model.entity.AddressCard">
+        SELECT * FROM address_card
+        WHERE address_id = #{addressId}
+    </select>
+
+    <delete id="deleteAddress">
+        DELETE FROM address_card
+        WHERE address_id = #{addressId}
+    </delete>
+
+</mapper>

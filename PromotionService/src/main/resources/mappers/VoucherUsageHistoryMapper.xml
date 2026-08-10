@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gsvn.promotionservice.mapper.VoucherUsageHistoryMapper">
+
+    <resultMap id="UsageHistoryMap" type="com.gsvn.promotionservice.model.entity.VoucherUsageHistory">
+        <id property="id" column="id"/>
+        <result property="voucherId" column="voucher_id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="guestEmail" column="guest_email"/>
+        <result property="orderId" column="order_id"/>
+        <result property="sagaId" column="saga_id"/>
+        <result property="usedAt" column="used_at"/>
+    </resultMap>
+
+    <select id="countUserUsage" resultType="int">
+        SELECT COUNT(*)
+        FROM voucher_usage_history
+        WHERE voucher_id = #{voucherId}
+        AND (
+        <if test="customerId != null">
+            customer_id = #{customerId}
+        </if>
+        <if test="customerId != null and guestEmail != null">
+            OR
+        </if>
+        <if test="guestEmail != null">
+            guest_email = #{guestEmail}
+        </if>
+        )
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO voucher_usage_history (
+            voucher_id, customer_id, guest_email, order_id, saga_id, used_at
+        )
+        VALUES (
+                   #{voucherId}, #{customerId}, #{guestEmail}, #{orderId}, #{sagaId}, NOW()
+               )
+    </insert>
+    <delete id="deleteBySagaId">
+        DELETE FROM voucher_usage_history
+        WHERE saga_id = #{sagaId}
+    </delete>
+
+    <select id="findBySagaId" resultMap="UsageHistoryMap">
+        SELECT id, voucher_id, customer_id, guest_email, order_id, saga_id, used_at
+        FROM voucher_usage_history
+        WHERE saga_id = #{sagaId}
+        LIMIT 1
+    </select>
+
+</mapper>

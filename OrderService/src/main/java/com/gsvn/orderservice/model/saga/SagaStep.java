@@ -1,0 +1,23 @@
+package com.gsvn.orderservice.model.saga;
+
+public enum SagaStep {
+
+    START,
+
+    SKU_VALIDATING,
+    SKU_VALIDATED,
+
+    INVENTORY_RESERVING,
+    INVENTORY_RESERVED,
+
+    VOUCHER_APPLYING,
+    VOUCHER_APPLIED,
+
+    PAYMENT_URL_GENERATING,
+    PAYMENT_URL_GENERATED,
+
+    COMPLETED,
+    COMPENSATING,
+    COMPENSATED,
+    FAILED
+}

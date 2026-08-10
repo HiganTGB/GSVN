@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gsvn.productservice.mapper.ProductMapper">
+
+    <resultMap id="ProductResultMap" type="com.gsvn.productservice.model.entity.Product">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="categoryId" column="category_id"/>
+        <result property="brandId" column="brand_id"/>
+        <result property="description" column="description"/>
+        <result property="releaseDate" column="release_date"/>
+        <result property="imageUrl" column="image_url"/>
+        <result property="galleryImages" column="gallery_images"
+                typeHandler="com.gsvn.productservice.handler.StringListJsonTypeHandler"/>
+        <result property="saleStatus" column="sale_status"/>
+        <result property="isActive" column="is_active"/>
+        <result property="deletedAt" column="deleted_at"/>
+        <result property="preName" column="pre_name"/>
+        <result property="preIsActive" column="pre_is_active"/>
+        <result property="preStartAt" column="pre_start_at"/>
+        <result property="preEndAt" column="pre_end_at"/>
+        <result property="preReleaseDate" column="pre_release_date"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <sql id="ProductColumns">
+        id, name, category_id, brand_id, description, release_date,
+        image_url, gallery_images, sale_status, is_active, deleted_at,
+        pre_name, pre_is_active, pre_start_at, pre_end_at, pre_release_date,
+        created_at, updated_at
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO product (
+            name, category_id, brand_id, description, release_date, is_active
+        ) VALUES (
+                     #{name}, #{categoryId}, #{brandId}, #{description}, #{releaseDate}, TRUE
+                 )
+    </insert>
+
+    <update id="updateBasic">
+        UPDATE product
+        <set>
+            name = #{name},
+            category_id = #{categoryId},
+            brand_id = #{brandId},
+            description = #{description},
+            release_date = #{releaseDate},
+            is_active = #{isActive},
+            updated_at = NOW()
+        </set>
+        WHERE id = #{id} AND deleted_at IS NULL
+    </update>
+
+    <update id="updatePreOrder">
+        UPDATE product
+        <set>
+            pre_name = #{preName},
+            pre_is_active = #{preIsActive},
+            pre_start_at = #{preStartAt},
+            pre_end_at = #{preEndAt},
+            pre_release_date = #{preReleaseDate},
+            updated_at = NOW()
+        </set>
+        WHERE id = #{id} AND deleted_at IS NULL
+    </update>
+
+    <update id="updateImages">
+        UPDATE product
+        <set>
+            <if test="imageUrl != null">
+                image_url = #{imageUrl},
+            </if>
+            <if test="galleryImages != null">
+                gallery_images = #{galleryImages, typeHandler=com.gsvn.productservice.handler.StringListJsonTypeHandler}::jsonb,
+            </if>
+            updated_at = NOW()
+        </set>
+        WHERE id = #{id} AND deleted_at IS NULL
+    </update>
+
+    <select id="findById" resultMap="ProductResultMap">
+        SELECT <include refid="ProductColumns"/>
+        FROM product
+        WHERE id = #{id} AND deleted_at IS NULL
+    </select>
+
+    <select id="existsById" resultType="boolean">
+        SELECT EXISTS(SELECT 1 FROM product WHERE id = #{id} AND deleted_at IS NULL)
+    </select>
+
+    <update id="deletePreOrder">
+        UPDATE product
+        SET pre_name = NULL,
+            pre_is_active = FALSE,
+            pre_start_at = NULL,
+            pre_end_at = NULL,
+            pre_release_date = NULL,
+            updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <insert id="insertPreOrderHistory">
+        INSERT INTO product_pre_history (
+            product_id, pre_name, pre_start_at, pre_end_at,
+            pre_release_date, total_orders_achieved, sku_prices_snapshot
+        ) VALUES (
+                     #{productId}, #{preName}, #{preStartAt}, #{preEndAt},
+                     #{preReleaseDate}, #{totalOrdersAchieved}, #{skuPricesSnapshot}::jsonb
+                 )
+    </insert>
+    <select id="findPreHistoryByProduct">
+        SELECT * FROM product_pre_history
+        where product_id = #{productId}
+    </select>
+
+    <update id="softDelete">
+        UPDATE product
+        SET deleted_at = NOW(),
+            is_active = FALSE
+        WHERE id = #{id}
+    </update>
+
+    <update id="toggleActive">
+        UPDATE product
+        SET is_active = #{isActive},
+            updated_at = NOW()
+        WHERE id = #{id} AND deleted_at IS NULL
+    </update>
+
+    <select id="findPage" resultMap="ProductResultMap">
+        SELECT <include refid="ProductColumns"/>
+        FROM product
+        <where>
+            deleted_at IS NULL
+            <if test="keyword != null and keyword != ''">
+                AND LOWER(name) LIKE LOWER(CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="brandId != null">
+                AND brand_id = #{brandId}
+            </if>
+            <if test="categoryId != null">
+                AND category_id = #{categoryId}
+            </if>
+            <if test="saleStatus != null">
+                AND sale_status = #{saleStatus}
+            </if>
+            <if test="isActive != null">
+                AND is_active = #{isActive}
+            </if>
+        </where>
+        ORDER BY ${sortField} ${sortOrder}
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countSearch" resultType="long">
+        SELECT COUNT(*) FROM product
+        <where>
+            deleted_at IS NULL
+            <if test="keyword != null and keyword != ''">
+                AND LOWER(name) LIKE LOWER(CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="brandId != null">
+                AND brand_id = #{brandId}
+            </if>
+            <if test="categoryId != null">
+                AND category_id = #{categoryId}
+            </if>
+            <if test="saleStatus != null">
+                AND sale_status = #{saleStatus}
+            </if>
+            <if test="isActive != null">
+                AND is_active = #{isActive}
+            </if>
+        </where>
+    </select>
+    <update id="updateProductStatusForCron">
+        UPDATE product_db.product
+        SET updated_at = NOW()
+        WHERE pre_is_active = TRUE
+          AND sale_status IN ('COMING_SOON', 'PREORDER_OPEN')
+    </update>
+
+
+    <resultMap id="ProductCardResultMap" type="com.gsvn.productservice.model.dto.ProductCardDTO">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="imageUrl" column="imageUrl"/>
+        <result property="minPrice" column="minPrice"/>
+        <result property="maxPrice" column="maxPrice"/>
+        <result property="saleStatus" column="saleStatus"/>
+        <result property="isActive" column="isActive"/>
+        <result property="preName" column="preName"/>
+        <result property="preIsActive" column="preIsActive"/>
+        <result property="createdAt" column="createdAt"/>
+        <result property="brandId" column="brandId"/>
+        <result property="brandName" column="brandName"/>
+        <result property="categoryId" column="categoryId"/>
+        <result property="categoryName" column="categoryName"/>
+    </resultMap>
+
+    <select id="searchProducts" resultMap="ProductCardResultMap">
+        SELECT
+        p.id,
+        p.name,
+        p.image_url as imageUrl,
+        p.sale_status as saleStatus,
+        p.is_active as isActive,
+        p.pre_name as preName,
+        p.pre_is_active as preIsActive,
+        p.created_at as createdAt,
+        b.id as brandId,
+        b.name as brandName,
+        c.id as categoryId,
+        c.name as categoryName,
+        MIN(CASE
+        WHEN p.pre_is_active = TRUE AND s.pre_price IS NOT NULL THEN s.pre_price
+        ELSE s.selling_price
+        END) as minPrice,
+        MAX(CASE
+        WHEN p.pre_is_active = TRUE AND s.pre_price IS NOT NULL THEN s.pre_price
+        ELSE s.selling_price
+        END) as maxPrice
+        FROM product p
+        LEFT JOIN sku s ON p.id = s.product_id AND s.deleted_at IS NULL AND s.is_active = TRUE
+        LEFT JOIN brand b ON p.brand_id = b.id
+        LEFT JOIN category c ON p.category_id = c.id
+        <where>
+            p.deleted_at IS NULL
+            <if test="keyword != null and keyword != ''">
+                AND LOWER(p.name) LIKE LOWER(CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="brandIds != null and brandIds.size() > 0">
+                AND p.brand_id IN
+                <foreach collection="brandIds" item="id" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="categoryIds != null and categoryIds.size() > 0">
+                AND p.category_id IN
+                <foreach collection="categoryIds" item="id" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="saleStatuses != null and saleStatuses.size() > 0">
+                AND p.sale_status IN
+                <foreach collection="saleStatuses" item="status" open="(" separator="," close=")">
+                    #{status}
+                </foreach>
+            </if>
+
+            <if test="lastCreatedAt != null and lastId != null">
+                <choose>
+                    <when test="direction == 'DESC' or direction == 'desc'">
+                        AND (
+                        p.created_at &lt; #{lastCreatedAt}
+                        OR (p.created_at = #{lastCreatedAt} AND p.id &lt; #{lastId})
+                        )
+                    </when>
+                    <otherwise>
+                        AND (
+                        p.created_at > #{lastCreatedAt}
+                        OR (p.created_at = #{lastCreatedAt} AND p.id > #{lastId})
+                        )
+                    </otherwise>
+                </choose>
+            </if>
+        </where>
+
+        GROUP BY p.id, b.id, c.id
+
+        <if test="minPriceFilter != null or maxPriceFilter != null">
+            HAVING 1=1
+            <if test="minPriceFilter != null">
+                AND MIN(CASE WHEN p.pre_is_active = TRUE AND s.pre_price IS NOT NULL THEN s.pre_price ELSE s.selling_price END) >= #{minPriceFilter}
+            </if>
+            <if test="maxPriceFilter != null">
+                AND MAX(CASE WHEN p.pre_is_active = TRUE AND s.pre_price IS NOT NULL THEN s.pre_price ELSE s.selling_price END) &lt;= #{maxPriceFilter}
+            </if>
+        </if>
+
+        ORDER BY
+        <choose>
+            <when test="sortBy == 'price'">
+                minPrice </when>
+            <when test="sortBy == 'name'">
+                p.name
+            </when>
+            <otherwise>
+                p.created_at
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="direction == 'ASC' or direction == 'asc'">ASC</when>
+            <otherwise>DESC</otherwise>
+        </choose>
+        , p.id DESC
+
+        LIMIT #{limit}
+    </select>
+
+</mapper>

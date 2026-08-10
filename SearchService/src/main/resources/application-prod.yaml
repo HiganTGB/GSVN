@@ -1,0 +1,29 @@
+spring:
+  security:
+    user:
+      name: ${SEARCH_SERVICE_USER:abc1234}
+      password: ${SEARCH_SERVICE_PASSWORD:abc1234}
+  data:
+    redis:
+      host: ${REDIS_HOST:redis}
+      port: ${REDIS_PORT:6379}
+      database: ${SEARCH_REDIS_DATABASE:3}
+      username: default
+      password: ${REDIS_PASSWORD:admin1234}
+  cloud:
+    consul:
+      host: ${CONSUL_HOST:consul-server-1}
+      port: ${CONSUL_PORT:8500}
+      discovery:
+        service-name: search-service
+        instance-id: ${spring.application.name}:${server.port}
+        prefer-ip-address: false
+        heartbeat:
+          enabled: true
+          ttl: 60s
+        health-check-critical-timeout: 2m
+jwt:
+  signerKey: ${JWT_SIGNER_KEY:5661608670d8591f4a9b407b975e1195d5204481358997c4e512803b87944062}
+app:
+  security:
+    internal-api-key: ${INTERNAL_API_KEY:gsvn}

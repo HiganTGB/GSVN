@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gsvn.inventoryservice.mapper.SkuGlobalMapper">
+
+    <resultMap id="SkuGlobalResultMap" type="com.gsvn.inventoryservice.model.entity.SkuGlobal">
+        <id property="skuId" column="sku_id"/>
+        <id property="skuCode" column="sku_code"/>
+        <result property="preLimitQuantity" column="pre_limit_quantity"/>
+        <result property="preCurrentOrders" column="pre_current_orders"/>
+        <result property="reservedGlobal" column="reserved_global"/>
+        <result property="version" column="version"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <sql id="SkuGlobalColumns">
+        sku_id,sku_code, pre_limit_quantity, pre_current_orders,
+        reserved_global, version, updated_at
+    </sql>
+
+    <select id="findBySkuId" resultMap="SkuGlobalResultMap">
+        SELECT <include refid="SkuGlobalColumns"/>
+        FROM sku_global
+        WHERE sku_id = #{skuId}
+    </select>
+    <select id="findBySkuCode" resultMap="SkuGlobalResultMap">
+        SELECT <include refid="SkuGlobalColumns"/>
+        FROM sku_global
+        WHERE sku_code = #{skuCode}
+    </select>
+
+    <select id="findBySkuIds" resultMap="SkuGlobalResultMap">
+        SELECT <include refid="SkuGlobalColumns"/>
+        FROM sku_global
+        WHERE sku_id IN
+        <foreach item="id" collection="skuIds" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <insert id="upsertSkuGlobal">
+        INSERT INTO sku_global (
+            sku_id,
+            sku_code,
+            pre_limit_quantity
+        ) VALUES (
+                     #{skuId},
+                     #{skuCode},
+                     #{preLimitQuantity}
+                 )
+        ON CONFLICT (sku_id) DO UPDATE SET
+                                           pre_limit_quantity = EXCLUDED.pre_limit_quantity
+    </insert>
+
+    <update id="incrementPreOrderCount">
+        UPDATE sku_global
+        SET pre_current_orders = pre_current_orders + #{quantity},
+            updated_at = NOW(),
+            version = version + 1
+        WHERE sku_code = #{skuCode}
+          AND (pre_limit_quantity = 0 OR (pre_current_orders + #{quantity}) &lt;= pre_limit_quantity)
+    </update>
+
+    <update id="decrementPreOrderCount">
+        UPDATE sku_global
+        SET pre_current_orders = pre_current_orders - #{quantity},
+            updated_at = NOW(),
+            version = version + 1
+        WHERE sku_code = #{skuCode}
+          AND (pre_current_orders - #{quantity}) >= 0
+    </update>
+
+    <update id="updateReservedQuantity">
+        UPDATE sku_global
+        SET reserved_global = reserved_global + #{quantity},
+            updated_at = NOW(),
+            version = version + 1
+        WHERE sku_code = #{skuCode}
+          AND (reserved_global + #{quantity}) >= 0
+    </update>
+
+    <select id="existsById" resultType="boolean">
+        SELECT EXISTS(SELECT 1 FROM sku_global WHERE sku_id = #{skuId})
+    </select>
+
+    <select id="findAllExistedIds" resultType="Long">
+        SELECT sku_id FROM sku_global
+        WHERE sku_id IN
+        <foreach collection="skuIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+</mapper>

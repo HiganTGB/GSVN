@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gsvn.hrmservice.mapper.LeaveRequestMapper">
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO LEAVE_REQUESTS (
+            staff_id, staff_name, leave_type, reason,
+            start_date, end_date, effective_date, status
+        )
+        VALUES (
+                   #{staffId}, #{staffName}, #{leaveType}, #{reason},
+                   #{startDate}, #{endDate}, #{effectiveDate}, 'PENDING'
+               )
+    </insert>
+    <update id="update">
+        UPDATE LEAVE_REQUESTS
+        SET
+            leave_type = #{leaveType},
+            reason = #{reason},
+            start_date = #{startDate},
+            end_date = #{endDate},
+            effective_date = #{effectiveDate}
+        WHERE id = #{id}
+          AND status = 'PENDING'
+    </update>
+    <select id="findById" resultType="com.gsvn.hrmservice.model.entity.LeaveRequest">
+        SELECT * FROM LEAVE_REQUESTS WHERE id = #{id}
+    </select>
+
+    <select id="search" resultType="com.gsvn.hrmservice.model.entity.LeaveRequest">
+        SELECT * FROM LEAVE_REQUESTS
+        <where>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+
+            <if test="month != null">
+                AND EXTRACT(MONTH FROM COALESCE(effective_date, start_date)) = #{month}
+            </if>
+
+            <if test="year != null">
+                AND EXTRACT(YEAR FROM COALESCE(effective_date, start_date)) = #{year}
+            </if>
+        </where>
+        ORDER BY
+        CASE WHEN status = 'PENDING' THEN 1 ELSE 2 END,
+        created_at DESC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="countSearch" resultType="int">
+        SELECT COUNT(*) FROM LEAVE_REQUESTS
+        <where>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+            <if test="month != null">
+                AND (EXTRACT(MONTH FROM start_date) = #{month} OR EXTRACT(MONTH FROM effective_date) = #{month})
+            </if>
+            <if test="year != null">
+                AND (EXTRACT(YEAR FROM start_date) = #{year} OR EXTRACT(YEAR FROM effective_date) = #{year})
+            </if>
+        </where>
+    </select>
+
+    <update id="updateStatus">
+        UPDATE LEAVE_REQUESTS
+        SET status = #{status},
+            approved_by = #{approvedBy},
+            approved_name = #{approvedName},
+            approved_at = NOW(),
+            updated_at = CURRENT_TIMESTAMP,
+            note = #{note}
+        WHERE id = #{id} AND status = 'PENDING'
+    </update>
+
+    <select id="sumUnpaidDaysInMonth" resultType="double">
+        SELECT COALESCE(SUM(
+                                CASE
+                                    WHEN leave_type IN ('SICK', 'OTHER', 'ANNUAL') THEN
+                                        (CASE WHEN end_date &gt; #{lastDay} THEN #{lastDay} ELSE end_date END) -
+                                        (CASE WHEN start_date &lt; #{firstDay} THEN #{firstDay} ELSE start_date END) + 1
+                                    WHEN leave_type = 'RESIGNATION' THEN
+                                        CASE
+                                            WHEN effective_date &lt; #{firstDay} THEN
+                                                (#{lastDay} - #{firstDay}) + 1
+                                            WHEN effective_date BETWEEN #{firstDay} AND #{lastDay} THEN
+                                                (#{lastDay} - effective_date) + 1
+                                            ELSE 0
+                                            END
+                                    ELSE 0
+                                    END
+                        ), 0)
+        FROM LEAVE_REQUESTS
+        WHERE staff_id = #{staffId}
+          AND status = 'APPROVED'
+          AND (
+            (leave_type IN ('SICK', 'OTHER', 'ANNUAL') AND NOT (end_date &lt; #{firstDay} OR start_date &gt; #{lastDay}))
+                OR
+            (leave_type = 'RESIGNATION' AND effective_date &lt;= #{lastDay})
+            )
+    </select>
+
+    <select id="findMyHistory" resultType="com.gsvn.hrmservice.model.entity.LeaveRequest">
+        SELECT * FROM LEAVE_REQUESTS WHERE staff_id = #{staffId}
+        ORDER BY created_at DESC LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="countMyHistory" resultType="int">
+        SELECT COUNT(*) FROM LEAVE_REQUESTS WHERE staff_id = #{staffId}
+    </select>
+
+</mapper>

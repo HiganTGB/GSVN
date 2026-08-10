@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gsvn.productservice.mapper.SkuMapper">
+
+    <resultMap id="SkuResultMap" type="com.gsvn.productservice.model.entity.Sku">
+        <id property="id" column="id"/>
+        <result property="productId" column="product_id"/>
+        <result property="skuCode" column="sku_code"/>
+        <result property="importPrice" column="import_price"/>
+        <result property="sellingPrice" column="selling_price"/>
+
+        <result property="prePrice" column="pre_price"/>
+        <result property="preDepositAmount" column="pre_deposit_amount"/>
+        <result property="prePerQty" column="pre_per_qty"/>
+
+        <result property="weightGram" column="weight_gram"/>
+        <result property="dimensionsCm" column="dimensions_cm"
+                typeHandler="com.gsvn.productservice.handler.DimensionsTypeHandler"/>
+        <result property="isActive" column="is_active"/>
+        <result property="deletedAt" column="deleted_at"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <select id="findById" resultMap="SkuResultMap">
+        SELECT * FROM sku WHERE id = #{id} AND deleted_at IS NULL
+    </select>
+    <select id="existedBySkuCodeAndProduct" resultType="long">
+        SELECT COUNT(*)
+        FROM sku
+        WHERE sku_code = #{skuCode}
+        AND product_id = #{productId}
+        <if test="id != null">
+            AND id &lt;&gt; #{id}
+        </if>
+    </select>
+
+    <select id="findByProductId" resultMap="SkuResultMap">
+        SELECT * FROM sku
+        WHERE product_id = #{productId}
+          AND deleted_at IS NULL
+        ORDER BY id ASC
+    </select>
+
+    <select id="findAllIdsByProductId" resultType="int">
+        SELECT id FROM sku WHERE product_id = #{productId} AND deleted_at IS NULL
+    </select>
+
+    <select id="countByProductId" resultType="long">
+        SELECT COUNT(*) FROM sku WHERE product_id = #{productId} AND deleted_at IS NULL
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sku (
+            product_id, sku_code, import_price, selling_price,
+            pre_price, pre_deposit_amount, pre_per_qty,
+            weight_gram, dimensions_cm, is_active
+        ) VALUES (
+                     #{productId}, #{skuCode}, #{importPrice}, #{sellingPrice},
+                     #{prePrice}, #{preDepositAmount}, #{prePerQty},
+                     #{weightGram},
+                     #{dimensionsCm, typeHandler=com.gsvn.productservice.handler.DimensionsTypeHandler}::jsonb,
+                     #{isActive}
+                 )
+    </insert>
+
+    <update id="updateSkuInfo">
+        UPDATE sku
+        <set>
+            sku_code = #{skuCode},
+            import_price = #{importPrice},
+            selling_price = #{sellingPrice},
+            pre_price = #{prePrice},
+            pre_deposit_amount = #{preDepositAmount},
+            pre_per_qty = #{prePerQty},
+            weight_gram = #{weightGram},
+            dimensions_cm = #{dimensionsCm, typeHandler=com.gsvn.productservice.handler.DimensionsTypeHandler}::jsonb,
+            is_active = #{isActive},
+            updated_at = NOW()
+        </set>
+        WHERE id = #{id} AND deleted_at IS NULL
+    </update>
+
+    <update id="softDelete">
+        UPDATE sku
+        SET deleted_at = NOW(), updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteVariantMapBySkuId">
+        DELETE FROM sku_variant_map WHERE sku_id = #{skuId}
+    </delete>
+
+    <insert id="insertSingleVariantMap">
+        INSERT INTO sku_variant_map (sku_id, option_id)
+        VALUES (#{skuId}, #{optionId})
+            ON CONFLICT DO NOTHING
+    </insert>
+
+    <select id="findOptionIdsBySkuId" resultType="int">
+        SELECT option_id FROM sku_variant_map WHERE sku_id = #{skuId}
+    </select>
+    <select id="findAllOptionMappingsByProduct" resultType="com.gsvn.productservice.model.dto.SkuOptionMapping">
+        SELECT svm.sku_id as skuId, svm.option_id as optionId
+        FROM sku_variant_map svm
+                 JOIN sku s ON s.id = svm.sku_id
+        WHERE s.product_id = #{productId} AND s.deleted_at IS NULL
+    </select>
+
+    <select id="findAllSkuIdsByProductIds" resultType="com.gsvn.productservice.model.dto.ProductSkuMapDTO">
+        SELECT product_id as productId, id as skuId
+        FROM sku
+        WHERE product_id IN
+        <foreach collection="productIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        AND deleted_at IS NULL
+        AND is_active = TRUE
+    </select>
+    <resultMap id="SkuCartDetailsResultMap" type="com.gsvn.productservice.model.dto.SkuCartDetailsDTO">
+        <result property="skuId" column="sku_id"/>
+        <result property="skuCode" column="sku_code"/>
+        <result property="productId" column="product_id"/>
+        <result property="productName" column="product_name"/>
+        <result property="imageUrl" column="image_url"/>
+        <result property="sellingPrice" column="selling_price"/>
+        <result property="prePrice" column="pre_price"/>
+        <result property="preDepositAmount" column="pre_deposit_amount"/>
+        <result property="prePerQty" column="pre_per_qty"/>
+        <result property="preStartAt" column="pre_start_at"/>
+        <result property="preEndAt" column="pre_end_at"/>
+        <result property="preReleaseDate" column="pre_release_date"/>
+        <result property="isProductActive" column="is_product_active"/>
+        <result property="isPreOrder" column="is_pre_order"/>
+        <result property="isSkuActive" column="is_sku_active"/>
+    </resultMap>
+
+    <select id="findCartDetailsBySkuIds" resultMap="SkuCartDetailsResultMap">
+        SELECT
+        s.id as sku_id,
+        s.sku_code,
+        p.name as product_name,
+        p.id as product_id,
+        p.image_url,
+        s.selling_price,
+        s.pre_price,
+        s.pre_deposit_amount,
+        s.pre_per_qty,
+        p.pre_start_at,
+        p.pre_end_at,
+        p.pre_release_date,
+        p.is_active as is_product_active,
+        p.pre_is_active as is_pre_order,
+        s.is_active as is_sku_active
+        FROM sku s
+        JOIN product p ON s.product_id = p.id
+        WHERE s.id IN
+        <foreach collection="skuIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        AND s.deleted_at IS NULL
+        AND p.deleted_at IS NULL
+    </select>
+    <select id="findCartDetailsBySkuCodes" resultMap="SkuCartDetailsResultMap">
+        SELECT
+        s.id as sku_id,
+        s.sku_code,
+        p.name as product_name,
+        p.id as product_id,
+        p.image_url,
+        s.selling_price,
+        s.pre_price,
+        s.pre_deposit_amount,
+        s.pre_per_qty,
+        p.pre_start_at,
+        p.pre_end_at,
+        p.pre_release_date,
+        p.is_active as is_product_active,
+        p.pre_is_active as is_pre_order,
+        s.is_active as is_sku_active
+        FROM sku s
+        JOIN product p ON s.product_id = p.id
+        WHERE s.sku_code IN
+        <foreach collection="skuCodes" item="code" open="(" separator="," close=")">
+            #{code}
+        </foreach>
+        AND s.deleted_at IS NULL
+        AND p.deleted_at IS NULL
+    </select>
+</mapper>

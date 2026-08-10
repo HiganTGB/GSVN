@@ -1,0 +1,32 @@
+
+spring:
+  security:
+    user:
+      name: ${ADDRESS_SERVICE_USER}
+      password: ${ADDRESS_SERVICE_PASSWORD}
+
+  datasource:
+    url: ${ADDRESS_DB_URL}
+    driverClassName: ${ADDRESS_DB_DRIVER}
+    username: sa
+    password: sa
+    hikari:
+      maximum-pool-size: 5
+
+  jpa:
+    database-platform: org.hibernate.community.dialect.SQLiteDialect
+    hibernate:
+      ddl-auto: update
+
+  cloud:
+    consul:
+      host: ${CONSUL_HOST:localhost}
+      port: ${CONSUL_PORT:8500}
+      discovery:
+        service-name: ${ADDRESS_SERVICE_NAME}
+        instance-id: ${spring.application.name}:${server.port}
+        prefer-ip-address: false
+        heartbeat:
+          enabled: true
+          ttl: 300s
+        health-check-critical-timeout: 12m

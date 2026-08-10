@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gsvn.hrmservice.mapper.StaffSalaryMapper">
+
+    <select id="findSalaryByStaff" resultType="com.gsvn.hrmservice.model.entity.StaffSalary">
+        SELECT *
+        FROM STAFF_SALARIES
+        WHERE staff_id = #{staffId}
+        ORDER BY effective_date DESC
+        LIMIT 1
+    </select>
+
+    <select id="findHistoryByStaff" resultType="com.gsvn.hrmservice.model.entity.StaffSalary">
+        SELECT * FROM STAFF_SALARIES
+        WHERE staff_id = #{staffId}
+        ORDER BY effective_date DESC
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO STAFF_SALARIES (
+            staff_id, position_id, position_name, base_salary, effective_date, note
+        ) VALUES (
+                     #{staffId}, #{positionId}, #{positionName}, #{baseSalary}, #{effectiveDate}, #{note}
+                 )
+    </insert>
+</mapper>

@@ -1,0 +1,58 @@
+spring:
+  cloud:
+    consul:
+      host: ${CONSUL_HOST:consul-server-1}
+      port: ${CONSUL_PORT:8500}
+      discovery:
+        service-name: payment-service
+        instance-id: ${spring.application.name}:${server.port}
+        prefer-ip-address: false
+        heartbeat:
+          enabled: true
+          ttl: 300s
+        health-check-critical-timeout: 12m
+  security:
+    user:
+      name: ${PAYMENT_SERVICE_USER:abc1234}
+      password: ${PAYMENT_SERVICE_PASSWORD:abc1234}
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:postgres}:${POSTGRES_PORT:5432}/${POSTGRES_DB:gsvn_dev}?currentSchema=${PAYMENT_DB_SCHEMA:payment_db}
+    driverClassName: org.postgresql.Driver
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:postgres}
+  rabbitmq:
+    host: ${RABBITMQ_HOST:rabbitmq}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:rootadmin}
+    password: ${RABBITMQ_PASSWORD:rootadmin}
+    listener:
+      simple:
+        retry:
+          enabled: true
+          max-retries: 3
+        acknowledge-mode: auto
+  data:
+    redis:
+      host: ${REDIS_HOST:redis}
+      port: ${REDIS_PORT:6379}
+      username: default
+      password: ${REDIS_PASSWORD:admin1234}
+      database: ${PAYMENT_REDIS_DATABASE:7}
+
+jwt:
+  signerKey: ${JWT_SIGNER_KEY:5661608670d8591f4a9b407b975e1195d5204481358997c4e512803b87944062}
+
+payment:
+  vnpay:
+    pay-url: ${VNP_PAY_URL:https://sandbox.vnpayment.vn/paymentv2/vpcpay.html}
+    api-url: ${VNP_API_URL:https://sandbox.vnpayment.vn/merchant_webapi/api/transaction}
+    return-url: ${VNP_RETURN_URL:http://localhost:5173/order}
+    tmn-code: ${VNP_TMN_CODE:M2G1FATR}
+    hash-secret: ${VNP_HASH_SECRET:WXUCYSVWR7ADP61TYE1OA6OPUMJ87E7M}
+    version: "2.1.0"
+    command: "pay"
+    curr-code: "VND"
+    order-type: "other"
+app:
+  security:
+    internal-api-key: ${INTERNAL_API_KEY:gsvn}

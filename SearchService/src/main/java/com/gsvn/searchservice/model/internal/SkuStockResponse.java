@@ -1,0 +1,28 @@
+package com.gsvn.searchservice.model.internal;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.OffsetDateTime;
+
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class SkuStockResponse {
+    private Long skuId;
+    private String skuCode;
+    private Integer warehouseId;
+
+    private Integer physicalStock;
+
+    private Integer reservedStock;
+
+    private Integer version;
+
+    private Integer availableStock;
+
+    private OffsetDateTime updatedAt;
+}

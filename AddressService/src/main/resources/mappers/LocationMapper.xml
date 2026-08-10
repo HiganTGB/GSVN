@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gsvn.addressservice.mapper.LocationMapper">
+    <select id="findAllProvinces" resultType="com.gsvn.addressservice.model.entity.Province">
+        SELECT * FROM provinces
+    </select>
+
+    <select id="findWardsByProvinceCode" resultType="com.gsvn.addressservice.model.entity.Ward">
+        SELECT
+            code, name, name_en, full_name, full_name_en,  code_name, province_code, administrative_unit_id
+        FROM wards
+        WHERE province_code = #{provinceCode}
+    </select>
+
+    <select id="findWardPartner" resultType="com.gsvn.addressservice.model.entity.WardPartner">
+        SELECT
+            ward_code,partner_name,partner_ward_code,partner_district_code
+        FROM wards_partner
+        WHERE ward_code = #{wardCode}
+          AND partner_name = #{partnerName}
+    </select>
+
+</mapper>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gsvn.inventoryservice.mapper.StockLogMapper">
+
+    <resultMap id="StockLogMap" type="com.gsvn.inventoryservice.model.entity.StockLog">
+        <id property="id" column="id"/>
+        <result property="skuId" column="sku_id"/>
+        <result property="skuCode" column="sku_code"/>
+        <result property="warehouseId" column="warehouse_id"/>
+        <result property="changePhysical" column="change_physical"/>
+        <result property="changeReserved" column="change_reserved"/>
+        <result property="type" column="type"/>
+        <result property="referenceId" column="reference_id"/>
+        <result property="note" column="note"/>
+        <result property="staffId" column="staff_id"/>
+        <result property="sagaId" column="saga_id"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <insert id="insertLog">
+        INSERT INTO stock_logs (
+            sku_id,sku_code, warehouse_id, change_physical, change_reserved,
+            type, reference_id, note, staff_id, saga_id
+        ) VALUES (
+                     #{skuId},#{skuCode}, #{warehouseId}, #{changePhysical}, #{changeReserved},
+                     #{type}, #{referenceId}, #{note}, #{staffId}, #{sagaId}
+                 )
+    </insert>
+
+    <select id="findLogPage" resultMap="StockLogMap">
+        SELECT * FROM stock_logs
+        <where>
+            <if test="skuId != null">
+                AND sku_id = #{skuId}
+            </if>
+            <if test="warehouseId != null">
+                AND warehouse_id = #{warehouseId}
+            </if>
+            <if test="type != null and type != ''">
+                AND type = #{type}
+            </if>
+            <if test="sagaId != null">
+                AND saga_id = #{sagaId}
+            </if>
+            <if test="referenceId != null and referenceId != ''">
+                AND reference_id = #{referenceId}
+            </if>
+        </where>
+        ORDER BY created_at DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countLogs" resultType="long">
+        SELECT COUNT(*) FROM stock_logs
+        <where>
+            <if test="skuId != null">
+                AND sku_id = #{skuId}
+            </if>
+            <if test="warehouseId != null">
+                AND warehouse_id = #{warehouseId}
+            </if>
+            <if test="type != null and type != ''">
+                AND type = #{type}
+            </if>
+        </where>
+    </select>
+
+</mapper>

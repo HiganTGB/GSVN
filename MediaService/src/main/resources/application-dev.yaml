@@ -1,0 +1,26 @@
+server:
+  port: 5002
+
+spring:
+  security:
+    user:
+      name:
+      password:
+  cloud:
+    consul:
+      host:
+      port:
+      discovery:
+        service-name: media-service
+        instance-id: ${spring.application.name}:${server.port}
+        prefer-ip-address: false
+        heartbeat:
+          enabled: true
+          ttl: 300s
+        health-check-critical-timeout: 12m
+minio:
+      endpoint:
+      access-key:
+      secret-key:
+jwt:
+  signerKey:

@@ -1,0 +1,822 @@
+version: '3.8'
+services:
+  kong-database:
+    image: postgres:9.6
+    container_name: kong-database
+    environment:
+      POSTGRES_USER: ${KONG_PG_USER}
+      POSTGRES_DB: ${KONG_PG_DB}
+      POSTGRES_PASSWORD: ${KONG_PG_PASSWORD}
+      POSTGRES_HOST_AUTH_METHOD: trust
+    volumes:
+      - "db-data-kong-postgres:/var/lib/postgresql/data"
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "${KONG_PG_USER}" ]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+    networks:
+      - gsvn_network
+  kong-migrations:
+    image: kong:2.8.1-alpine
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: kong-database
+      KONG_PG_USER: ${KONG_PG_USER}
+      KONG_PG_PASSWORD: ${KONG_PG_PASSWORD}
+      KONG_PG_DATABASE: ${KONG_PG_DB}
+    command: kong migrations bootstrap
+    restart: on-failure
+    depends_on:
+      kong-database:
+        condition: service_healthy
+    networks:
+      - gsvn_network
+  kong:
+    image: kong:2.8.1-alpine
+    container_name: kong
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: kong-database
+      KONG_PG_USER: ${KONG_PG_USER}
+      KONG_PG_PASSWORD: ${KONG_PG_PASSWORD}
+      KONG_PG_DATABASE: ${KONG_PG_DB}
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001, 0.0.0.0:8444 ssl
+    restart: on-failure
+    ports:
+      - "8000:8000"  # Proxy HTTP
+      - "8443:8443"  # Proxy HTTPS
+      - "8001:8001"  # Admin API HTTP
+      - "8444:8444"  # Admin API HTTPS
+    depends_on:
+      - kong-migrations
+    networks:
+      - gsvn_network
+  konga-db:
+    image: postgres:9.6
+    container_name: konga-db
+    environment:
+      POSTGRES_USER: ${KONGA_DB_USER}
+      POSTGRES_DB: ${KONGA_DB_NAME}
+      POSTGRES_PASSWORD: ${KONGA_DB_PASSWORD}
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "${KONGA_DB_USER}" ]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+  konga-prepare:
+    image: pantsel/konga
+    command: "-c prepare -a postgres -u postgresql://${KONGA_DB_USER}:${KONGA_DB_PASSWORD}@konga-db:5432/${KONGA_DB_NAME}"
+    restart: on-failure
+    depends_on:
+      konga-db:
+        condition: service_healthy
+  konga:
+    image: pantsel/konga
+    ports:
+      - "1337:1337"
+    container_name: konga
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      DB_ADAPTER: postgres
+      DB_HOST: konga-db
+      DB_USER: ${KONGA_DB_USER}
+      DB_PASSWORD: ${KONGA_DB_PASSWORD}
+      DB_DATABASE: ${KONGA_DB_NAME}
+      TOKEN_SECRET: ${KONGA_TOKEN_SECRET}
+      KONG_URL: http://kong:8001
+    depends_on:
+      konga-prepare:
+        condition: service_completed_successfully
+      kong:
+        condition: service_started
+  minio:
+    image: minio/minio:RELEASE.2025-04-22T22-12-26Z-cpuv1
+    container_name: gsvn_minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: gsvn
+      MINIO_ROOT_PASSWORD: admin123456
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+      start_period: 10s
+    networks:
+      - gsvn_network
+  redis:
+    image: redis:8.0
+    container_name: gsvn_redis
+    ports:
+      - "${REDIS_PORT}:${REDIS_PORT}"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-123456}
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-123456}", "ping"]
+      interval: 60s
+      timeout: 5s
+      retries: 5
+    networks:
+      - gsvn_network
+  postgres:
+    image: postgres:15-alpine
+    image: postgres:18-alpine
+    user: root
+    container_name: gsvn_postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
+    volumes:
+      - ./init:/docker-entrypoint-initdb.d
+      - postgres_data:/var/lib/postgresql/data
+     - ./init:/docker-entrypoint-initdb.d
+      - postgres_data:/var/lib/postgresql
+    command: >
+      postgres
+      -c max_connections=300
+      -c shared_buffers=128MB
+      -c work_mem=4MB
+      -c maintenance_work_mem=32MB
+      -c effective_cache_size=256MB
+      -c wal_buffers=4MB
+      -c min_wal_size=80MB
+      -c max_wal_size=1GB
+      -c max_stack_depth=2MB
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 60s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+            memory: 256M
+    networks:
+      - gsvn_network
+  eureka:
+    build:
+      context: ../EurekaServer
+      dockerfile: Dockerfile
+    container_name: ${EUREKA_CONTAINER_NAME}
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: 'rabbitmq'
+    ports:
+      - "${EUREKA_PORT}:${EUREKA_PORT}"
+    env_file:
+      - .env
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+      - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+    environment:
+      - SERVER_PORT=${EUREKA_PORT}
+      - SPRING_SECURITY_USER_NAME=${EUREKA_USER}
+      - SPRING_SECURITY_USER_PASSWORD=${EUREKA_PASSWORD}
+      RABBITMQ_DEFAULT_USER: rootadmin
+      RABBITMQ_DEFAULT_PASS: rootadmin
+    networks:
+      - gsvn_network
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "-q", "check_port_connectivity" ]
+      interval: 60s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+  consul-server-1:
+    image: hashicorp/consul:1.22
+    container_name: gsvn-consul-1
+    #restart: always
+    command: "agent -server -bootstrap-expect=3 -node=server-1 -ui -client=0.0.0.0 -disable-host-node-id -log-level=err"
+    volumes:
+      - consul_data_1:/consul/data
+    ports:
+      - "8500:8500"
+    deploy:
+      resources:
+        limits:
+          memory: 80MB
+          memory: 128MB
+    networks:
+      gsvn_network:
+        ipv4_address: 172.19.0.10
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8500/v1/status/leader" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  consul-server-2:
+    image: hashicorp/consul:1.22
+    container_name: gsvn-consul-2
+    #restart: always
+    command: "agent -server -retry-join=consul-server-1 -node=server-2 -client=0.0.0.0 -disable-host-node-id -log-level=err"
+    volumes:
+      - consul_data_2:/consul/data
+    deploy:
+      resources:
+        limits:
+          memory: 128MB
+    networks:
+      gsvn_network:
+        ipv4_address: 172.19.0.11
+    healthcheck:
+      test: [ "CMD", "consul", "members", "-status=alive" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  consul-server-3:
+    image: hashicorp/consul:1.22
+    container_name: gsvn-consul-3
+    #restart: always
+    command: "agent -server -retry-join=consul-server-1 -node=server-3 -client=0.0.0.0 -disable-host-node-id -log-level=err"
+    volumes:
+      - consul_data_3:/consul/data
+    deploy:
+      resources:
+        limits:
+          memory: 128MB
+    networks:
+      gsvn_network:
+        ipv4_address: 172.19.0.12
+    healthcheck:
+      test: [ "CMD", "consul", "members", "-status=alive" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+  auth-service:
+    build:
+      context: ../AuthService
+      dockerfile: Dockerfile
+    container_name: gsvn-auth-service
+    ports:
+      - "${AUTH_SERVICE_PORT}:5001"
+    networks:
+      - gsvn_network
+    depends_on:
+      consul-server-1:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+
+      - AUTH_SERVICE_PORT=${AUTH_SERVICE_PORT}
+      - SPRING_APPLICATION_NAME=auth-service
+
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - AUTH_DB_SCHEMA=${AUTH_DB_SCHEMA}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      #      - AUTH_REDIS_DB=${AUTH_REDIS_DB}
+      - CONSUL_HOST=${CONSUL_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+      - JWT_SIGNER_KEY=${JWT_SIGNER_KEY}
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY}
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+  address-service:
+    build:
+      context: ../AddressService
+      dockerfile: Dockerfile
+    container_name: gsvn-address-service
+    ports:
+      - "5005:5005"
+      - "${ADDRESS_SERVICE_PORT:-5005}:5005"
+    networks:
+      - gsvn_network
+    depends_on:
+      consul-server-1:
+        condition: service_healthy
+    environment:
+      - SERVER_PORT=${ADDRESS_SERVICE_PORT}
+      - SPRING_SECURITY_USER_NAME=${ADDRESS_SERVICE_USER}
+      - SPRING_SECURITY_USER_PASSWORD=${ADDRESS_SERVICE_PASSWORD}
+      - SPRING_DATASOURCE_URL=${ADDRESS_DB_URL}
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=${ADDRESS_DB_DRIVER}
+      - SPRING_CLOUD_CONSUL_HOST=${CONSUL_HOST}
+      - SPRING_CLOUD_CONSUL_PORT=${CONSUL_PORT}
+      - SPRING_CLOUD_CONSUL_DISCOVERY_SERVICE_NAME=${ADDRESS_SERVICE_NAME}
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+  media-service:
+    build:
+      context: ../MediaService
+      dockerfile: Dockerfile
+    container_name: gsvn-media-service
+    ports:
+      - "5002:5002"
+    networks:
+      - gsvn_network
+    depends_on:
+      consul-server-1:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - MEDIA_SERVICE_PORT=${MEDIA_SERVICE_PORT}
+
+      - MINIO_ENDPOINT=${MINIO_ENDPOINT}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+      - MINIO_BUCKET_NAME=${MINIO_BUCKET_NAME}
+      - MINIO_TEMP_BUCKET_NAME=${MINIO_TEMP_BUCKET_NAME}
+      - MINIO_EXTERNAL_URL=${MINIO_EXTERNAL_URL}
+      - S3_ENDPOINT=${S3_ENDPOINT}
+      - S3_REGION=${S3_REGION}
+      - S3_ACCESS_KEY=${S3_ACCESS_KEY}
+      - S3_SECRET_KEY=${S3_SECRET_KEY}
+      - S3_BUCKET_NAME=${S3_BUCKET_NAME}
+      - S3_TEMP_BUCKET_NAME=${S3_TEMP_BUCKET_NAME}
+      - S3_EXTERNAL_URL=${S3_EXTERNAL_URL}
+      - MEDIA_SERVICE_USER=${MEDIA_SERVICE_USER}
+      - MEDIA_SERVICE_PASSWORD=${MEDIA_SERVICE_PASSWORD}
+      - JWT_SIGNER_KEY=${JWT_SIGNER_KEY}
+
+      - CONSUL_HOST=${CONSUL_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+  customer-service:
+    build:
+      context: ../CustomerService
+      dockerfile: Dockerfile
+    container_name: gsvn-customer-service
+    ports:
+      - "${CUSTOMER_SERVICE_PORT}:5004"
+    networks:
+      - gsvn_network
+    depends_on:
+      consul-server-1:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - CUSTOMER_SERVICE_PORT=${CUSTOMER_SERVICE_PORT}
+
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - CUSTOMER_DB_SCHEMA=${CUSTOMER_DB_SCHEMA}
+
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - CUSTOMER_REDIS_DATABASE=${CUSTOMER_REDIS_DATABASE}
+      - CONSUL_HOST=${CONSUL_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+
+      - CUSTOMER_SERVICE_USER=${CUSTOMER_SERVICE_USER}
+      - CUSTOMER_SERVICE_PASSWORD=${CUSTOMER_SERVICE_PASSWORD}
+      - JWT_SIGNER_KEY=${JWT_SIGNER_KEY}
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY}
+  hrm-service:
+    build:
+      context: ../HRMService
+      dockerfile: Dockerfile
+    container_name: gsvn-hrm-service
+    ports:
+      - "5003:5003"
+    networks:
+      - gsvn_network
+    depends_on:
+      consul-server-1:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - HRM_SERVICE_PORT=${HRM_SERVICE_PORT}
+
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - HRM_DB_SCHEMA=${HRM_DB_SCHEMA}
+
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - HRM_REDIS_DATABASE=${HRM_REDIS_DATABASE}
+      - CONSUL_HOST=${CONSUL_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+
+      - HRM_SERVICE_USER=${HRM_SERVICE_USER}
+      - HRM_SERVICE_PASSWORD=${HRM_SERVICE_PASSWORD}
+      - JWT_SIGNER_KEY=${JWT_SIGNER_KEY}
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY}
+  product-service:
+    build:
+      context: ../ProductService
+      dockerfile: Dockerfile
+    container_name: gsvn-product-service
+    ports:
+      - "${PRODUCT_SERVICE_PORT}:5006"
+    networks:
+      - gsvn_network
+    depends_on:
+      consul-server-1:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - PRODUCT_SERVICE_PORT=${PRODUCT_SERVICE_PORT}
+
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - PRODUCT_DB_SCHEMA=${PRODUCT_DB_SCHEMA}
+
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - PRODUCT_REDIS_DATABASE=${PRODUCT_REDIS_DATABASE}
+      - SPRING_RABBITMQ_HOST=${RABBITMQ_HOST}
+      - SPRING_RABBITMQ_PORT=${RABBITMQ_PORT}
+      - SPRING_RABBITMQ_USERNAME=${RABBITMQ_USER}
+      - SPRING_RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+
+      - PRODUCT_SERVICE_USER=${PRODUCT_SERVICE_USER}
+      - PRODUCT_SERVICE_PASSWORD=${PRODUCT_SERVICE_PASSWORD}
+      - JWT_SIGNER_KEY=${JWT_SIGNER_KEY}
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY}
+      - CONSUL_HOST=${CONSUL_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+  inventory-service:
+    build:
+      context: ../InventoryService
+      dockerfile: Dockerfile
+    container_name: gsvn-inventory-service
+    ports:
+      - "${INVENTORY_SERVICE_PORT}:5007"
+    networks:
+      - gsvn_network
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - INVENTORY_SERVICE_PORT=${INVENTORY_SERVICE_PORT}
+      - SPRING_RABBITMQ_HOST=${RABBITMQ_HOST}
+      - SPRING_RABBITMQ_PORT=${RABBITMQ_PORT}
+      - SPRING_RABBITMQ_USERNAME=${RABBITMQ_USER}
+      - SPRING_RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - INVENTORY_DB_SCHEMA=${INVENTORY_DB_SCHEMA}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - INVENTORY_REDIS_DATABASE=${INVENTORY_REDIS_DATABASE}
+      - JWT_SIGNER_KEY=${JWT_SIGNER_KEY}
+      - ENCRYPTION_SECRET_KEY=${ENCRYPTION_SECRET_KEY}
+      - ENCRYPTION_SALT=${ENCRYPTION_SALT}
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY}
+      - CONSUL_HOST=${CONSUL_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+    depends_on:
+      consul-server-1:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+  cart-service:
+    build:
+      context: ../CartService
+      dockerfile: Dockerfile
+    container_name: gsvn-cart-service
+    ports:
+      - "${CART_SERVICE_PORT}:5012"
+    networks:
+      - gsvn_network
+    depends_on:
+      consul-server-1:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+
+      - SPRING_PROFILES_ACTIVE=prod
+      - CART_SERVICE_PORT=5012
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - CART_DB_SCHEMA=${CART_DB_SCHEMA}
+      - CART_REDIS_DATABASE=${CART_REDIS_DATABASE}
+      - CART_SERVICE_USER=${CART_SERVICE_USER}
+      - CART_SERVICE_PASSWORD=${CART_SERVICE_PASSWORD}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - CONSUL_HOST=${CONSUL_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+
+
+      - JWT_SIGNER_KEY=${JWT_SIGNER_KEY}
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY}
+  promotion-service:
+    build:
+      context: ../PromotionService
+      dockerfile: Dockerfile
+    container_name: gsvn-promotion-service
+    ports:
+      - "${PROMOTION_SERVICE_PORT}:5008"
+    networks:
+      - gsvn_network
+    depends_on:
+      consul-server-1:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - PROMOTION_SERVICE_PORT=${PROMOTION_SERVICE_PORT}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - PROMOTION_DB_SCHEMA=${PROMOTION_DB_SCHEMA}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - PROMOTION_REDIS_DATABASE=${PROMOTION_REDIS_DATABASE}
+      - SPRING_RABBITMQ_HOST=${RABBITMQ_HOST}
+      - SPRING_RABBITMQ_PORT=${RABBITMQ_PORT}
+      - SPRING_RABBITMQ_USERNAME=${RABBITMQ_USER}
+      - SPRING_RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+      - PROMOTION_SERVICE_USER=${PROMOTION_SERVICE_USER}
+      - PROMOTION_SERVICE_PASSWORD=${PROMOTION_SERVICE_PASSWORD}
+      - JWT_SIGNER_KEY=${JWT_SIGNER_KEY}
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY}
+      - CONSUL_HOST=${CONSUL_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+  search-service:
+    build:
+      context: ../SearchService
+      dockerfile: Dockerfile
+    container_name: gsvn-search-service
+    ports:
+      - "${SEARCH_SERVICE_PORT}:5010"
+    networks:
+      - gsvn_network
+    depends_on:
+      consul-server-1:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SEARCH_SERVICE_PORT=${SEARCH_SERVICE_PORT}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - SEARCH_REDIS_DATABASE=${SEARCH_REDIS_DATABASE}
+
+      - SEARCH_SERVICE_USER=${SEARCH_SERVICE_USER}
+      - SEARCH_SERVICE_PASSWORD=${SEARCH_SERVICE_PASSWORD}
+      - JWT_SIGNER_KEY=${JWT_SIGNER_KEY}
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY}
+      - CONSUL_HOST=${CONSUL_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+  order-service:
+    build:
+      context: ../OrderService
+      dockerfile: Dockerfile
+    container_name: gsvn-order-service
+    ports:
+      - "${ORDER_SERVICE_PORT}:5013"
+    networks:
+      - gsvn_network
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - ORDER_SERVICE_PORT=${ORDER_SERVICE_PORT}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - ORDER_DB_SCHEMA=${ORDER_DB_SCHEMA}
+      - REDIS_HOST=${REDIS_HOST}
+      - ORDER_REDIS_DATABASE=${ORDER_REDIS_DATABASE}
+      - SPRING_RABBITMQ_HOST=${RABBITMQ_HOST}
+      - SPRING_RABBITMQ_PORT=${RABBITMQ_PORT}
+      - SPRING_RABBITMQ_USERNAME=${RABBITMQ_USER}
+      - SPRING_RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+      - SPRING_RABBITMQ_VIRTUAL_HOST=${RABBITMQ_VHOST}
+      - JWT_SIGNER_KEY=${JWT_SIGNER_KEY}
+      - APP_ORDER_TIME_OUT=${ORDER_TIMEOUT}
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY}
+      - CONSUL_HOST=${CONSUL_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+    depends_on:
+      consul-server-1:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+  notification-service:
+    build:
+      context: ../NotificationService
+      dockerfile: Dockerfile
+    container_name: gsvn-notification-service
+    ports:
+      - "${NOTIFICATION_SERVICE_PORT}:5013"
+    networks:
+      - gsvn_network
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - NOTIFICATION_SERVICE_PORT=${NOTIFICATION_SERVICE_PORT}
+      - SPRING_MAIL_HOST=${MAIL_HOST}
+      - SPRING_MAIL_PORT=${MAIL_PORT}
+      - SPRING_MAIL_USERNAME=${MAIL_USERNAME}
+      - SPRING_MAIL_PASSWORD=${MAIL_PASSWORD}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - SPRING_DATA_REDIS_DATABASE=${NOTIFICATION_REDIS_DATABASE}
+      - NOTIFICATION_SERVICE_USER=${NOTIFICATION_SERVICE_USER}
+      - NOTIFICATION_SERVICE_PASSWORD=${NOTIFICATION_SERVICE_PASSWORD}
+      - JWT_SIGNER_KEY=${JWT_SIGNER_KEY}
+      - TIME_RESET_PASSWORD=${TIME_RESET_PASSWORD}
+      - URL_RESET_PASSWORD=${URL_RESET_PASSWORD}
+      - APP_SECURITY_INTERNAL_API_KEY=${INTERNAL_API_KEY}
+      - CONSUL_HOST=${CONSUL_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+    depends_on:
+      consul-server-1:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+  payment-service:
+    build:
+      context: ../PaymentService
+      dockerfile: Dockerfile
+    container_name: gsvn-payment-service
+    ports:
+      - "${PAYMENT_SERVICE_PORT}:5013"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - PAYMENT_SERVICE_PORT=${PAYMENT_SERVICE_PORT}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - PAYMENT_DB_SCHEMA=${PAYMENT_DB_SCHEMA}
+      - REDIS_HOST=${REDIS_HOST}
+      - PAYMENT_REDIS_DATABASE=${PAYMENT_REDIS_DATABASE}
+      - SPRING_RABBITMQ_HOST=${RABBITMQ_HOST}
+      - SPRING_RABBITMQ_PORT=${RABBITMQ_PORT}
+      - SPRING_RABBITMQ_USERNAME=${RABBITMQ_USER}
+      - SPRING_RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+      - VNP_PAY_URL=${VNP_PAY_URL}
+      - VNP_API_URL=${VNP_API_URL}
+      - VNP_RETURN_URL=${VNP_RETURN_URL}
+      - VNP_TMN_CODE=${VNP_TMN_CODE}
+      - VNP_HASH_SECRET=${VNP_HASH_SECRET}
+      - JWT_SIGNER_KEY=${JWT_SIGNER_KEY}
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY}
+      - CONSUL_HOST=${CONSUL_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+    depends_on:
+      consul-server-1:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - gsvn_network
+    deploy:
+      resources:
+        limits:
+          memory: 350M
+  shipment-service:
+    build:
+      context: ../ShipmentService
+      dockerfile: Dockerfile
+    container_name: gsvn-shipment-service
+    ports:
+      - "${SHIPMENT_SERVICE_PORT}:5009"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SHIPMENT_SERVICE_PORT=${SHIPMENT_SERVICE_PORT}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - SHIPMENT_DB_SCHEMA=${SHIPMENT_DB_SCHEMA}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - SHIPMENT_REDIS_DATABASE=${SHIPMENT_REDIS_DATABASE}
+      - SHIPMENT_SERVICE_USER=${SHIPMENT_SERVICE_USER}
+      - SHIPMENT_SERVICE_PASSWORD=${SHIPMENT_SERVICE_PASSWORD}
+      - JWT_SIGNER_KEY=${JWT_SIGNER_KEY}
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY}
+      - ENCRYPTION_SECRET_KEY=${ENCRYPTION_SECRET_KEY}
+      - ENCRYPTION_SALT=${ENCRYPTION_SALT}
+      - CONSUL_HOST=${CONSUL_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+    depends_on:
+      consul-server-1:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - gsvn_network
+  swagger-ui:
+    image: swaggerapi/swagger-ui:v5.32.12
+    container_name: gsvn-swagger-ui
+    ports:
+      - "8088:8080"
+    environment:
+      URLS: >-
+        [
+           { name: 'Auth Service', url: 'http://${SWAGGER_BASE_HOST:-localhost}:${AUTH_SERVICE_PORT}/v3/api-docs' },
+           { name: 'Customer Service', url: 'http://${SWAGGER_BASE_HOST:-localhost}:${CUSTOMER_SERVICE_PORT}/v3/api-docs' },
+           { name: 'Product Service', url: 'http://${SWAGGER_BASE_HOST:-localhost}:${PRODUCT_SERVICE_PORT}/v3/api-docs' },
+           { name: 'Inventory Service', url: 'http://${SWAGGER_BASE_HOST:-localhost}:${INVENTORY_SERVICE_PORT}/v3/api-docs' },
+           { name: 'Order Service', url: 'http://${SWAGGER_BASE_HOST:-localhost}:${ORDER_SERVICE_PORT}/v3/api-docs' },
+           { name: 'Cart Service', url: 'http://${SWAGGER_BASE_HOST:-localhost}:${CART_SERVICE_PORT}/v3/api-docs' },
+           { name: 'Payment Service', url: 'http://${SWAGGER_BASE_HOST:-localhost}:${PAYMENT_SERVICE_PORT}/v3/api-docs' },
+           { name: 'Shipment Service', url: 'http://${SWAGGER_BASE_HOST:-localhost}:${SHIPMENT_SERVICE_PORT}/v3/api-docs' },
+           { name: 'Promotion Service', url: 'http://${SWAGGER_BASE_HOST:-localhost}:${PROMOTION_SERVICE_PORT}/v3/api-docs' },
+           { name: 'HRM Service', url: 'http://${SWAGGER_BASE_HOST:-localhost}:5003/v3/api-docs' },
+         ]
+      PERSIST_AUTHORIZATION: "true"
+      DOC_EXPANSION: "none"
+    networks:
+      - gsvn_network
+volumes:
+  postgres_data: {}
+  postgres_data:
+    external: true
+    name: docker_postgres_data
+  redis_data: {}
+  db-data-kong-postgres: {}
+  db-data-konga-postgres: {}
+  consul_data_1: { }
+  consul_data_2: { }
+  consul_data_3: { }
+networks:
+  gsvn_network:
+    driver: bridge    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.19.0.0/16
