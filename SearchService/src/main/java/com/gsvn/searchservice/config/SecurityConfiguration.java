@@ -33,10 +33,13 @@ public class SecurityConfiguration {
             "/api/v1/search/products/**",
     };
 
-    @Autowired
-    private CustomJwtDecoder customJwtDecoder;
-    @Autowired
-    private CustomJwtAuthenticationConverter customConverter;
+    private final CustomJwtDecoder customJwtDecoder;
+    private final CustomJwtAuthenticationConverter customConverter;
+
+    SecurityConfiguration(CustomJwtDecoder customJwtDecoder, CustomJwtAuthenticationConverter customConverter) {
+        this.customJwtDecoder = customJwtDecoder;
+        this.customConverter = customConverter;
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {

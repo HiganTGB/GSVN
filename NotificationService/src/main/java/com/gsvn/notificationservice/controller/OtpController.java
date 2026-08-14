@@ -15,11 +15,14 @@ import java.time.LocalDateTime;
 @RequestMapping("/api/otp")
 public class OtpController {
 
-    @Autowired
-    private EmailService emailService;
+    private final EmailService emailService;
 
-    @Autowired
-    private OtpStorageService otpStorageService;
+    private final OtpStorageService otpStorageService;
+
+    OtpController(EmailService emailService, OtpStorageService otpStorageService) {
+        this.emailService = emailService;
+        this.otpStorageService = otpStorageService;
+    }
 
     @PostMapping("/send")
     public String sendOtp(@RequestParam String email) {

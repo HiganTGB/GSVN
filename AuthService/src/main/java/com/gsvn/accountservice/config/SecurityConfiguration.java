@@ -44,19 +44,21 @@ public class SecurityConfiguration {
             "/swagger-ui.html"
 
     };
-    @Autowired
-    private CustomJwtDecoder customJwtDecoder;
+    private final CustomJwtDecoder customJwtDecoder;
 
-    @Autowired
-    private InternalApiFilter internalApiFilter;
+    private final InternalApiFilter internalApiFilter;
 
-    @Autowired
-    private CustomJwtAuthenticationConverter customConverter;
+    private final CustomJwtAuthenticationConverter customConverter;
 
-    @Autowired
-    AuthenticationSuccessHandler oauth2AuthenticationSuccessHandler;
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
+    final AuthenticationSuccessHandler oauth2AuthenticationSuccessHandler;
+
+    SecurityConfiguration(CustomJwtDecoder customJwtDecoder, InternalApiFilter internalApiFilter, CustomJwtAuthenticationConverter customConverter, AuthenticationSuccessHandler oauth2AuthenticationSuccessHandler) {
+        this.customJwtDecoder = customJwtDecoder;
+        this.internalApiFilter = internalApiFilter;
+        this.customConverter = customConverter;
+        this.oauth2AuthenticationSuccessHandler = oauth2AuthenticationSuccessHandler;
+    }
+    @Bean SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
 
         httpSecurity
                 .authorizeHttpRequests(request -> request

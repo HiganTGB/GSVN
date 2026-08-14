@@ -1,7 +1,5 @@
 package com.gsvn.inventoryservice.config;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;

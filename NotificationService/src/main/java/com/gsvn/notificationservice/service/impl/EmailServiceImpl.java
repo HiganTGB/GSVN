@@ -1,6 +1,8 @@
 package com.gsvn.notificationservice.service.impl;
 
 import com.gsvn.notificationservice.service.EmailService;
+import com.gsvn.notificationservice.service.OtpStorageService;
+
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +22,11 @@ public class EmailServiceImpl implements EmailService {
     @Value("${app.time.reset-password}")
     private int resetTtl;
 
-    @Autowired
-    private OtpStorageServiceImpl otpStorageService;
+    private final OtpStorageService otpStorageService;
 
-    public EmailServiceImpl(JavaMailSender mailSender) {
+    public EmailServiceImpl(JavaMailSender mailSender, OtpStorageService otpStorageService) {
         this.mailSender = mailSender;
+        this.otpStorageService = otpStorageService;
     }
 
     public void sendOtp(String email) {

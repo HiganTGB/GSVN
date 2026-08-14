@@ -1,6 +1,5 @@
 package com.gsvn.cartservice.model.internal;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.math.BigDecimal;

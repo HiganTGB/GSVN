@@ -1,6 +1,5 @@
 package com.gsvn.productservice.model.entity;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
 import java.time.LocalDate;

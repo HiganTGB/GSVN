@@ -1,10 +1,6 @@
 package com.gsvn.inventoryservice.config;
 
 
-import com.gsvn.inventoryservice.config.CustomJwtAuthenticationConverter;
-import com.gsvn.inventoryservice.config.CustomJwtDecoder;
-import com.gsvn.inventoryservice.config.JwtAuthenticationEntryPoint;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -34,13 +30,15 @@ public class SecurityConfiguration {
             "/swagger-ui.html"
     };
 
-    @Autowired
-    private CustomJwtDecoder customJwtDecoder;
-    @Autowired
-    private CustomJwtAuthenticationConverter customConverter;
+    private final CustomJwtDecoder customJwtDecoder;
+    private final CustomJwtAuthenticationConverter customConverter;
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
+    SecurityConfiguration(CustomJwtDecoder customJwtDecoder, CustomJwtAuthenticationConverter customConverter) {
+        this.customJwtDecoder = customJwtDecoder;
+        this.customConverter = customConverter;
+    }
+
+    @Bean SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/api/v1/*/internal/**").permitAll()

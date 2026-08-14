@@ -1,6 +1,5 @@
 package com.gsvn.orderservice.model.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.gsvn.orderservice.model.enums.DeliveryMethod;
 import com.gsvn.orderservice.model.enums.OrderStatus;
 import com.gsvn.orderservice.model.enums.PaymentMethod;

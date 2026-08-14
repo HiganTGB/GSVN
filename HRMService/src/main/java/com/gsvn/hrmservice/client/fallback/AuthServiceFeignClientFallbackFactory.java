@@ -1,7 +1,7 @@
 package com.gsvn.hrmservice.client.fallback;
 
 
-
+import com.gsvn.hrmservice.common.ApiResponse;
 import com.gsvn.hrmservice.client.AuthServiceFeignClient;
 import com.gsvn.hrmservice.exc.AppException;
 import com.gsvn.hrmservice.exc.ErrorCode;

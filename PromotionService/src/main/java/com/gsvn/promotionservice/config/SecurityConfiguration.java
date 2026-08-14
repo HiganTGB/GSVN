@@ -30,10 +30,13 @@ public class SecurityConfiguration {
             "/swagger-ui.html"
     };
 
-    @Autowired
-    private CustomJwtDecoder customJwtDecoder;
-    @Autowired
-    private CustomJwtAuthenticationConverter customConverter;
+    private final CustomJwtDecoder customJwtDecoder;
+    private final CustomJwtAuthenticationConverter customConverter;
+
+    SecurityConfiguration(CustomJwtAuthenticationConverter customConverter, CustomJwtDecoder customJwtDecoder) {
+        this.customConverter = customConverter;
+        this.customJwtDecoder = customJwtDecoder;
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
