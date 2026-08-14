@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: config-server
+  cloud:
+    consul:
+      host: ${CONSUL_HOSTNAME}
+      port: ${CONSUL_PORT}
