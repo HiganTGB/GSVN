@@ -1,6 +1,5 @@
 package com.gsvn.customerservice.model.dto.request;
 
-import com.gsvn.customerservice.model.internal.UserBaseRequest;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 

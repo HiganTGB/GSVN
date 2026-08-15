@@ -1,7 +1,5 @@
 package com.gsvn.notificationservice.config;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -42,8 +40,7 @@ public class RedisConfig {
     private int redisDatabase;
 
 
-    @Bean
-    public LettuceConnectionFactory redisConnectionFactory() {
+    @Bean LettuceConnectionFactory redisConnectionFactory() {
         var config=new RedisStandaloneConfiguration(redisHost, redisPort);
         config.setUsername(userName);
         config.setPassword(redisPassword);
@@ -51,16 +48,14 @@ public class RedisConfig {
         return new LettuceConnectionFactory(config);
     }
     @Bean
-    @Primary
-    public ObjectMapper objectMapper() {
+    @Primary ObjectMapper objectMapper() {
         return JsonMapper.builder().build();
     }
 
 
 
     @Bean
-    @Primary
-    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
+    @Primary RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);
 

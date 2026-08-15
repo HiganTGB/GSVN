@@ -3,7 +3,6 @@ package com.gsvn.shipmentservice.config;
 
 
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -31,10 +30,13 @@ public class SecurityConfiguration {
             "/swagger-ui.html"
     };
 
-    @Autowired
-    private CustomJwtDecoder customJwtDecoder;
-    @Autowired
-    private CustomJwtAuthenticationConverter customConverter;
+    private final CustomJwtDecoder customJwtDecoder;
+    private final CustomJwtAuthenticationConverter customConverter;
+
+    SecurityConfiguration(CustomJwtDecoder customJwtDecoder, CustomJwtAuthenticationConverter customConverter) {
+        this.customJwtDecoder = customJwtDecoder;
+        this.customConverter = customConverter;
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {

@@ -44,7 +44,6 @@ class VNPayServiceTest {
     void testCreatePaymentUrl_Success() {
 
         PaymentRequestMessage message = PaymentRequestMessage.builder()
-                .orderId(123L)
                 .orderCode("ORD1001")
                 .amount(new BigDecimal("100000"))
                 .clientIpAddress("127.0.0.1")

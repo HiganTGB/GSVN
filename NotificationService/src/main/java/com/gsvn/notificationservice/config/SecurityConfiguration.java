@@ -28,13 +28,15 @@ public class SecurityConfiguration {
             "/api/v1/notifications/subscribe/*"
     };
 
-    @Autowired
-    private CustomJwtDecoder customJwtDecoder;
-    @Autowired
-    private CustomJwtAuthenticationConverter customConverter;
+    private final CustomJwtDecoder customJwtDecoder;
+    private final CustomJwtAuthenticationConverter customConverter;
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
+    SecurityConfiguration(CustomJwtDecoder customJwtDecoder, CustomJwtAuthenticationConverter customConverter) {
+        this.customJwtDecoder = customJwtDecoder;
+        this.customConverter = customConverter;
+    }
+
+    @Bean SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()

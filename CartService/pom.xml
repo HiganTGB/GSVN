@@ -9,7 +9,7 @@
         <relativePath/>
     </parent>
     <groupId>com.gsvn</groupId>
-    <artifactId>cartService</artifactId>
+    <artifactId>CartService</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>CartService</name>
     <description>CartService</description>

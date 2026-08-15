@@ -19,7 +19,7 @@ repositories {
 
 
 ext {
-    set('springCloudVersion', "2024.0.0")
+    set('springCloudVersion', "2025.0.0")
 }
 
 dependencies {
@@ -35,7 +35,7 @@ dependencies {
     implementation("software.amazon.awssdk:s3:2.47.5")
     implementation 'commons-io:commons-io:2.15.1'
     implementation 'org.apache.commons:commons-compress:1.26.1'
-
+    implementation("tools.jackson.core:jackson-databind:3.2.1")
     implementation("net.coobird:thumbnailator:0.4.21")
 
     compileOnly 'org.projectlombok:lombok'

@@ -13,7 +13,6 @@ import java.util.List;
 
 @Service
 public class LocationServiceImpl implements LocationService {
-    @Autowired
     private final LocationMapper locationMapper;
 
     public LocationServiceImpl(LocationMapper locationMapper) {
