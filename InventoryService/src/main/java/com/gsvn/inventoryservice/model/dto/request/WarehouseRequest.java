@@ -20,8 +20,12 @@ public class WarehouseRequest {
     @Size(max = 50, message = "WAREHOUSE_CODE_TOO_LONG")
     @Pattern(regexp = "^[A-Za-z0-9_-]+$", message = "WAREHOUSE_CODE_INVALID_FORMAT")
     private String code;
+
+    @NotNull(message = "BRANCH_REQUIRED")
+    private Integer branchId;
+
     @NotNull(message = "MANAGER_REQUIRED")
-    private Integer staffId;
+    private Long staffId;
 
     private Boolean isActive;
 
@@ -41,5 +45,4 @@ public class WarehouseRequest {
 
     @NotBlank(message = "WARD_REQUIRED")
     private String wardCode;
-
 }

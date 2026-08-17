@@ -21,7 +21,7 @@ public class Staff {
     private String address;
     private String identityCard;
     private String avatarUrl;
-    private Integer warehouseId;
+    private Integer branchId;
     private Integer positionId;
     private BigDecimal baseSalary;
     private OffsetDateTime deletedAt;

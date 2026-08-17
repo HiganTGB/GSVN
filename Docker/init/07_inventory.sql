@@ -16,6 +16,7 @@ CREATE TABLE warehouses (
                             code VARCHAR(50) UNIQUE NOT NULL,
                             staff_id BIGINT NOT NULL,
                             is_active BOOLEAN DEFAULT TRUE,
+                            branch_id INT NOT NULL,
                             contact_name VARCHAR(255),
                             contact_phone VARCHAR(20),
                             address_detail TEXT,

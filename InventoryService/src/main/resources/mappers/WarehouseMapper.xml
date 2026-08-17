@@ -8,8 +8,9 @@
         <id property="id" column="id" />
         <result property="name" column="name" />
         <result property="code" column="code" />
-        <result property="isActive" column="is_active" />
+        <result property="branchId" column="branch_id" />
         <result property="staffId" column="staff_id"/>
+        <result property="isActive" column="is_active" />
         <result property="contactName" column="contact_name" />
         <result property="contactPhone" column="contact_phone" />
         <result property="addressDetail" column="address_detail" />
@@ -21,11 +22,11 @@
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
         INSERT INTO warehouses (
-            name, code, is_active, contact_name, contact_phone,
-            address_detail, province_code, ward_code,staff_id
+            name, code, branch_id, staff_id, is_active, contact_name, contact_phone,
+            address_detail, province_code, ward_code
         ) VALUES (
-                     #{name}, #{code}, #{isActive}, #{contactName}, #{contactPhone},
-                     #{addressDetail}, #{provinceCode}, #{wardCode},#{staffId}
+                     #{name}, #{code}, #{branchId}, #{staffId}, #{isActive}, #{contactName}, #{contactPhone},
+                     #{addressDetail}, #{provinceCode}, #{wardCode}
                  )
     </insert>
 
@@ -33,6 +34,8 @@
         UPDATE warehouses
         <set>
             <if test="name != null">name = #{name},</if>
+            <if test="branchId != null">branch_id = #{branchId},</if>
+            <if test="staffId != null">staff_id = #{staffId},</if>
             <if test="isActive != null">is_active = #{isActive},</if>
             <if test="contactName != null">contact_name = #{contactName},</if>
             <if test="contactPhone != null">contact_phone = #{contactPhone},</if>
@@ -44,10 +47,10 @@
         WHERE id = #{id}
     </update>
 
-
     <select id="findById" resultMap="WarehouseMap">
         SELECT * FROM warehouses WHERE id = #{id}
     </select>
+
     <select id="findByCode" resultMap="WarehouseMap">
         SELECT * FROM warehouses WHERE code = #{code}
     </select>
@@ -55,7 +58,7 @@
     <select id="findAllPaged" resultMap="WarehouseMap">
         SELECT * FROM warehouses
         <where>
-            <if test="keyword != null">
+            <if test="keyword != null and keyword != ''">
                 AND (name ILIKE CONCAT('%', #{keyword}, '%') OR code ILIKE CONCAT('%', #{keyword}, '%'))
             </if>
         </where>
@@ -66,13 +69,15 @@
     <select id="countAll" resultType="long">
         SELECT COUNT(*) FROM warehouses
         <where>
-            <if test="keyword != null">
+            <if test="keyword != null and keyword != ''">
                 AND (name ILIKE CONCAT('%', #{keyword}, '%') OR code ILIKE CONCAT('%', #{keyword}, '%'))
             </if>
         </where>
     </select>
+
     <select id="findAll" resultMap="WarehouseMap">
         SELECT * FROM warehouses
         ORDER BY id DESC
     </select>
+
 </mapper>

@@ -20,12 +20,11 @@ import com.gsvn.hrmservice.model.entity.StaffSalary;
 import com.gsvn.hrmservice.model.internal.SyncUserRequest;
 import com.gsvn.hrmservice.model.internal.UserBaseRequest;
 import com.gsvn.hrmservice.service.AuthenticationService;
+import com.gsvn.hrmservice.service.BranchService;
 import com.gsvn.hrmservice.service.PositionService;
 import com.gsvn.hrmservice.service.StaffService;
 import feign.FeignException;
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -34,7 +33,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -49,9 +47,10 @@ public class StaffServiceImpl implements StaffService {
     private final AuthenticationService authenticationService;
     private final UserServiceFeignClient userServiceFeignClient;
     private final PositionService positionService;
+    private final BranchService branchService; // Thêm BranchService để lấy thông tin chi nhánh
+
     @Transactional
     public StaffResponse create(StaffCreateRequest request) {
-
         if (mapper.existsByEmail(request.staffRequest().getEmail(), null)) {
             throw new DuplicateResourceException(ErrorCode.INVALID_REQUEST_BODY, "staffRequest.email");
         }
@@ -62,32 +61,35 @@ public class StaffServiceImpl implements StaffService {
         entity.setBaseSalary(request.salaryRequest().getBaseSalary());
         entity.setPositionId(request.salaryRequest().getPositionId());
         entity.setIsActive(true);
-        if(request.createAccount())
-        {
+
+        if (request.createAccount()) {
             try {
-                var response= userServiceFeignClient.create(UserBaseRequest
+                var response = userServiceFeignClient.create(UserBaseRequest
                         .builder()
                         .email(entity.getEmail())
                         .userName(entity.getFullName())
                         .verifier(true)
                         .phoneNumber(entity.getPhoneNumber())
-                        .password(entity.getEmail()+entity.getPhoneNumber())
+                        .password(entity.getEmail() + entity.getPhoneNumber())
                         .build());
                 entity.setUserId(response.result().getUserId());
-            }catch (FeignException e)
-            {
+            } catch (FeignException e) {
                 throw new DuplicateResourceException(ErrorCode.INVALID_REQUEST_BODY, "staffRequest.email");
             }
-
         }
+
         mapper.insert(entity);
-        StaffSalary salary=salaryConverter.toEntity(request.salaryRequest(),entity.getStaffId());
+        StaffSalary salary = salaryConverter.toEntity(request.salaryRequest(), entity.getStaffId());
         salaryMapper.insert(salary);
+
         userServiceFeignClient.sync(entity.getUserId(), SyncUserRequest.builder()
-                .email(entity.getEmail()).phoneNumber(entity.getPhoneNumber()).verifier(true).build()
+                .email(entity.getEmail()).phoneNumber(entity.getPhoneNumber()).branchId(entity.getBranchId()).verifier(true).build()
         );
-        var position=positionService.getById(entity.getPositionId());
-        return converter.toResponse(entity,position);
+
+        var position = positionService.getById(entity.getPositionId());
+        var branch = entity.getBranchId() != null ? branchService.getById(entity.getBranchId().longValue()) : null;
+
+        return converter.toResponse(entity, position, branch);
     }
 
     @Transactional
@@ -100,44 +102,58 @@ public class StaffServiceImpl implements StaffService {
         if (mapper.existsByIdentityCard(request.getIdentityCard(), id)) {
             throw new DuplicateResourceException(ErrorCode.INVALID_REQUEST_BODY, "identityCard");
         }
-        boolean needSync=(entity.getEmail().equals(request.getEmail())&&(entity.getPhoneNumber()).equals(request.getPhoneNumber()));
+
         converter.mapRequestToEntity(request, entity);
         mapper.update(entity);
-        userServiceFeignClient.sync(entity.getUserId(), SyncUserRequest.builder().userName(entity.getFullName())
-                        .email(entity.getEmail()).phoneNumber(entity.getPhoneNumber()).verifier(true).build()
+
+        userServiceFeignClient.sync(entity.getUserId(), SyncUserRequest.builder()
+                .userName(entity.getFullName())
+                .email(entity.getEmail())
+                .phoneNumber(entity.getPhoneNumber())
+                .branchId(entity.getBranchId())
+                .verifier(true)
+                .build()
         );
-        var position=positionService.getById(entity.getPositionId());
-        return converter.toResponse(entity,position);
+
+        var position = positionService.getById(entity.getPositionId());
+        var branch = entity.getBranchId() != null ? branchService.getById(entity.getBranchId().longValue()) : null;
+
+        return converter.toResponse(entity, position, branch);
     }
+
     @Transactional
     public StaffResponse addAccountForStaff(Long id) {
         Staff entity = mapper.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-        if (entity.getUserId()!=null) throw new AppException(ErrorCode.NOT_ALLOW);
-        var response= userServiceFeignClient.create(UserBaseRequest
+        if (entity.getUserId() != null) throw new AppException(ErrorCode.NOT_ALLOW);
+
+        var response = userServiceFeignClient.create(UserBaseRequest
                 .builder()
                 .email(entity.getEmail())
                 .userName(entity.getFullName())
                 .verifier(true)
                 .phoneNumber(entity.getPhoneNumber())
-                .password(entity.getEmail()+entity.getPhoneNumber())
+                .password(entity.getEmail() + entity.getPhoneNumber())
                 .build());
         entity.setUserId(response.result().getUserId());
         mapper.update(entity);
-        var position=positionService.getById(entity.getPositionId());
-        return converter.toResponse(entity,position);
+
+        var position = positionService.getById(entity.getPositionId());
+        var branch = entity.getBranchId() != null ? branchService.getById(entity.getBranchId().longValue()) : null;
+
+        return converter.toResponse(entity, position, branch);
     }
 
     public StaffResponse getById(Long id) {
-        var staff=mapper.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-        var position=positionService.getById(staff.getPositionId());
-        String presignedUrl = null;
+        var staff = mapper.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        var position = positionService.getById(staff.getPositionId());
+        var branch = staff.getBranchId() != null ? branchService.getById(staff.getBranchId().longValue()) : null;
+
         if (staff.getAvatarUrl() != null && !staff.getAvatarUrl().isBlank()) {
-                var mediaResponse = mediaClient.getPreviewUrl(staff.getAvatarUrl());
-                presignedUrl = mediaResponse.result();
-                staff.setAvatarUrl(presignedUrl);
+            var mediaResponse = mediaClient.getPreviewUrl(staff.getAvatarUrl());
+            staff.setAvatarUrl(mediaResponse.result());
         }
-        return converter.toResponse(staff,position);
+        return converter.toResponse(staff, position, branch);
     }
 
     public void delete(Long id) {
@@ -146,29 +162,33 @@ public class StaffServiceImpl implements StaffService {
         }
         mapper.deleteById(id);
     }
+
     public StaffResponse getMyInfo() {
         var staffId = authenticationService.getStaffIdFromToken();
         return getById(staffId);
     }
+
     @Transactional
-    public StaffResponse updateMyInfo( StaffRequest request) {
+    public StaffResponse updateMyInfo(StaffRequest request) {
         var staffId = authenticationService.getStaffIdFromToken();
-        var staff=mapper.findById(staffId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        var staff = mapper.findById(staffId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         staff.setEmail(request.getEmail());
-        staff.setPhoneNumber((request.getPhoneNumber()));
+        staff.setPhoneNumber(request.getPhoneNumber());
         staff.setDob(request.getDob());
+        mapper.update(staff);
         return getById(staffId);
     }
-    public List<StaffResponse> getActiveStaff()
-    {
-        var positionList=positionService.getAllPositions();
-        return converter.toResponseList(mapper.findListByActive(true),positionList);
+
+    public List<StaffResponse> getActiveStaff() {
+        var positionList = positionService.getAllPositions();
+        var branchList = branchService.getAllBranches();
+        return converter.toResponseList(mapper.findListByActive(true), positionList, branchList);
     }
 
     @Override
     public PageResponse<StaffResponse> searchStaffs(
             String keyword,
-            Integer warehouseId,
+            Integer branchId, // Thay thế warehouseId thành branchId
             Integer positionId,
             String sortBy,
             String direction,
@@ -187,10 +207,14 @@ public class StaffServiceImpl implements StaffService {
 
         String sortOrder = "asc".equalsIgnoreCase(direction) ? "ASC" : "DESC";
 
-        var list = mapper.findAdvanced(keyword, warehouseId, positionId, sortField, sortOrder, size, offset);
-        var total = mapper.countAdvanced(keyword, warehouseId,positionId);
-        var positionList=positionService.getAllPositions();
-        List<StaffResponse> responses = converter.toResponseList(list, positionList);
+        var list = mapper.findAdvanced(keyword, branchId, positionId, sortField, sortOrder, size, offset);
+        var total = mapper.countAdvanced(keyword, branchId, positionId);
+
+        var positionList = positionService.getAllPositions();
+        var branchList = branchService.getAllBranches();
+
+        List<StaffResponse> responses = converter.toResponseList(list, positionList, branchList);
+
         List<String> allPaths = responses.stream()
                 .map(StaffResponse::getAvatarUrl)
                 .filter(path -> path != null && !path.isBlank())
@@ -198,14 +222,16 @@ public class StaffServiceImpl implements StaffService {
                 .toList();
 
         if (!allPaths.isEmpty()) {
-                ApiResponse<Map<String, String>> mediaResponse = mediaClient.getPreviewUrls(allPaths);
-                if (mediaResponse != null && mediaResponse.result() != null) {
-                    Map<String, String> urlMap = mediaResponse.result();
-                    responses.forEach(staff -> {
-                        String signedUrl = urlMap.get(staff.getAvatarUrl());
+            ApiResponse<Map<String, String>> mediaResponse = mediaClient.getPreviewUrls(allPaths);
+            if (mediaResponse != null && mediaResponse.result() != null) {
+                Map<String, String> urlMap = mediaResponse.result();
+                responses.forEach(staff -> {
+                    String signedUrl = urlMap.get(staff.getAvatarUrl());
+                    if (signedUrl != null) {
                         staff.setAvatarUrl(signedUrl);
-                    });
-                }
+                    }
+                });
+            }
         }
 
         return PageResponse.of(responses, total, page, size);
@@ -214,26 +240,28 @@ public class StaffServiceImpl implements StaffService {
     @Override
     @Transactional
     public String uploadStaffAvatar(Long id, MultipartFile file) {
-
         validateImage(file);
         var staff = mapper.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-            ApiResponse<String> response = mediaClient.upload(
-                    file,
-                    UploadType.STAFF_AVATAR.name().toLowerCase(),
-                    String.valueOf(id)
-            );
-            if (response == null || response.result() == null) {
-                log.error("Media service returned empty response for staff: {}", id);
-                throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
-            }
-            String oldPath = staff.getAvatarUrl();
-            staff.setAvatarUrl(response.result());
-            mapper.update(staff);
-            if (oldPath != null && !oldPath.isBlank()) {
-                mediaClient.deleteFile(oldPath);
-            }
-            return response.result();
+
+        ApiResponse<String> response = mediaClient.upload(
+                file,
+                UploadType.STAFF_AVATAR.name().toLowerCase(),
+                String.valueOf(id)
+        );
+        if (response == null || response.result() == null) {
+            log.error("Media service returned empty response for staff: {}", id);
+            throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
+        }
+
+        String oldPath = staff.getAvatarUrl();
+        staff.setAvatarUrl(response.result());
+        mapper.update(staff);
+
+        if (oldPath != null && !oldPath.isBlank()) {
+            mediaClient.deleteFile(oldPath);
+        }
+        return response.result();
     }
 
     private void validateImage(MultipartFile file) {

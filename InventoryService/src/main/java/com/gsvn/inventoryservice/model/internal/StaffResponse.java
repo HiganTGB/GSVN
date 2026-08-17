@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 public class StaffResponse {
-    private Integer staffId;
+    private Long staffId;
     private String fullName;
     private String email;
     private LocalDate dob;
@@ -21,9 +21,12 @@ public class StaffResponse {
     private String address;
     private String avatarUrl;
     private String identityCard;
-    private Integer warehouseId;
+
+    private Integer branchId;
+    private String branchName;
+
     private Integer positionId;
-    private String  positionName;
+    private String positionName;
     private BigDecimal baseSalary;
     private Boolean isActive;
     private String createdAt;

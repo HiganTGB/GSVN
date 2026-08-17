@@ -79,6 +79,10 @@ public class UserServiceImpl implements UserService {
         {
             user.setReferenceId(request.getReferenceId());
         }
+        if(request.getBranchId()!=null)
+        {
+            // TODO: for save brandId in database
+        }
         user= userRepository.save(user);
         return UserMapper.toUserBaseResponse(user);
     }

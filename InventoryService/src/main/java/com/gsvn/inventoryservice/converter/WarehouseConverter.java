@@ -17,6 +17,7 @@ public class WarehouseConverter {
         return Warehouse.builder()
                 .name(request.getName())
                 .code(request.getCode())
+                .branchId(request.getBranchId()) // Đã thêm
                 .staffId(request.getStaffId())
                 .isActive(request.getIsActive() != null ? request.getIsActive() : false)
                 .contactName(request.getContactName())
@@ -34,6 +35,7 @@ public class WarehouseConverter {
                 .id(entity.getId())
                 .name(entity.getName())
                 .code(entity.getCode())
+                .branchId(entity.getBranchId()) // Đã thêm
                 .staffId(entity.getStaffId())
                 .isActive(entity.getIsActive())
                 .contactName(entity.getContactName())
@@ -57,6 +59,8 @@ public class WarehouseConverter {
 
         entity.setName(request.getName());
         entity.setCode(request.getCode());
+        entity.setBranchId(request.getBranchId());
+        entity.setStaffId(request.getStaffId());
         entity.setIsActive(request.getIsActive());
         entity.setContactName(request.getContactName());
         entity.setContactPhone(request.getContactPhone());

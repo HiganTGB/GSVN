@@ -84,12 +84,12 @@ public class StaffController {
         return new ApiResponse<>(staffService.uploadStaffAvatar(id, file));
     }
 
-    @Operation(summary = "Search staff members", description = "Retrieves a paginated list of staff members with optional filtering by keyword, warehouse, and position.")
+    @Operation(summary = "Search staff members", description = "Retrieves a paginated list of staff members with optional filtering by keyword, branch, and position.")
     @GetMapping("/search")
     @PreAuthorize("hasAuthority('ROLE_STAFF') and (hasAuthority('all') or hasAuthority('staff_read'))")
     public ApiResponse<PageResponse<StaffResponse>> search(
             @Parameter(description = "Keyword to search by staff name, code, or phone") @RequestParam(required = false) String keyword,
-            @Parameter(description = "Filter by warehouse ID") @RequestParam(required = false) Integer warehouseId,
+            @Parameter(description = "Filter by branch ID") @RequestParam(required = false) Integer branchId, // Thay thế warehouseId
             @Parameter(description = "Filter by position ID") @RequestParam(required = false) Integer positionId,
             @Parameter(description = "Field name to sort results by") @RequestParam(defaultValue = "id") String sortBy,
             @Parameter(description = "Sorting direction: 'asc' or 'desc'") @RequestParam(defaultValue = "desc") String direction,
@@ -98,7 +98,7 @@ public class StaffController {
 
         return new ApiResponse<>(staffService.searchStaffs(
                 keyword,
-                warehouseId,
+                branchId, // Thay thế warehouseId
                 positionId,
                 sortBy,
                 direction,

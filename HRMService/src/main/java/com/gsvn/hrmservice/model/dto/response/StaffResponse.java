@@ -1,10 +1,10 @@
 package com.gsvn.hrmservice.model.dto.response;
+
 import lombok.Builder;
 import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
 
 @Data
 @Builder
@@ -18,9 +18,12 @@ public class StaffResponse {
     private String address;
     private String avatarUrl;
     private String identityCard;
-    private Integer warehouseId;
+
+    private Integer branchId;
+    private String branchName;
+
     private Integer positionId;
-    private String  positionName;
+    private String positionName;
     private BigDecimal baseSalary;
     private Boolean isActive;
     private String createdAt;

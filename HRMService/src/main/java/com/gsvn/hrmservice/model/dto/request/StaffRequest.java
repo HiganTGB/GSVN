@@ -16,9 +16,11 @@ public class StaffRequest {
     @NotNull(message = "DOB_REQUIRED")
     @Past(message = "DOB_MUST_BE_IN_PAST")
     private LocalDate dob;
+
     @NotBlank(message = "ADDRESS_REQUIRED")
     @Size(max = 255, message = "ADDRESS_TOO_LONG")
     private String address;
+
     @Pattern(regexp = "^(MALE|FEMALE|OTHER)$", message = "INVALID_GENDER")
     private String gender;
 
@@ -29,5 +31,5 @@ public class StaffRequest {
     @Size(min = 9, max = 12, message = "IDENTITY_CARD_INVALID_SIZE")
     private String identityCard;
 
-    private Integer warehouseId;
+    private Integer branchId;
 }

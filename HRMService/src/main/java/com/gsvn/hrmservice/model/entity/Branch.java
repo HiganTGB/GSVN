@@ -1,4 +1,4 @@
-package com.gsvn.inventoryservice.model.entity;
+package com.gsvn.hrmservice.model.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,21 +11,13 @@ import java.time.OffsetDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Warehouse {
-    private Integer id;
-    private String name;
-    private String code;
+public class Branch {
     private Integer branchId;
-    private Long staffId;
+    private String branchCode;
+    private String branchName;
+    private String address;
+    private String phoneNumber;
     private Boolean isActive;
-
-    private String contactName;
-    private String contactPhone;
-    private String addressDetail;
-
-    private String provinceCode;
-    private String wardCode;
-
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
 }
