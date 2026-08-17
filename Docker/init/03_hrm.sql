@@ -28,7 +28,7 @@ CREATE TABLE STAFFS (
                         address VARCHAR(255) NOT NULL,
                         identity_card VARCHAR(255) NOT NULL,
                         avatar_url VARCHAR(255),
-                        warehouse_id INT,
+                        branch_id INT,
                         position_id INT NOT NULL,
                         base_salary DECIMAL(19, 4) NOT NULL,
 
@@ -37,7 +37,17 @@ CREATE TABLE STAFFS (
                         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                         updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+CREATE TABLE BRANCHES (
+                          branch_id SERIAL PRIMARY KEY,
+                          branch_code VARCHAR(50) UNIQUE NOT NULL,
+                          branch_name VARCHAR(255) NOT NULL,
+                          address VARCHAR(255),
+                          phone_number VARCHAR(20),
+                          is_active BOOLEAN DEFAULT TRUE,
+                          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                          updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 
+);
 CREATE TABLE STAFF_SALARIES (
                                 id BIGSERIAL PRIMARY KEY,
                                 staff_id BIGINT NOT NULL,
@@ -95,3 +105,4 @@ CREATE TRIGGER set_timestamp_positions BEFORE UPDATE ON POSITIONS FOR EACH ROW E
 CREATE TRIGGER set_timestamp_staffs BEFORE UPDATE ON STAFFS FOR EACH ROW EXECUTE PROCEDURE update_timestamp();
 CREATE TRIGGER set_timestamp_leave_requests BEFORE UPDATE ON LEAVE_REQUESTS FOR EACH ROW EXECUTE PROCEDURE update_timestamp();
 CREATE TRIGGER set_timestamp_payrolls BEFORE UPDATE ON PAYROLLS FOR EACH ROW EXECUTE PROCEDURE update_timestamp();
+CREATE TRIGGER set_timestamp_branches BEFORE UPDATE ON BRANCHES FOR EACH ROW EXECUTE PROCEDURE update_timestamp();

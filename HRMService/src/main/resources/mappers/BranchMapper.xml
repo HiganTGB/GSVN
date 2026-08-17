@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gsvn.hrmservice.mapper.BranchMapper">
+
+    <resultMap id="BranchResultMap" type="com.gsvn.hrmservice.model.entity.Branch">
+        <id property="branchId" column="branch_id" />
+        <result property="branchCode" column="branch_code" />
+        <result property="branchName" column="branch_name" />
+        <result property="address" column="address" />
+        <result property="phoneNumber" column="phone_number" />
+        <result property="isActive" column="is_active" />
+        <result property="createdAt" column="created_at" />
+        <result property="updatedAt" column="updated_at" />
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="branchId" keyColumn="branch_id">
+        INSERT INTO BRANCHES (branch_code, branch_name, address, phone_number, is_active)
+        VALUES (#{branchCode}, #{branchName}, #{address}, #{phoneNumber}, #{isActive})
+    </insert>
+
+    <update id="update">
+        UPDATE BRANCHES
+        SET branch_code = #{branchCode},
+            branch_name = #{branchName},
+            address = #{address},
+            phone_number = #{phoneNumber},
+            is_active = #{isActive},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE branch_id = #{branchId}
+    </update>
+
+    <select id="findAll" resultMap="BranchResultMap">
+        SELECT branch_id, branch_code, branch_name, address, phone_number, is_active, created_at, updated_at
+        FROM BRANCHES
+        ORDER BY branch_name ASC
+    </select>
+
+    <select id="findById" resultMap="BranchResultMap">
+        SELECT branch_id, branch_code, branch_name, address, phone_number, is_active, created_at, updated_at
+        FROM BRANCHES
+        WHERE branch_id = #{id}
+    </select>
+
+    <select id="existByCode" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1
+            FROM BRANCHES
+            WHERE branch_code = #{code}
+        )
+    </select>
+
+    <delete id="deleteById">
+        DELETE FROM BRANCHES WHERE branch_id = #{id}
+    </delete>
+
+    <select id="findAdvanced" resultMap="BranchResultMap">
+        SELECT branch_id, branch_code, branch_name, address, phone_number, is_active, created_at, updated_at
+        FROM BRANCHES
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (
+                LOWER(branch_code) LIKE LOWER(CONCAT('%', #{keyword}, '%'))
+                OR LOWER(branch_name) LIKE LOWER(CONCAT('%', #{keyword}, '%'))
+                OR LOWER(address) LIKE LOWER(CONCAT('%', #{keyword}, '%'))
+                )
+            </if>
+        </where>
+        ORDER BY
+        <choose>
+            <when test="sortBy == 'code'">branch_code</when>
+            <when test="sortBy == 'name'">branch_name</when>
+            <when test="sortBy == 'createdAt'">created_at</when>
+            <otherwise>created_at</otherwise>
+        </choose>
+        <choose>
+            <when test="direction != null and direction.toUpperCase() == 'DESC'">DESC</when>
+            <otherwise>ASC</otherwise>
+        </choose>
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="countAdvanced" resultType="long">
+        SELECT COUNT(*)
+        FROM BRANCHES
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (
+                LOWER(branch_code) LIKE LOWER(CONCAT('%', #{keyword}, '%'))
+                OR LOWER(branch_name) LIKE LOWER(CONCAT('%', #{keyword}, '%'))
+                OR LOWER(address) LIKE LOWER(CONCAT('%', #{keyword}, '%'))
+                )
+            </if>
+        </where>
+    </select>
+
+</mapper>
