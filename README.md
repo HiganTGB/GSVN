@@ -1,3 +1,4 @@
+
 # GSVN - Microservices E-Commerce Platform
 
 ## Overview
@@ -6,31 +7,32 @@
 
 ---
 
-## **Architecture** & System Services
-<figure align="center">
-  <img src="doc/image/Architecture.png" alt="Architecture">
-  <figcaption><i>System Architecture</i></figcaption>
-</figure>
+## Architecture & System Services
+
+![System Architecture](doc/image/Architecture.png)
+*_System Architecture_*
+
 The platform consists of **14+ microservices**, each running on its dedicated port and managing its isolated storage schema or database:
 
-| Service Name | Port | Database / Storage Schema            | Primary Responsibility |
-| --- | --- |--------------------------------------| --- |
-| **Auth Service** | `5001` | PostgreSQL (`acc_db`)                | User authentication, identity management & JWT issuance |
-| **Media Service** | `5002` | S3 Storage (`media`, `temp` buckets) | Asset uploading, image optimization & storage |
-| **HRM Service** | `5003` | PostgreSQL (`hrm_db`)                | Staff & internal human resources management |
-| **Customer Service** | `5004` | PostgreSQL (`customer_db`)           | Customer profiles & account information |
-| **Address Service** | `5005` | SQLite (`address_db.db`)             | Geolocation & shipping address management |
-| **Product Service** | `5006` | PostgreSQL (`product_db`)            | Dynamic product catalog (EAV Model) & categories |
-| **Inventory Service** | `5007` | PostgreSQL (`inventory_db`)          | Stock control, warehouse management & encryption |
-| **Promotion Service** | `5008` | PostgreSQL (`promotion_db`)          | Vouchers, discounts & promotional campaigns |
-| **Shipment Service** | `5009` | PostgreSQL (`shipping_db`)           | Shipping integration with GHN API |
-| **Search Service** | `5010` | In-memory / Indexing                 | Fast search index & product filtering |
-| **Cart Service** | `5012` | PostgreSQL (`cart_db`)               | Shopping cart management |
-| **Order Service** | `5013` | PostgreSQL (`order_db`)              | Order lifecycle & Saga transaction execution |
-| **Payment Service** | `5014` | PostgreSQL (`payment_db`)            | VNPay Sandbox integration & instant processing |
-| **Notification** | `5015` | SMTP Mail Server                     | Asynchronous email & push notifications |
+| Service Name | Port | Database / Storage Schema | Primary Responsibility                                                |
+| --- | --- | --- |-----------------------------------------------------------------------|
+| **Auth Service** | `5001` | PostgreSQL (`acc_db`) | User authentication, identity management & JWT issuance               |
+| **Media Service** | `5002` | S3 Storage (`media`, `temp` buckets) | Asset uploading, image optimization & storage                         |
+| **HRM Service** | `5003` | PostgreSQL (`hrm_db`) | Staff & internal human resources management                           |
+| **Customer Service** | `5004` | PostgreSQL (`customer_db`) | Customer profiles & account information & shipping address management |
+| **Address Service** | `5005` | SQLite (`address_db.db`) | Geolocation                                                           |
+| **Product Service** | `5006` | PostgreSQL (`product_db`) | Dynamic product catalog (EAV Model) & categories                      |
+| **Inventory Service** | `5007` | PostgreSQL (`inventory_db`) | Stock control, warehouse management                                   |
+| **Promotion Service** | `5008` | PostgreSQL (`promotion_db`) | Vouchers, discounts & promotional campaigns                           |
+| **Shipment Service** | `5009` | PostgreSQL (`shipping_db`) | Shipping integration with GHN API                                     |
+| **Search Service** | `5010` | In-memory / Indexing | Fast search index & product filtering                                 |
+| **Cart Service** | `5012` | PostgreSQL (`cart_db`) | Shopping cart management                                              |
+| **Order Service** | `5013` | PostgreSQL (`order_db`) | Order lifecycle & Saga transaction (Orchestration) execution          |
+| **Payment Service** | `5014` | PostgreSQL (`payment_db`) | VNPay Sandbox integration & instant processing                        |
+| **Notification** | `5015` | SMTP Mail Server | Asynchronous email & SSE push notifications                           |
 
 ### Core Infrastructure Components
+
 * **API Gateway & Admin UI:** Kong Gateway managed via **Konga Admin UI** (`:1337`).
 * **Service Discovery:** 3-Node **HashiCorp Consul Cluster** (`:8500`).
 * **Message Broker:** **RabbitMQ** (`:5672`) for distributed events and Saga/Outbox workflows.
@@ -61,11 +63,15 @@ The platform consists of **14+ microservices**, each running on its dedicated po
 ### Installation & Deployment Steps
 
 1. **Clone the Repository:**
-   ```bash
-   git clone [https://github.com/HiganTGB/GSVN.git](https://github.com/HiganTGB/GSVN.git)
-   cd GSVN/docker
-2. **Prepare Environment Variables from Example File**
+```bash
+git clone https://github.com/HiganTGB/GSVN.git
+cd GSVN/docker
+
 ```
+
+
+2. **Prepare Environment Variables from Example File:**
+```bash
 cp .env.example .env
 
 ```
@@ -129,10 +135,8 @@ Once the system is running, access the following management consoles:
 * **Kubernetes Orchestration:** Migrate services from Docker Compose to Kubernetes (K8s) clusters on cloud infrastructure.
 * **Centralized Observability:** Build an ELK/PLG stack (Prometheus, Grafana, Loki) for real-time log monitoring and metrics collection.
 * **UI:** Develop a Frontend application.
-* **Gateway** : using Kong OSS instead of Konga
+* **Gateway:** Using Kong OSS instead of Konga.
 
-<figure align="center">
-  <img src="doc/image/Architecture(Enhanced).png" alt="Architecture">
-  <figcaption><i>System Architecture(Enhanced Version)</i></figcaption>
-</figure>
 
+![System Architecture Enhanced](doc/image/Architecture(Enhanced).png)
+*_System Architecture (Enhanced Version)_*
