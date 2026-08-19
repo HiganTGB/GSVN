@@ -2,14 +2,16 @@
 
 ## Overview
 
-**GSVN** is a high-performance, scalable backend ecosystem for an e-commerce platform inspired by the Goodsmile website. Built on Java 21 and Spring Boot, the system adopts a distributed **Microservices Architecture** with 12 specialized services, service discovery, centralized API routing, asynchronous messaging, and containerized deployment.
+**GSVN** is a high-performance, scalable backend ecosystem for an e-commerce platform inspired by the Goodsmile website. Built on Java 21 and Spring Boot, the system adopts a distributed **Microservices Architecture** with muti-services, service discovery, centralized API routing, asynchronous messaging, and containerized deployment.
 
 ---
 
-## Architecture & System Services
-
-The platform consists of **14 decoupled microservices**, each running on its dedicated port and managing its isolated storage schema or database:
-
+## **Architecture** & System Services
+<figure align="center">
+  <img src="doc/image/Architecture.png" alt="Architecture">
+  <figcaption><i>System Architecture</i></figcaption>
+</figure>
+The platform consists of **14+ microservices**, each running on its dedicated port and managing its isolated storage schema or database:
 
 | Service Name | Port | Database / Storage Schema            | Primary Responsibility |
 | --- | --- |--------------------------------------| --- |
@@ -123,11 +125,14 @@ Once the system is running, access the following management consoles:
 
 ## Future Improvements
 
-* **Elasticsearch Search Engine:** Integrate Elasticsearch into `Search Service` for high-performance full-text query processing.
+* **Improve Search Engine:** Integrate Elasticsearch/OpenSearch into `Search Service` for high-performance full-text query processing.
 * **Kubernetes Orchestration:** Migrate services from Docker Compose to Kubernetes (K8s) clusters on cloud infrastructure.
 * **Centralized Observability:** Build an ELK/PLG stack (Prometheus, Grafana, Loki) for real-time log monitoring and metrics collection.
 * **UI:** Develop a Frontend application.
 * **Gateway** : using Kong OSS instead of Konga
 
-
+<figure align="center">
+  <img src="doc/image/Architecture(Enhanced).png" alt="Architecture">
+  <figcaption><i>System Architecture(Enhanced Version)</i></figcaption>
+</figure>
 
