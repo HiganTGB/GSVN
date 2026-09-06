@@ -5,7 +5,7 @@ package com.gsvn.inventoryservice.service.impl;
 import com.gsvn.inventoryservice.client.AuthServiceFeignClient;
 import com.gsvn.inventoryservice.client.RoleServiceFeignClient;
 import com.gsvn.inventoryservice.client.StaffServiceFeignClient;
-import com.gsvn.inventoryservice.config.CustomAuthenticationToken;
+import com.gsvn.inventoryservice.security.CustomAuthenticationToken;
 import com.gsvn.inventoryservice.model.internal.IntrospectRequest;
 import com.gsvn.inventoryservice.common.ApiResponse;
 import com.gsvn.inventoryservice.model.internal.IntrospectResponse;

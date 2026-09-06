@@ -13,8 +13,8 @@ CREATE TABLE warehouse_partner (
                                    shop_id INT NOT NULL,
                                    partner_token TEXT NOT NULL,
                                    expires_at TIMESTAMP,
-                                   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                                   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                                   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                                   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
                                    UNIQUE (warehouse_code, partner_name)
 );
 CREATE TABLE shipment(
@@ -53,8 +53,8 @@ CREATE TABLE shipment(
                          confirmed_by BIGINT,                 -- Staff ID
                          confirmed_at TIMESTAMP WITH TIME ZONE,
 
-                         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                         updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                         updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 

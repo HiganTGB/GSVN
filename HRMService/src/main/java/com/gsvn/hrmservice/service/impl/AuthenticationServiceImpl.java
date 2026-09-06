@@ -4,7 +4,7 @@ package com.gsvn.hrmservice.service.impl;
 import com.gsvn.hrmservice.client.AuthServiceFeignClient;
 import com.gsvn.hrmservice.client.RoleServiceFeignClient;
 import com.gsvn.hrmservice.common.ApiResponse;
-import com.gsvn.hrmservice.config.CustomAuthenticationToken;
+import com.gsvn.hrmservice.security.CustomAuthenticationToken;
 import com.gsvn.hrmservice.exc.AppException;
 import com.gsvn.hrmservice.exc.ErrorCode;
 import com.gsvn.hrmservice.mapper.StaffMapper;

@@ -1,6 +1,9 @@
 package com.gsvn.inventoryservice.config;
 
 
+import com.gsvn.inventoryservice.security.CustomJwtAuthenticationConverter;
+import com.gsvn.inventoryservice.security.CustomJwtDecoder;
+import com.gsvn.inventoryservice.security.JwtAuthenticationEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;

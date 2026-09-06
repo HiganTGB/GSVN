@@ -2,7 +2,9 @@ package com.gsvn.paymentservice.config;
 
 
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.gsvn.paymentservice.security.CustomJwtAuthenticationConverter;
+import com.gsvn.paymentservice.security.CustomJwtDecoder;
+import com.gsvn.paymentservice.security.JwtAuthenticationEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;

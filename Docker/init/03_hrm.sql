@@ -1,10 +1,10 @@
 CREATE SCHEMA IF NOT EXISTS hrm_db;
 SET search_path TO hrm_db;
 CREATE OR REPLACE FUNCTION update_timestamp()
-RETURNS TRIGGER AS $$
+    RETURNS TRIGGER AS $$
 BEGIN
     NEW.updated_at = NOW();
-RETURN NEW;
+    RETURN NEW;
 END;
 $$ language 'plpgsql';
 
@@ -13,8 +13,8 @@ CREATE TABLE POSITIONS (
                            position_name VARCHAR(255) UNIQUE NOT NULL,
                            default_base_salary DECIMAL(19, 4) DEFAULT 0 NOT NULL, -- for ref only
                            description TEXT,
-                           created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                           updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                           created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                           updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 CREATE TABLE STAFFS (
@@ -34,8 +34,8 @@ CREATE TABLE STAFFS (
 
                         deleted_at TIMESTAMP DEFAULT NULL,
                         is_active BOOLEAN DEFAULT TRUE,
-                        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 CREATE TABLE BRANCHES (
                           branch_id SERIAL PRIMARY KEY,
@@ -54,9 +54,9 @@ CREATE TABLE STAFF_SALARIES (
                                 position_id INT NOT NULL ,
                                 position_name VARCHAR(255) NOT NULL ,
                                 base_salary DECIMAL(19, 4) NOT NULL,
-                                effective_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                                effective_date TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
                                 note TEXT,
-                                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                                created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 CREATE TABLE LEAVE_REQUESTS (
                                 id BIGSERIAL PRIMARY KEY,
@@ -76,8 +76,8 @@ CREATE TABLE LEAVE_REQUESTS (
                                 approved_name VARCHAR(255),
                                 approved_at TIMESTAMP,
                                 note TEXT,
-                                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                                updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                                created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                                updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 CREATE TABLE PAYROLLS (
                           id SERIAL PRIMARY KEY,
@@ -97,8 +97,8 @@ CREATE TABLE PAYROLLS (
                           approved_name VARCHAR(255),
                           approved_at TIMESTAMP,
                           paid_at TIMESTAMP,
-                          created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                          updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                          updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
                           CONSTRAINT unique_staff_period UNIQUE (staff_id, salary_period)
 );
 CREATE TRIGGER set_timestamp_positions BEFORE UPDATE ON POSITIONS FOR EACH ROW EXECUTE PROCEDURE update_timestamp();

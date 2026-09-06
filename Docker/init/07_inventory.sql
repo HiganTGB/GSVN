@@ -22,8 +22,8 @@ CREATE TABLE warehouses (
                             address_detail TEXT,
                             province_code VARCHAR(20),
                             ward_code VARCHAR(20),
-                            created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                            updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                            created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                            updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 CREATE TABLE suppliers (
@@ -35,8 +35,8 @@ CREATE TABLE suppliers (
                            email VARCHAR(255),
                            is_active BOOLEAN NOT NULL DEFAULT TRUE,
                            note TEXT,
-                           created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                           updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                           created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                           updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- 3. Stock Management
@@ -53,7 +53,7 @@ CREATE TABLE sku_stock (
                            physical_stock INT NOT NULL DEFAULT 0 CHECK (physical_stock >= 0),
                            reserved_stock INT NOT NULL DEFAULT 0 CHECK (reserved_stock >= 0),
                            version INT DEFAULT 0,
-                           updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                           updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
                            PRIMARY KEY (sku_id, warehouse_id)
 );
 
@@ -68,7 +68,7 @@ CREATE TABLE sku_global (
                             pre_current_orders  INT NOT NULL DEFAULT 0 CHECK (pre_current_orders >= 0),
                             reserved_global INT NOT NULL DEFAULT 0 CHECK (reserved_global >= 0),
                             version INT DEFAULT 0,
-                            updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                            updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
                             CONSTRAINT chk_preorder_limit CHECK (pre_limit_quantity = 0 OR pre_current_orders <= pre_limit_quantity)
 );
 
@@ -82,7 +82,7 @@ CREATE TABLE inbound_receipts (
                                   type VARCHAR(20) NOT NULL, -- 'TRANSFER', 'ADJUST'
                                   staff_id BIGINT,
                                   note TEXT,
-                                  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                                  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 -- TODO : add supplier_id,
 CREATE TABLE inbound_items (
@@ -103,7 +103,7 @@ CREATE TABLE outbound_receipts (
                                    type VARCHAR(20) NOT NULL, -- 'TRANSFER', 'ADJUST'
                                    external_id VARCHAR(50), -- Target or orderCode
                                    note TEXT,
-                                   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                                   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 CREATE TABLE outbound_items (
@@ -149,7 +149,7 @@ CREATE TABLE stock_logs (
                             note TEXT,
                             staff_id BIGINT,
                             saga_id VARCHAR(50) ,
-                            created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                            created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 CREATE SEQUENCE IF NOT EXISTS inbound_code_num_seq START WITH 1;

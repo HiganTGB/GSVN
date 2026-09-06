@@ -3,7 +3,7 @@ package com.gsvn.orderservice.service.impl;
 import com.gsvn.orderservice.client.AuthServiceFeignClient;
 import com.gsvn.orderservice.client.RoleServiceFeignClient;
 import com.gsvn.orderservice.common.ApiResponse;
-import com.gsvn.orderservice.config.CustomAuthenticationToken;
+import com.gsvn.orderservice.security.CustomAuthenticationToken;
 import com.gsvn.orderservice.model.internal.IntrospectRequest;
 import com.gsvn.orderservice.model.internal.IntrospectResponse;
 import com.gsvn.orderservice.service.AuthenticationService;

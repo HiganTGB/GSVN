@@ -26,8 +26,8 @@ CREATE TABLE CUSTOMERS (
                            dob DATE,
                            phone_number VARCHAR(20),
                            deleted_at TIMESTAMP DEFAULT NULL,
-                           created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                           updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                           created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                           updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- 3.ADDRESS_CARD
@@ -40,8 +40,8 @@ CREATE TABLE ADDRESS_CARD (
                               ward_code VARCHAR(20) NOT NULL,
                               address_detail TEXT NOT NULL,
                               is_default BOOLEAN NOT NULL DEFAULT FALSE,
-                              created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                              updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                              created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                              updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- ==========================================================

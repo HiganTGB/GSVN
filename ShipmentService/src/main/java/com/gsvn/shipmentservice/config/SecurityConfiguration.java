@@ -3,6 +3,9 @@ package com.gsvn.shipmentservice.config;
 
 
 
+import com.gsvn.shipmentservice.security.CustomJwtAuthenticationConverter;
+import com.gsvn.shipmentservice.security.CustomJwtDecoder;
+import com.gsvn.shipmentservice.security.JwtAuthenticationEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;

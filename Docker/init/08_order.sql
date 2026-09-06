@@ -56,8 +56,8 @@ CREATE TABLE orders (
                         confirmed_at TIMESTAMP WITH TIME ZONE,
                         staff_note TEXT,
 
-                        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
                         CONSTRAINT check_delivery_address
                             CHECK (
                                 (delivery_method = 'PICKUP' AND warehouse_code IS NOT NULL) OR
@@ -81,7 +81,7 @@ CREATE TABLE order_items (
                              is_preorder BOOLEAN NOT NULL DEFAULT FALSE,
                              is_deposit_applied BOOLEAN NOT NULL DEFAULT FALSE,
                              applied_deposit_amount DECIMAL(19, 4) NOT NULL DEFAULT 0,
-                             created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                             created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Bảng quản lý trạng thái giao dịch phân tán (Saga Pattern)
@@ -95,8 +95,8 @@ CREATE TABLE order_saga_instances (
     --> PAYMENT_GENERATED | SUCCESS | COMPENSATED
                                       payload JSONB,
                                       status VARCHAR(20) DEFAULT 'STARTED', -- STARTED, COMPENSATING, FAILED, SUCCEEDED
-                                      created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                                      updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                                      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                                      updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 CREATE TABLE outbox (

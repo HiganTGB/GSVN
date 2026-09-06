@@ -2,7 +2,9 @@ package com.gsvn.productservice.config;
 
 
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.gsvn.productservice.security.CustomJwtAuthenticationConverter;
+import com.gsvn.productservice.security.CustomJwtDecoder;
+import com.gsvn.productservice.security.JwtAuthenticationEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;

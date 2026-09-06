@@ -25,7 +25,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -42,6 +41,7 @@ public class ProductServiceImpl implements ProductService {
     private final MediaClient mediaClient;
     private final BrandMapper brandMapper;
     private final CategoryMapper categoryMapper;
+    private final SkuMapper skuMapper;
     @Transactional
     public Integer createProduct(ProductCreateRequest request) {
         Product product = productConverter.toEntity(request);
@@ -288,6 +288,4 @@ public class ProductServiceImpl implements ProductService {
             return Collections.emptyMap();
 
     }
-    
-
 }
