@@ -8,7 +8,7 @@ package com.gsvn.shipmentservice.service.impl;
 import com.gsvn.shipmentservice.client.AuthServiceFeignClient;
 import com.gsvn.shipmentservice.client.RoleServiceFeignClient;
 import com.gsvn.shipmentservice.common.ApiResponse;
-import com.gsvn.shipmentservice.config.CustomAuthenticationToken;
+import com.gsvn.shipmentservice.security.CustomAuthenticationToken;
 import com.gsvn.shipmentservice.model.internal.IntrospectRequest;
 import com.gsvn.shipmentservice.model.internal.IntrospectResponse;
 import com.gsvn.shipmentservice.service.AuthenticationService;

@@ -7,7 +7,7 @@ package com.gsvn.paymentservice.service.impl;
 import com.gsvn.paymentservice.client.AuthServiceFeignClient;
 import com.gsvn.paymentservice.client.RoleServiceFeignClient;
 import com.gsvn.paymentservice.common.ApiResponse;
-import com.gsvn.paymentservice.config.CustomAuthenticationToken;
+import com.gsvn.paymentservice.security.CustomAuthenticationToken;
 import com.gsvn.paymentservice.model.internal.IntrospectRequest;
 import com.gsvn.paymentservice.model.internal.IntrospectResponse;
 import com.gsvn.paymentservice.service.AuthenticationService;

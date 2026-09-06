@@ -3,6 +3,7 @@ package com.gsvn.accountservice.client;
 
 import com.gsvn.accountservice.client.fallback.CustomerServiceClientFallbackFactory;
 import com.gsvn.accountservice.common.ApiResponse;
+import com.gsvn.accountservice.config.InternalFeignConfig;
 import com.gsvn.accountservice.model.internal.CustomerRequest;
 import com.gsvn.accountservice.model.internal.CustomerResponse;
 

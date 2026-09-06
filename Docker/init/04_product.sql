@@ -9,16 +9,16 @@ CREATE TABLE CATEGORY (
                           name VARCHAR(500) NOT NULL UNIQUE,
                           parent_category_id INT REFERENCES CATEGORY(id),
                           description TEXT,
-                          created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                          updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                          updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 CREATE TABLE BRAND (
                        id SERIAL PRIMARY KEY,
                        name VARCHAR(500) NOT NULL UNIQUE,
                        description TEXT,
-                       created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                       updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                       created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                       updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 CREATE TABLE PRODUCT (
@@ -30,7 +30,6 @@ CREATE TABLE PRODUCT (
                          release_date VARCHAR(50),
                          image_url VARCHAR(512),
                          gallery_images JSONB DEFAULT '[]'::jsonb,
-                         sale_status VARCHAR(20) CHECK (sale_status IN ('RUMOR','COMING_SOON','PREORDER_OPEN','PREORDER_CLOSED', 'AVAILABLE')),
                          deleted_at TIMESTAMP,
                          is_active BOOLEAN DEFAULT TRUE,
                          pre_name VARCHAR(255),
@@ -39,8 +38,8 @@ CREATE TABLE PRODUCT (
                          pre_end_at TIMESTAMP WITH TIME ZONE,
                          pre_release_date DATE,
 
-                         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                         updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                         updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 CREATE TABLE PRODUCT_PRE_HISTORY (
@@ -52,7 +51,7 @@ CREATE TABLE PRODUCT_PRE_HISTORY (
                                      pre_release_date DATE,
                                      total_orders_achieved INT DEFAULT 0,
                                      sku_prices_snapshot JSONB DEFAULT '[]'::jsonb,
-                                     archived_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                                     archived_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 CREATE TABLE SKU (
@@ -69,8 +68,8 @@ CREATE TABLE SKU (
                      dimensions_cm JSONB DEFAULT '{"l":0.0, "w":0.0, "h":0.0}'::jsonb,
                      is_active BOOLEAN NOT NULL DEFAULT TRUE,
                      deleted_at TIMESTAMP,
-                     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 
 );
 
@@ -137,28 +136,30 @@ CREATE TRIGGER trg_sku_updated_at BEFORE UPDATE ON sku FOR EACH ROW EXECUTE FUNC
 CREATE OR REPLACE FUNCTION sync_product_sale_status()
     RETURNS TRIGGER AS $$
 BEGIN
-
     IF NEW.pre_is_active = TRUE THEN
-        IF NEW.pre_start_at IS NULL OR NEW.pre_end_at IS NOT NULL THEN
-            IF NOW() < NEW.pre_start_at THEN
-                NEW.sale_status = 'COMING_SOON';
-            ELSIF NOW() BETWEEN NEW.pre_start_at AND NEW.pre_end_at THEN
-                NEW.sale_status = 'PREORDER_OPEN';
-            ELSE
-                NEW.sale_status = 'PREORDER_CLOSED';
-            END IF;
-        END IF;
-    ELSE
-        IF OLD.sale_status IN ('COMING_SOON', 'PREORDER_OPEN', 'PREORDER_CLOSED') THEN
-            NEW.sale_status = 'AVAILABLE';
+        IF NEW.pre_start_at IS NOT NULL AND NOW() < NEW.pre_start_at THEN
+            NEW.sale_status := 'COMING_SOON';
+
+        ELSIF (NEW.pre_start_at IS NULL OR NOW() >= NEW.pre_start_at)
+            AND (NEW.pre_end_at IS NULL OR NOW() <= NEW.pre_end_at) THEN
+            NEW.sale_status := 'PREORDER_OPEN';
 
         ELSE
-            NEW.sale_status = COALESCE(OLD.sale_status, 'RUMOR');
+            NEW.sale_status := 'PREORDER_CLOSED';
+        END IF;
+
+    ELSE
+        IF TG_OP = 'UPDATE' AND OLD.sale_status IN ('COMING_SOON', 'PREORDER_OPEN', 'PREORDER_CLOSED') THEN
+            NEW.sale_status := 'AVAILABLE';
+
+        ELSIF NEW.sale_status IS NULL THEN
+            NEW.sale_status := COALESCE(TG_OP = 'UPDATE' AND OLD.sale_status, 'RUMOR');
         END IF;
     END IF;
 
     RETURN NEW;
-END; $$ LANGUAGE plpgsql;
+END;
+$$ LANGUAGE plpgsql;
 
 
 

@@ -2,6 +2,7 @@ package com.gsvn.accountservice.client;
 
 import com.gsvn.accountservice.client.fallback.NotificationClientFallbackFactory;
 import com.gsvn.accountservice.common.ApiResponse;
+import com.gsvn.accountservice.config.InternalFeignConfig;
 import com.gsvn.accountservice.model.internal.PasswordResetRequest;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;

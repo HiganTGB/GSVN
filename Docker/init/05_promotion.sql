@@ -48,8 +48,8 @@ CREATE TABLE vouchers (
                           is_active BOOLEAN DEFAULT TRUE,
                           deleted_at TIMESTAMP DEFAULT NULL,
                           version INT default 0 NOT NULL,
-                          created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                          updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                          updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- History
@@ -60,7 +60,7 @@ CREATE TABLE voucher_usage_history (
                                        guest_email VARCHAR(255),
                                        order_id BIGINT NOT NULL,
                                        saga_id VARCHAR(50),
-                                       used_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                                       used_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Indexes

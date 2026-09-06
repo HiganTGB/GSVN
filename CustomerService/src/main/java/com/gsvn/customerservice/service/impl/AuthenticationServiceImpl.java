@@ -7,7 +7,7 @@ package com.gsvn.customerservice.service.impl;
 import com.gsvn.customerservice.client.AuthServiceFeignClient;
 import com.gsvn.customerservice.client.RoleServiceFeignClient;
 import com.gsvn.customerservice.common.ApiResponse;
-import com.gsvn.customerservice.config.CustomAuthenticationToken;
+import com.gsvn.customerservice.security.CustomAuthenticationToken;
 import com.gsvn.customerservice.model.internal.IntrospectRequest;
 import com.gsvn.customerservice.model.internal.IntrospectResponse;
 import com.gsvn.customerservice.service.AuthenticationService;

@@ -4,7 +4,7 @@ package com.gsvn.cartservice.service.impl;
 
 import com.gsvn.cartservice.client.AuthServiceFeignClient;
 import com.gsvn.cartservice.common.ApiResponse;
-import com.gsvn.cartservice.config.CustomAuthenticationToken;
+import com.gsvn.cartservice.security.CustomAuthenticationToken;
 import com.gsvn.cartservice.model.internal.IntrospectRequest;
 import com.gsvn.cartservice.model.internal.IntrospectResponse;
 import com.gsvn.cartservice.service.AuthenticationService;

@@ -5,8 +5,8 @@ SET search_path TO cart_db;
 CREATE TABLE cart (
                       id SERIAL PRIMARY KEY,
                       customer_id BIGINT UNIQUE NOT NULL,
-                      created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                      updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                      updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 
@@ -16,8 +16,8 @@ CREATE TABLE cart_item (
                            sku_id INT NOT NULL,
                            is_deposit BOOLEAN NOT NULL ,
                            quantity INT NOT NULL CHECK (quantity > 0),
-                           created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                           updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                           created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                           updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
                            UNIQUE(cart_id, sku_id)
 );
 
@@ -32,7 +32,7 @@ CREATE TABLE wishlist (
                           id SERIAL PRIMARY KEY,
                           customer_id BIGINT NOT NULL,
                           product_id INT NOT NULL,
-                          created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
                           UNIQUE(customer_id, product_id)
 );
 CREATE INDEX idx_wishlist_customer_id ON wishlist(customer_id);

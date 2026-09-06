@@ -2,7 +2,9 @@ package com.gsvn.orderservice.config;
 
 
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.gsvn.orderservice.security.CustomJwtAuthenticationConverter;
+import com.gsvn.orderservice.security.CustomJwtDecoder;
+import com.gsvn.orderservice.security.JwtAuthenticationEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;

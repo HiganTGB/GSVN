@@ -75,19 +75,25 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return generateAuthResponse(user);
     }
     public AuthenticationResponse refreshToken(RefreshRequest request) throws ParseException, JOSEException {
-        var signedJWT = verifyToken(request.token(), true);
-        var jit = signedJWT.getJWTClaimsSet().getJWTID();
-        var userId = signedJWT.getJWTClaimsSet().getStringClaim("userId");
-        var email = signedJWT.getJWTClaimsSet().getSubject();
+        try {
+            var signedJWT = verifyToken(request.token(), true);
+            var jit = signedJWT.getJWTClaimsSet().getJWTID();
+            var userId = signedJWT.getJWTClaimsSet().getStringClaim("userId");
+            var email = signedJWT.getJWTClaimsSet().getSubject();
 
-        long remainingTime = getRemainingMillis(signedJWT);
-        tokenService.blacklistToken(userId, jit, remainingTime);
+            long remainingTime = getRemainingMillis(signedJWT);
+            tokenService.blacklistToken(userId, jit, remainingTime);
 
-        User user = userRepository.findByEmail(email)
-                .orElseGet(() -> {
-                    log.warn("Refresh:{} not existed.",email);
-                    throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);});
-        return generateAuthResponse(user);
+            User user = userRepository.findByEmail(email)
+                    .orElseGet(() -> {
+                        log.warn("Refresh:{} not existed.", email);
+                        throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
+                    });
+            return generateAuthResponse(user);
+        }catch (ParseException|JOSEException e)
+        {
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
     }
     public void logout(LogoutRequest request) {
         try {

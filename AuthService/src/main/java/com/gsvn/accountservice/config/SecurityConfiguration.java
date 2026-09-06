@@ -1,7 +1,10 @@
 package com.gsvn.accountservice.config;
 
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.gsvn.accountservice.security.CustomJwtAuthenticationConverter;
+import com.gsvn.accountservice.security.CustomJwtDecoder;
+import com.gsvn.accountservice.security.InternalApiFilter;
+import com.gsvn.accountservice.security.JwtAuthenticationEntryPoint;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

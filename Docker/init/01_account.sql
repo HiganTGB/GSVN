@@ -27,8 +27,8 @@ CREATE TABLE USERS (
                        deleted_at TIMESTAMP DEFAULT NULL,
                        is_active BOOLEAN NOT NULL DEFAULT TRUE,
                        reference_id BIGINT ,
-                       created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                       updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                       created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                       updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 CREATE INDEX idx_users_active_id ON USERS(user_id)
     WHERE is_active = TRUE AND deleted_at IS NULL;
@@ -37,8 +37,8 @@ CREATE TABLE ROLES (
                        role_id SERIAL PRIMARY KEY,
                        role_name VARCHAR(255) UNIQUE NOT NULL,
                        description VARCHAR(255),
-                       created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                       updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                       created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                       updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 
@@ -46,14 +46,14 @@ CREATE TABLE PERMISSIONS (
                              permission_id SERIAL PRIMARY KEY,
                              permission_name VARCHAR(255) UNIQUE NOT NULL,
                              description VARCHAR(255),
-                             created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                             created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 
 CREATE TABLE USER_ROLE (
                            user_id VARCHAR(36) NOT NULL,
                            role_id INT NOT NULL,
-                           created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                           created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
                            PRIMARY KEY (user_id, role_id)
 );
 CREATE INDEX IF NOT EXISTS idx_user_role_role_id ON USER_ROLE(role_id);
@@ -61,7 +61,7 @@ CREATE INDEX IF NOT EXISTS idx_user_role_role_id ON USER_ROLE(role_id);
 CREATE TABLE ROLE_PERMISSION (
                                  role_id INT NOT NULL,
                                  permission_id INT NOT NULL,
-                                 created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                                 created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
                                  PRIMARY KEY (role_id, permission_id)
 );
 CREATE INDEX IF NOT EXISTS idx_role_perm_perm_id ON ROLE_PERMISSION(permission_id);
@@ -71,8 +71,8 @@ CREATE TABLE USER_PROVIDERS (
                                 user_id VARCHAR(36),
                                 provider_name VARCHAR(50), -- 'GOOGLE', 'FACEBOOK'
                                 provider_user_id VARCHAR(255),
-                                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                                updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                                created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                                updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
                                 UNIQUE(provider_name, provider_user_id)
 );
 CREATE INDEX IF NOT EXISTS idx_user_providers_user_id ON USER_PROVIDERS(user_id);
